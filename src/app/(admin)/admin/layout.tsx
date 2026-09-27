@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import Script from "next/script";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -9,12 +8,6 @@ import AdminShell from "./AdminShell";
 import PWARegister from "./PWARegister";
 import "./admin.css";
 import "@/components/admin-ui/admin-ui.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
 
 export const dynamic = "force-dynamic";
 
@@ -68,7 +61,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           `,
         }}
       />
-      <div className={`admin-layout ${inter.variable}`} style={{ fontFamily: "var(--font-admin)" }} suppressHydrationWarning>
+      <div className="admin-layout" style={{ fontFamily: "var(--font-admin)" }} suppressHydrationWarning>
         <AdminShell
           platformRole={access.user.platformRole}
           userName={access.user.name}

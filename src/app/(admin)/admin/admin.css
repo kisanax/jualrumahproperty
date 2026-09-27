@@ -51,7 +51,7 @@ body[data-theme="dark"],
   --spacing-admin-bottom-nav: 64px;
 
   /* ---- Typography ---- */
-  --font-admin: "Inter", system-ui, -apple-system, sans-serif;
+  --font-admin: "Inter Variable", "Inter", system-ui, -apple-system, sans-serif;
   color-scheme: dark;
 }
 

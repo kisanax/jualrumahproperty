@@ -8,6 +8,7 @@
 }
 
 :root {
+  --font-jakarta: "Plus Jakarta Sans Variable";
   /* Public portal palette — warm orange, restrained neutrals, semantic green. */
   --portal-action: #c24f24;
   --portal-action-hover: #a83d18;
