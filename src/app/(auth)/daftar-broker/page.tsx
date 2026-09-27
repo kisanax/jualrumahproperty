@@ -18,7 +18,7 @@ export default async function BrokerRegistrationPage({ searchParams }: PageProps
     <section className={styles.card}>
       <Link href="/" className={styles.brand}>
         <span className={styles.brandMark}>J</span>
-        <span>jakselproperti</span>
+        <span>jualrumahproperty</span>
       </Link>
       <div className={styles.body}>
         <p className={styles.eyebrow}>Daftar Broker</p>

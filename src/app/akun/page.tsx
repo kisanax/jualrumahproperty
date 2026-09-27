@@ -4,6 +4,12 @@ import { signOut } from "@/auth";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
 import styles from "./account.module.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Akun Saya",
+  robots: { index: false, follow: false },
+};
 
 export default async function AccountPage() {
   const access = await getAccountAccess();
@@ -20,7 +26,7 @@ export default async function AccountPage() {
   return (
     <main className={styles.page}>
       <header className={styles.header}>
-        <Link href="/" className={styles.brand}>jakselproperti</Link>
+        <Link href="/" className={styles.brand}>jualrumahproperty</Link>
         <Link href="/" className={styles.back}>Kembali</Link>
       </header>
       <section className={styles.card}>

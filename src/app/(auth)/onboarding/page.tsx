@@ -30,7 +30,7 @@ export default async function BrokerOnboardingPage({ searchParams }: PageProps<"
     <section className={styles.card}>
       <div className={styles.brand}>
         <span className={styles.brandMark}>J</span>
-        <span>jakselproperti</span>
+        <span>jualrumahproperty</span>
       </div>
       <div className={styles.body}>
         <div className={styles.progress}><span /><span /></div>

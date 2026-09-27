@@ -6,9 +6,10 @@ import { prisma } from "@/lib/prisma";
 import styles from "./agents.module.css";
 
 export const metadata: Metadata = {
-  title: "Our Agents | Jakarta Selatan Properti",
+  title: "Agen Properti Terverifikasi",
   description:
-    "Kenali tim broker terverifikasi Jakarta Selatan Properti — berpengetahuan lokal dan siap membantu Anda menemukan properti pilihan di Jakarta Selatan.",
+    "Temukan agen dan broker properti terverifikasi yang siap membantu pencarian dan pemasaran properti Anda.",
+  alternates: { canonical: "/agents" },
 };
 
 const brokerTypeLabel: Record<string, string> = {

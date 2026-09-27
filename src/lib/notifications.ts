@@ -1,7 +1,7 @@
 import type { PlatformRole } from "@prisma/client";
 
 // =============================================================================
-// KATALOG EVENT NOTIFIKASI — jakselproperti.com
+// KATALOG EVENT NOTIFIKASI — jualrumahproperty.com
 //
 // Preferensi per user disimpan di tabel notification_preferences.
 // Absennya baris = memakai defaultEnabled dari katalog ini.

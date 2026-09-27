@@ -1,18 +1,19 @@
 export const siteConfig = {
-  name: "Jakarta Selatan Properti",
-  shortName: "JSP",
-  tagline: "Koleksi Hunian Premium di Kawasan Elit",
+  name: "Jual Rumah Property",
+  shortName: "JRP",
+  url: "https://jualrumahproperty.com",
+  tagline: "Marketplace properti dijual di Indonesia",
   contact: {
-    email: "info@jakselproperti.com",
+    email: "info@jualrumahproperty.com",
     phone: "+62 811-1234-5678",
   },
   seo: {
-    defaultTitle: "Jakarta Selatan Properti | Real Estate Premium",
+    defaultTitle: "Jual Rumah Property | Marketplace Properti Indonesia",
     defaultDescription:
-      "Temukan rumah, apartemen, tanah, dan properti komersial idaman Anda di Jakarta Selatan dan seluruh wilayah bergengsi lainnya.",
+      "Temukan rumah dijual, apartemen, tanah, ruko, dan properti pilihan dari broker terpercaya di Indonesia.",
   },
   links: {
-    instagram: "https://instagram.com/jakselproperti",
+    instagram: "https://instagram.com/jualrumahproperty",
     whatsapp: "https://wa.me/6281112345678",
   },
 };

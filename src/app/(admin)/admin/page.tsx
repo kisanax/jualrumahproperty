@@ -226,7 +226,7 @@ export default async function AdminDashboard() {
           Dashboard
         </h1>
         <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
-          Ringkasan aktivitas jakselproperti.com
+          Ringkasan aktivitas jualrumahproperty.com
         </p>
       </div>
 

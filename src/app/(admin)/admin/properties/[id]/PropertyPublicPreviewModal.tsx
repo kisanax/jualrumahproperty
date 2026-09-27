@@ -808,7 +808,7 @@ export default function PropertyPublicPreviewModal({
               <div style={{ marginTop: 10 }}>
                 <a
                   href={`https://wa.me/?text=${encodeURIComponent(
-                    `Halo Admin JakselProperti, saya tertarik dengan listing properti ${property.code} (${listing?.title || "Rumah"}) di ${areaName || "Jakarta Selatan"}. Mohon info jadwal survey.`
+                    `Halo Admin Jual Rumah Property, saya tertarik dengan listing properti ${property.code} (${listing?.title || "Rumah"}) di ${areaName || "Jakarta Selatan"}. Mohon info jadwal survey.`
                   )}`}
                   target="_blank"
                   rel="noreferrer"

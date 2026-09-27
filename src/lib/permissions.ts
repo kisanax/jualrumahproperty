@@ -1,7 +1,7 @@
 import type { PlatformRole } from "@prisma/client";
 
 // =============================================================================
-// PERMISSION MATRIX — jakselproperti.com
+// PERMISSION MATRIX — jualrumahproperty.com
 //
 // Model flat: MEMBER (portal) + SUPER_ADMIN / SUPPORT (staff) + BROKER.
 //

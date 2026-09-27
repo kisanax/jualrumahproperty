@@ -142,7 +142,7 @@ export default async function Home() {
         </MobilePropertyFilter>
       )}
 
-      <a className="floating-cta" href="https://wa.me/6281234567890?text=Halo%20Jaksel%20Properti%2C%20saya%20ingin%20konsultasi." target="_blank" rel="noreferrer" aria-label="Konsultasi melalui WhatsApp">
+      <a className="floating-cta" href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20ingin%20konsultasi." target="_blank" rel="noreferrer" aria-label="Konsultasi melalui WhatsApp">
         <span className="pulse" />
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.4-5a8.4 8.4 0 1 1 16.1-3.8Z"/><path d="M8.1 7.8c.2-.4.4-.4.7-.4h.5c.2 0 .3 0 .5.5l.7 1.7c.1.2 0 .4-.1.6l-.6.7c-.2.2-.1.4 0 .6.5 1 1.3 1.8 2.2 2.3.3.2.5.2.7 0l.8-1c.2-.2.4-.2.6-.1l1.8.8c.3.2.5.2.5.4 0 .2-.1 1.2-.8 1.8-.6.6-1.5.8-2.5.5-1.1-.3-2.6-.9-4.3-2.4-1.4-1.3-2.4-2.9-2.7-4-.3-1.1 0-1.9.4-2.5Z"/></svg>
         <span className="cta-copy"><small>BUTUH BANTUAN?</small><strong>Chat dengan kami</strong></span>

@@ -501,7 +501,7 @@ export default function EditPropertyClient({
                 required
               />
               <div style={{ fontSize: 11, color: "var(--color-admin-text-muted)", marginTop: 4 }}>
-                Alamat lengkap hanya dapat diakses oleh tim internal admin jakselproperti.
+                Alamat lengkap hanya dapat diakses oleh tim internal admin Jual Rumah Property.
               </div>
             </div>
           </div>

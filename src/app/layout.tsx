@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { siteConfig } from "@/lib/site-config";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -10,8 +11,27 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Jaksel Properti | Properti Pilihan Jakarta Selatan",
-  description: "Temukan rumah, apartemen, tanah, dan properti pilihan untuk dijual di Jakarta Selatan.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.seo.defaultTitle,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.seo.defaultDescription,
+  applicationName: siteConfig.name,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: siteConfig.seo.defaultTitle,
+    description: siteConfig.seo.defaultDescription,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.seo.defaultTitle,
+    description: siteConfig.seo.defaultDescription,
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
@@ -23,5 +43,4 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     </html>
   );
 }
-
 

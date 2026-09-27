@@ -19,13 +19,14 @@ const inter = Inter({
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Admin | jakselproperti.com",
-  description: "Internal admin panel — jakselproperti.com",
+  title: "Admin | Jual Rumah Property",
+  description: "Panel internal Jual Rumah Property",
+  robots: { index: false, follow: false },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Jaksel Admin",
+    title: "JRP Admin",
   },
   icons: {
     icon: "/icons/icon-192x192.png",

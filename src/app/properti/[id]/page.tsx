@@ -8,6 +8,8 @@ import { PropertyGallery } from "./PropertyGallery";
 import { PropertyShare } from "./PropertyShare";
 import { PropertyAccordion } from "./PropertyAccordion";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import { siteConfig } from "@/lib/site-config";
+import { getMediaUrl } from "@/lib/storage";
 
 export const dynamic = "force-dynamic";
 
@@ -93,9 +95,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         take: 1,
         orderBy: { createdAt: "desc" },
       },
+      propertyMedia: {
+        where: { type: "PHOTO", isPublic: true },
+        orderBy: [{ isPrimary: "desc" }, { sortOrder: "asc" }],
+        take: 1,
+      },
     },
   });
-  if (!property) return { title: "Properti Tidak Ditemukan | Jaksel Properti" };
+  if (!property) return { title: "Properti Tidak Ditemukan", robots: { index: false } };
 
   const listing = property.listings[0];
   const locationDisplay = `${
@@ -106,11 +113,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `${typeLabel[property.type] || property.type} di ${locationDisplay}`
   );
 
+  const description =
+    listing?.description?.slice(0, 160) ||
+    `Temukan ${typeLabel[property.type]?.toLowerCase()} pilihan di ${locationDisplay}. Lihat harga, foto, dan spesifikasi lengkap.`;
+  const canonical = `/properti/${property.id}`;
+  const image = property.propertyMedia[0]
+    ? getMediaUrl(property.propertyMedia[0].filePath)
+    : undefined;
+
   return {
-    title: `${title} | Jaksel Properti`,
-    description:
-      listing?.description?.slice(0, 160) ||
-      `Temukan ${typeLabel[property.type]?.toLowerCase()} pilihan di ${locationDisplay}, Jakarta Selatan.`,
+    title,
+    description,
+    alternates: { canonical },
+    robots: previewListings ? { index: false, follow: false } : undefined,
+    openGraph: {
+      type: "website",
+      url: canonical,
+      siteName: siteConfig.name,
+      title,
+      description,
+      images: image ? [{ url: image }] : undefined,
+    },
   };
 }
 
@@ -160,7 +183,7 @@ export default async function PropertyDetailPage({ params }: Props) {
 
   // WhatsApp Pre-filled Messages
   const waShowingText = encodeURIComponent(
-    `Halo Jaksel Properti, saya ingin menjadwalkan kunjungan / survei untuk properti:\n\n` +
+    `Halo Jual Rumah Property, saya ingin menjadwalkan kunjungan / survei untuk properti:\n\n` +
       `*${title}*\n` +
       `ID Listing: ${property.code}\n` +
       `Lokasi: ${locationDisplay}\n\n` +
@@ -168,7 +191,7 @@ export default async function PropertyDetailPage({ params }: Props) {
   );
 
   const waInfoText = encodeURIComponent(
-    `Halo Jaksel Properti, mohon informasi lebih lengkap terkait unit:\n\n` +
+    `Halo Jual Rumah Property, mohon informasi lebih lengkap terkait unit:\n\n` +
       `*${title}*\n` +
       `ID Listing: ${property.code}\n` +
       `Lokasi: ${locationDisplay}\n\n` +

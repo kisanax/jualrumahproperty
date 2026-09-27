@@ -13,12 +13,12 @@ const content = {
   "broker-rejected": {
     eyebrow: "Verifikasi ditolak",
     title: "Profil belum dapat disetujui",
-    description: "Hubungi tim jakselproperti bila Anda memerlukan penjelasan atau ingin mengajukan peninjauan ulang.",
+    description: "Hubungi tim Jual Rumah Property bila Anda memerlukan penjelasan atau ingin mengajukan peninjauan ulang.",
   },
   "broker-suspended": {
     eyebrow: "Akses ditangguhkan",
     title: "Workspace sedang ditangguhkan",
-    description: "Akses operasional akun ini dihentikan sementara. Hubungi tim jakselproperti untuk bantuan.",
+    description: "Akses operasional akun ini dihentikan sementara. Hubungi tim Jual Rumah Property untuk bantuan.",
   },
 } as const;
 
@@ -33,7 +33,7 @@ export default async function BrokerStatusPage() {
 
   return (
     <section className={styles.card}>
-      <Link href="/" className={styles.brand}><span className={styles.brandMark}>J</span><span>jakselproperti</span></Link>
+      <Link href="/" className={styles.brand}><span className={styles.brandMark}>J</span><span>jualrumahproperty</span></Link>
       <div className={styles.body}>
         <p className={styles.eyebrow}>{status.eyebrow}</p>
         <h1 className={styles.title}>{status.title}</h1>

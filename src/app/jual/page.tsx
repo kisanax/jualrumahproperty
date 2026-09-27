@@ -22,9 +22,10 @@ const types: Record<PropertyType, string> = {
 const preview = process.env.PORTAL_PREVIEW_LISTINGS === "true";
 
 export const metadata: Metadata = {
-  title: "Properti Dijual | Jakarta Selatan Properti",
+  title: "Rumah dan Properti Dijual",
   description:
-    "Temukan rumah, apartemen, tanah, dan ruko dijual di Jakarta Selatan. Jelajahi foto, harga, serta spesifikasi properti pilihan Anda.",
+    "Cari rumah dijual, apartemen, tanah, dan ruko di Indonesia. Jelajahi foto, harga, lokasi, dan spesifikasi properti pilihan Anda.",
+  alternates: { canonical: "/jual" },
   ...(preview ? { robots: { index: false, follow: false } } : {}),
 };
 
@@ -436,7 +437,7 @@ export default async function SalesPage({
 
         {/* ── FOOTER ── */}
         <footer className={styles.footer}>
-          <Link href="/">Jakarta Selatan Properti</Link>
+          <Link href="/">Jual Rumah Property</Link>
           <p>Properti pilihan. Perspektif yang personal.</p>
           <Link href="/daftar-broker">Bergabung sebagai broker ↗</Link>
         </footer>

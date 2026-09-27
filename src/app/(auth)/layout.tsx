@@ -5,8 +5,8 @@ import styles from "./auth.module.css";
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Masuk | jakselproperti",
-  description: "Masuk ke akun jakselproperti Anda.",
+  title: "Masuk | Jual Rumah Property",
+  description: "Masuk ke akun Jual Rumah Property Anda.",
   robots: { index: false, follow: false },
 };
 

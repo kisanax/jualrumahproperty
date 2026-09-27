@@ -20,7 +20,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "jakselproperti.com",
+        hostname: "jualrumahproperty.com",
       },
     ],
   },

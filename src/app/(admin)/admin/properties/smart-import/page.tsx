@@ -4,7 +4,7 @@ import SmartImportClient from "./SmartImportClient";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Smart Import WhatsApp — JakselProperti Admin",
+  title: "Smart Import WhatsApp — Jual Rumah Property Admin",
 };
 
 export default async function SmartImportPage() {

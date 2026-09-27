@@ -14,7 +14,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
     if (typeof window !== "undefined") {
       return window.location.href;
     }
-    return `https://jakselproperti.com/properti/${code}`;
+    return `https://jualrumahproperty.com/properti/${code}`;
   };
 
   const handleCopy = async () => {
@@ -27,7 +27,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
     }
   };
 
-  const shareText = encodeURIComponent(`${title} — Jaksel Properti`);
+  const shareText = encodeURIComponent(`${title} — Jual Rumah Property`);
   const encodedUrl = encodeURIComponent(getShareUrl());
 
   return (

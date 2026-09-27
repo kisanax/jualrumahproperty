@@ -1,4 +1,4 @@
-// Jaksel Properti Admin — Service Worker Cache Purge & Auto-Update
+// Jual Rumah Property Admin — Service Worker Cache Purge & Auto-Update
 const CACHE_NAME = "jaksel-admin-v2-purge";
 
 // Install: Immediately take over without waiting

@@ -170,7 +170,7 @@ export default function AdminShell({
         <div className="admin-sidebar-logo">
           <Home size={22} style={{ color: "var(--color-admin-accent)" }} />
           <div>
-            <h1>jakselproperti</h1>
+            <h1>jualrumahproperty</h1>
             <span>Broker Workspace</span>
           </div>
           {/* Close button for mobile */}
@@ -242,7 +242,7 @@ export default function AdminShell({
               <Menu size={22} />
             </button>
             <div className="admin-topbar-brand">
-              <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em" }}>jakselproperti</span>
+              <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em" }}>jualrumahproperty</span>
               <span style={{ fontSize: 10, fontWeight: 600, color: "var(--color-admin-accent)", marginLeft: 6, textTransform: "uppercase" }}>Workspace</span>
             </div>
           </div>

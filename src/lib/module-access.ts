@@ -2,7 +2,7 @@ import type { PlatformRole } from "@prisma/client";
 import type { PrismaClient } from "@prisma/client";
 
 // =============================================================================
-// KONFIGURASI AKSES MODUL — jakselproperti.com
+// KONFIGURASI AKSES MODUL — jualrumahproperty.com
 //
 // Matriks role × modul, diedit SUPER_ADMIN via /admin/settings/module-access.
 // Bila baris DB belum ada (mis. sebelum seed), fallback ke DEFAULTS di bawah.

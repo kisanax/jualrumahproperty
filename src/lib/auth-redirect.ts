@@ -4,8 +4,8 @@ export function safeReturnTo(value: FormDataEntryValue | string | null | undefin
   if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//")) return null;
 
   try {
-    const url = new URL(value, "https://jakselproperti.local");
-    if (url.origin !== "https://jakselproperti.local") return null;
+    const url = new URL(value, "https://jualrumahproperty.local");
+    if (url.origin !== "https://jualrumahproperty.local") return null;
     const allowed = PUBLIC_RETURN_PATHS.some(
       (path) => url.pathname === path || url.pathname.startsWith(`${path}/`),
     );
