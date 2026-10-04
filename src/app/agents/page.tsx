@@ -6,6 +6,9 @@ import PortalFooter from "@/components/portal/PortalFooter";
 import { prisma } from "@/lib/prisma";
 import styles from "./agents.module.css";
 
+// Data broker live — jangan di-prerender saat build (menghindari koneksi DB saat next build).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Agen Properti Terverifikasi",
   description:

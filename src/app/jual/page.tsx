@@ -9,6 +9,10 @@ import { prisma } from "@/lib/prisma";
 import { getMediaUrl } from "@/lib/storage";
 import styles from "./sales.module.css";
 
+// Data live (search & filter) — jangan di-prerender saat build.
+// Tanpa ini, next build meng-query database (di host tanpa DB siap → build hang/timeout).
+export const dynamic = "force-dynamic";
+
 // ---------------------------------------------------------------------------
 // Constants & Helpers
 // ---------------------------------------------------------------------------

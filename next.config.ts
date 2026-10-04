@@ -11,6 +11,9 @@ const localDevOrigins = [
 ];
 
 const nextConfig: NextConfig = {
+  // NEXT_DIST_DIR: opsional, untuk verifikasi build lokal ke folder terpisah
+  // (default tetap .next di produksi).
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   allowedDevOrigins: localDevOrigins,
   images: {
     remotePatterns: [

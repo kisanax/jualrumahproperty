@@ -51,3 +51,6 @@ next-env.d.ts
 /scratch/
 /.kilo/
 backup.sql
+
+# build verification (local only)
+.next-verify
