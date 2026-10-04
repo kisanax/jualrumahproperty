@@ -1,0 +1,107 @@
+name: Build & Deploy ke Hostinger
+
+# Build dijalankan di server GitHub (cepat), hasil jadi (standalone) dikirim
+# via SSH ke VPS Hostinger — build tidak pernah jalan di Hostinger lagi.
+#
+# Secrets wajib di GitHub → Settings → Secrets and variables → Actions:
+#   SSH_HOST         — IP VPS (145.79.14.220)
+#   SSH_PORT         — port SSH (65002)
+#   SSH_USERNAME     — user SSH (u103983663)
+#   SSH_PRIVATE_KEY  — private key PEM penuh (pasangan dari pubkey di authorized_keys)
+#   DEPLOY_PATH      — direktori app di VPS, contoh: /home/u103983663/apps/jualrumahproperty
+# Secrets opsional:
+#   RESTART_COMMAND  — perintah restart setelah ekstrak, mis. pm2 restart jrp
+#                      (kosong = lewati; bisa juga restart via panel Hostinger)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: false
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_MODE: standalone
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Dummy env hanya agar import modul (Prisma/Auth) tidak error saat build.
+      # Tidak dipakai untuk query — semua halaman data sudah force-dynamic.
+      DATABASE_URL: "mysql://build:build@127.0.0.1:3306/build"
+      AUTH_SECRET: "build-only-dummy-secret"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (standalone)
+        run: npm run build
+
+      - name: Susun paket standalone
+        run: |
+          cp -r public .next/standalone/public
+          mkdir -p .next/standalone/.next
+          cp -r .next/static .next/standalone/.next/static
+          tar -czf standalone.tgz -C .next/standalone .
+
+      - name: Validasi secrets SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          missing=""
+          [ -z "$SSH_HOST" ] && missing="$missing SSH_HOST"
+          [ -z "$SSH_PRIVATE_KEY" ] && missing="$missing SSH_PRIVATE_KEY"
+          [ -z "$DEPLOY_PATH" ] && missing="$missing DEPLOY_PATH"
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets belum diset:$missing — lihat .github/workflows/deploy.yml header."
+            exit 1
+          fi
+
+      - name: Upload artifact ke VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: standalone.tgz
+          target: ${{ secrets.DEPLOY_PATH }}
+          overwrite: true
+
+      - name: Ekstrak di VPS
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.DEPLOY_PATH }}
+            mkdir -p current
+            tar -xzf standalone.tgz -C current
+            rm -f standalone.tgz
+            echo "✅ Release terpasang di $(pwd)/current"
+
+      - name: Restart aplikasi (opsional)
+        env:
+          RESTART_COMMAND: ${{ secrets.RESTART_COMMAND }}
+        if: env.RESTART_COMMAND != ''
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: ${{ env.RESTART_COMMAND }}

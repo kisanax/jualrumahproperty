@@ -14,6 +14,13 @@ const nextConfig: NextConfig = {
   // NEXT_DIST_DIR: opsional, untuk verifikasi build lokal ke folder terpisah
   // (default tetap .next di produksi).
   distDir: process.env.NEXT_DIST_DIR || ".next",
+  // Standalone output hanya untuk build CI (GitHub Actions → deploy artifact ke Hostinger).
+  // Build lokal & panel Hostinger tetap memakai mode normal.
+  output: process.env.BUILD_MODE === "standalone" ? "standalone" : undefined,
+  // Pastikan engine Prisma ikut ter-trace ke bundle standalone.
+  outputFileTracingIncludes: {
+    "/**": ["./node_modules/.prisma/**", "./node_modules/@prisma/**"],
+  },
   allowedDevOrigins: localDevOrigins,
   images: {
     remotePatterns: [
