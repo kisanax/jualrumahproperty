@@ -8,6 +8,7 @@ interface SmartHeaderProps {
   navSlot: ReactNode;
   searchSlot: ReactNode;
   compactSearchSlot: ReactNode;
+  mobileNavSlot: ReactNode;
 }
 
 export default function SmartHeader({
@@ -15,6 +16,7 @@ export default function SmartHeader({
   navSlot,
   searchSlot,
   compactSearchSlot,
+  mobileNavSlot,
 }: SmartHeaderProps) {
   const [atScrollTop, setAtScrollTop] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -71,6 +73,11 @@ export default function SmartHeader({
       data-at-scroll-top={atScrollTop ? "true" : "false"}
       data-search-open={searchOpen ? "true" : "false"}
     >
+      <div className={styles.mobileTopBar}>
+        <div className={styles.mobileBrand}>{logoSlot}</div>
+        <div className={styles.mobileNav}>{mobileNavSlot}</div>
+      </div>
+
       {/* ─── ROW 1: Top Bar (Logo | Center Pill | Profile/Nav) ─── */}
       <div className={styles.topBar}>
         <div className={styles.logoCol}>{logoSlot}</div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useId } from "react";
 import { signOut } from "next-auth/react";
 import styles from "./AccountDropdown.module.css";
 
@@ -21,6 +21,8 @@ export default function AccountDropdown({
 }: AccountDropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -29,7 +31,10 @@ export default function AccountDropdown({
       }
     }
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape" && open) {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     document.addEventListener("keydown", handleEscape);
@@ -37,7 +42,7 @@ export default function AccountDropdown({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, []);
+  }, [open]);
 
   const roleLabel =
     platformRole === "SUPER_ADMIN"
@@ -53,30 +58,14 @@ export default function AccountDropdown({
 
   return (
     <div ref={ref} className={styles.accContainer}>
-      {/* ─── Globe Button ─── */}
-      <button
-        type="button"
-        className={styles.globeBtn}
-        aria-label="Pilihan Bahasa dan Wilayah"
-        title="Jakarta Selatan · IDR (Rp)"
-        onClick={() => {
-          window.location.href = "/jual";
-        }}
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
-          <path d="M2 12h20" />
-        </svg>
-      </button>
-
       {/* ─── Pure Round Burger Button [ ☰ ] (Identical to Airbnb) ─── */}
       <button
+        ref={triggerRef}
         type="button"
         className={styles.burgerBtn}
         onClick={() => setOpen(!open)}
         aria-expanded={open}
-        aria-haspopup="true"
+        aria-controls={menuId}
         aria-label={isLoggedIn ? "Menu Akun Pengguna" : "Buka Menu Navigasi"}
       >
         <div className={styles.burgerLines} aria-hidden="true">
@@ -88,7 +77,7 @@ export default function AccountDropdown({
 
       {/* ─── Airbnb-Style Floating Dropdown Card ─── */}
       {open && (
-        <div className={styles.menuCard} role="menu">
+        <nav className={styles.menuCard} id={menuId} aria-label="Menu akun dan navigasi">
           {isLoggedIn ? (
             /* Logged-In Menu: Clean Text Info, No Ellipses */
             <>
@@ -100,48 +89,39 @@ export default function AccountDropdown({
 
               <div className={styles.menuDivider} />
 
+              <Link href="/jual" className={styles.menuItem} onClick={() => setOpen(false)}>
+                Jelajahi Properti
+              </Link>
+
               <Link
                 href={isMember ? "/akun" : "/admin"}
                 className={`${styles.menuItem} ${styles.menuItemBold}`}
                 onClick={() => setOpen(false)}
-                role="menuitem"
               >
                 {isMember ? "Akun Saya" : "Dashboard Operasional"}
               </Link>
 
               {isMember ? (
-                <Link href="/daftar-broker" className={styles.menuItem} onClick={() => setOpen(false)} role="menuitem">
+                <Link href="/daftar-broker" className={styles.menuItem} onClick={() => setOpen(false)}>
                   Menjadi Broker
                 </Link>
               ) : (
                 <>
-                  <Link href="/admin/properties" className={styles.menuItem} onClick={() => setOpen(false)} role="menuitem">
+                  <Link href="/admin/properties" className={styles.menuItem} onClick={() => setOpen(false)}>
                     Kelola Properti
                   </Link>
-                  <Link href="/admin/settings" className={styles.menuItem} onClick={() => setOpen(false)} role="menuitem">
+                  <Link href="/admin/settings" className={styles.menuItem} onClick={() => setOpen(false)}>
                     Pengaturan Akun
                   </Link>
                 </>
               )}
 
-              <div className={styles.menuDivider} />
-
-              <Link
-                href="/jual"
-                className={styles.menuItem}
-                onClick={() => setOpen(false)}
-                role="menuitem"
-              >
-                Jelajahi Listing
-              </Link>
-
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Jaksel%20Properti%2C%20saya%20butuh%20bantuan."
+                href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20butuh%20bantuan."
                 target="_blank"
                 rel="noreferrer"
                 className={styles.menuItem}
                 onClick={() => setOpen(false)}
-                role="menuitem"
               >
                 <svg
                   className={styles.menuIcon}
@@ -175,12 +155,11 @@ export default function AccountDropdown({
             /* Guest (Not Logged In) Menu — Matches Airbnb Exactly */
             <>
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Jaksel%20Properti%2C%20saya%20butuh%20bantuan."
+                href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20butuh%20bantuan."
                 target="_blank"
                 rel="noreferrer"
                 className={styles.menuItem}
                 onClick={() => setOpen(false)}
-                role="menuitem"
               >
                 <svg
                   className={styles.menuIcon}
@@ -205,7 +184,6 @@ export default function AccountDropdown({
                 href="/daftar-broker"
                 className={styles.promoItem}
                 onClick={() => setOpen(false)}
-                role="menuitem"
               >
                 <div className={styles.promoContent}>
                   <span className={styles.promoTitle}>Jadi Agen Properti</span>
@@ -215,41 +193,32 @@ export default function AccountDropdown({
                 </div>
               </Link>
 
-              <div className={styles.menuDivider} />
-
-              <Link
-                href="/jual"
-                className={styles.menuItem}
-                onClick={() => setOpen(false)}
-                role="menuitem"
-              >
-                Jelajahi Listing
-              </Link>
-
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Jaksel%20Properti%2C%20saya%20ingin%20konsultasi%20titip%20jual."
+                href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20ingin%20konsultasi%20titip%20jual."
                 target="_blank"
                 rel="noreferrer"
                 className={styles.menuItem}
                 onClick={() => setOpen(false)}
-                role="menuitem"
               >
                 Titip Jual Properti
               </a>
 
               <div className={styles.menuDivider} />
 
+              <Link href="/jual" className={styles.menuItem} onClick={() => setOpen(false)}>
+                Jelajahi Properti
+              </Link>
+
               <Link
                 href="/login"
                 className={`${styles.menuItem} ${styles.menuItemBold}`}
                 onClick={() => setOpen(false)}
-                role="menuitem"
               >
                 Masuk atau Daftar
               </Link>
             </>
           )}
-        </div>
+        </nav>
       )}
     </div>
   );

@@ -3,6 +3,7 @@ import "@fontsource-variable/inter";
 import "@fontsource-variable/plus-jakarta-sans";
 import "./globals.css";
 import { siteConfig } from "@/lib/site-config";
+import DevBadge from "@/components/portal/DevBadge";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="id" suppressHydrationWarning>
       <body suppressHydrationWarning>
         {children}
+        <DevBadge />
       </body>
     </html>
   );

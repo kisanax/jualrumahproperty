@@ -1,21 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { useSyncExternalStore } from "react";
 
 interface PropertyShareProps {
   title: string;
   code: string;
 }
 
+const noopSubscribe = () => () => {};
+
 export function PropertyShare({ title, code }: PropertyShareProps) {
   const [copied, setCopied] = useState(false);
 
-  const getShareUrl = () => {
-    if (typeof window !== "undefined") {
-      return window.location.href;
-    }
-    return `https://jualrumahproperty.com/properti/${code}`;
-  };
+  /* URL browser hanya dibaca setelah mount via useSyncExternalStore —
+     server & client render pertama memakai fallback identik, sehingga
+     tidak ada hydration mismatch (href server vs client sebelumnya beda). */
+  const currentUrl = useSyncExternalStore(
+    noopSubscribe,
+    () => window.location.href,
+    () => `https://jualrumahproperty.com/properti/${code}`
+  );
+
+  const getShareUrl = () => currentUrl;
 
   const handleCopy = async () => {
     try {

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" fill="none">
+  <defs>
+    <filter id="shadow" x="8" y="16" width="80" height="69" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-color="#173A35" flood-opacity=".27"/>
+    </filter>
+    <linearGradient id="grass" x1="25" y1="29" x2="71" y2="62" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8DDB59"/>
+      <stop offset="1" stop-color="#39A85B"/>
+    </linearGradient>
+    <linearGradient id="soil" x1="29" y1="56" x2="70" y2="75" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#C98248"/>
+      <stop offset="1" stop-color="#94522C"/>
+    </linearGradient>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="m25 47 23-14 23 14v22L48 83 25 69V47Z" fill="url(#soil)"/>
+    <path d="m25 47 23 14 23-14L48 33 25 47Z" fill="url(#grass)"/>
+    <path d="m25 47 23 14v22L25 69V47Z" fill="#B66B3C"/>
+    <path d="m48 61 23-14v22L48 83V61Z" fill="#884526"/>
+    <path d="m32 48 16 9 16-9" stroke="#D7F09E" stroke-width="2.6" stroke-linecap="round" opacity=".86"/>
+    <path d="m48 39v13M37 45l22 12M59 45 37 57" stroke="#E9FFD0" stroke-width="2" stroke-linecap="round" opacity=".55"/>
+    <path d="M25 38v12M71 38v12M25 38l6-7M25 38l-6-7M71 38l6-7M71 38l-6-7" stroke="#526C3C" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M26 37v12M70 37v12" stroke="#F5C04E" stroke-width="1.3" stroke-linecap="round"/>
+  </g>
+</svg>

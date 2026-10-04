@@ -1,8 +1,10 @@
 "use client";
 
-import { Children, type ReactNode, useState } from "react";
+import Image from "next/image";
+import { Children, type ReactNode, useEffect, useRef, useState } from "react";
 
 type PropertyFilter = "" | "HOUSE" | "APARTMENT" | "LAND" | "SHOPHOUSE";
+const categoryIconVersion = "20261004-1";
 
 const categories: Array<{ value: PropertyFilter; label: string }> = [
   { value: "", label: "Semua" },
@@ -12,17 +14,43 @@ const categories: Array<{ value: PropertyFilter; label: string }> = [
   { value: "SHOPHOUSE", label: "Ruko" },
 ];
 
-function CategoryIcon({ type }: { type: PropertyFilter }) {
-  if (type === "APARTMENT") {
-    return <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="1"/><path d="M9 7h2M13 7h2M9 11h2M13 11h2M11 21v-5h2v5"/></svg>;
-  }
-  if (type === "LAND") {
-    return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 19 8 8l4 5 3-4 6 10H3Z"/><path d="M3 19h18"/></svg>;
-  }
-  if (type === "SHOPHOUSE") {
-    return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h16v12H4V9ZM3 9l2-5h14l2 5"/><path d="M9 13v8M15 13v8"/></svg>;
-  }
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><path d={type === "HOUSE" ? "m3 11 9-7 9 7v9H3v-9Z" : "M4 11.5 12 5l8 6.5V20H4v-8.5Z"}/><path d="M9 20v-6h6v6"/></svg>;
+/* Ikon kategori animasi (animated WebP 96×96 saat aktif, still saat tidak).
+   Regenerate: node scripts/generate-category-icons.mjs */
+const ICON_FILE: Record<PropertyFilter, string> = {
+  "": "semua",
+  HOUSE: "rumah",
+  APARTMENT: "apartemen",
+  LAND: "tanah",
+  SHOPHOUSE: "ruko",
+};
+
+function CategoryIcon({
+  type,
+  isActive,
+  animationKey,
+}: {
+  type: PropertyFilter;
+  isActive: boolean;
+  animationKey: number;
+}) {
+  const version = `?v=${categoryIconVersion}`;
+  const name = ICON_FILE[type];
+  return (
+    <Image
+      key={animationKey}
+      className="mobile-category-icon"
+      src={
+        (isActive
+          ? `/brand/category-${name}.webp`
+          : `/brand/category-${name}-still.webp`) + version
+      }
+      alt=""
+      aria-hidden="true"
+      width={24}
+      height={24}
+      unoptimized
+    />
+  );
 }
 
 interface MobilePropertyFilterProps {
@@ -30,9 +58,61 @@ interface MobilePropertyFilterProps {
   propertyTypes: string[];
 }
 
+const regionalDrawers = [
+  {
+    id: "jakarta",
+    title: "Kawasan Jakarta",
+    description: "Pilihan properti di Jakarta",
+  },
+  {
+    id: "tangerang-selatan",
+    title: "Kawasan Tangerang Selatan",
+    description: "Pilihan properti di Tangerang Selatan",
+  },
+  {
+    id: "depok",
+    title: "Kawasan Depok",
+    description: "Pilihan properti di Depok",
+  },
+] as const;
+
+function RegionalPropertyDrawer({
+  id,
+  title,
+  description,
+}: (typeof regionalDrawers)[number]) {
+  return (
+    <section className="regional-listing-drawer" aria-labelledby={`${id}-title`}>
+      <span className="listing-drawer-grip" aria-hidden="true" />
+      <header className="regional-listing-drawer-header">
+        <div>
+          <h2 id={`${id}-title`}>{title}</h2>
+          <p>{description}</p>
+        </div>
+        <span className="regional-listing-coming-soon">Segera hadir</span>
+      </header>
+      <div className="regional-placeholder-row" aria-label={`Placeholder ${title}`}>
+        {[0, 1, 2].map((item) => (
+          <article className="regional-placeholder-card" key={item}>
+            <div className="regional-placeholder-photo" aria-hidden="true">
+              <span />
+            </div>
+            <div className="regional-placeholder-copy">
+              <span />
+              <span />
+              <span />
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function MobilePropertyFilter({ children, propertyTypes }: MobilePropertyFilterProps) {
   const [active, setActive] = useState<PropertyFilter>("");
   const [expanded, setExpanded] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
   const cards = Children.toArray(children);
   const visibleCards = cards.filter((_, index) => !active || propertyTypes[index] === active);
   const displayedCards = expanded ? visibleCards : visibleCards.slice(0, 7);
@@ -47,17 +127,23 @@ export default function MobilePropertyFilter({ children, propertyTypes }: Mobile
             className={active === category.value ? "mobile-category-active" : undefined}
             aria-pressed={active === category.value}
             onClick={() => {
+              setAnimationKey((current) => current + 1);
               setActive(category.value);
               setExpanded(false);
             }}
           >
-            <CategoryIcon type={category.value} />
+            <CategoryIcon
+              type={category.value}
+              isActive={active === category.value}
+              animationKey={animationKey}
+            />
             <span>{category.label}</span>
           </button>
         ))}
       </nav>
 
-      <section className="listing-section" id="jual" aria-label="Pilihan properti" aria-live="polite">
+      <section className="listing-section listing-drawer" id="jual" aria-label="Pilihan properti" aria-live="polite">
+        <span className="listing-drawer-grip" aria-hidden="true" />
         <header className="listing-row-header">
           <div>
             <h2>Pilihan properti</h2>
@@ -99,6 +185,10 @@ export default function MobilePropertyFilter({ children, propertyTypes }: Mobile
           </button>
         )}
       </section>
+
+      {regionalDrawers.map((drawer) => (
+        <RegionalPropertyDrawer key={drawer.id} {...drawer} />
+      ))}
     </>
   );
 }

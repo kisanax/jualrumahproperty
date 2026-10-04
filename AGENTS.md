@@ -12,9 +12,20 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # AGENTS.md — jakselproperti.com
 
+## Dokumen panduan (baca berurutan — anti-double)
+1. `docs/BLUEPRINT-v0.3.md` — SATU-SATUNYA sumber keputusan (scope, penomoran, palet, role).
+2. `docs/adr/` — detail tiap keputusan (ADR-001 palet, ADR-002 listing ID, ADR-003 seller/broker).
+3. File ini — aturan coding operasional saja. Bila bertentangan dengan BLUEPRINT/ADR, BLUEPRINT menang.
+4. `docs/PROGRESS.md` — history/changelog, BUKAN acuan keputusan.
+5. Arsip (jangan jadikan acuan): `docs/archive/Blueprint-v0.2.md`,
+   `docs/archive/Blueprint_v0.3_DRAFT.md`, `docs/archive/ui-foundation-v0.3.md`,
+   `../../docs/Blueprint/AUTH-ROLE-IMPLEMENTATION-PLAN-v1.md`
+   (teknis auth, sudah selesai di kode — target model ada di BLUEPRINT §5).
+   Preview visual arsip: `docs/previews/` (sengaja di luar `public/` agar tidak terekspos publik).
+
 ## Project Overview
 
-Platform properti untuk wilayah Jakarta Selatan (akan berkembang nasional).
+Platform properti nasional (berawal Jaksel).
 Stack: **Next.js 16 (App Router) + Prisma 6 + MySQL + TypeScript 5**.
 Foto/video disimpan di **Cloudflare R2** (via AWS S3 SDK) — bukan database,
 bukan lokal. Auth: NextAuth v5 (beta).
@@ -31,11 +42,19 @@ Dokumentasi lengkap fitur yang sudah jadi: `docs/PROGRESS.md`
   (dark), border transparan, radius 8px. Focus → background surface +
   border amber + ring. Gunakan class `.admin-input` / `.ui-field__control`
   — JANGAN bikin style input per-module.
-- **Font UI**: Inter / Geist Sans.
+- **Font UI admin/broker**: Inter / Geist Sans.
 - **Font angka/kode**: Geist Mono / JetBrains Mono.
-- **Public site** (bukan admin/broker): Playfair Display + EB Garamond.
+- **Portal publik**: ikut `docs/BLUEPRINT-v0.3.md` §3 + ADR-001 (merah logo `#C52004`,
+  dasar putih). JANGAN pakai Playfair/EB Garamond kecuali BLUEPRINT memerintahkan.
 - **Prisma model naming**: PascalCase di schema, `@@map("snake_case")` untuk
   nama tabel di MySQL. Kolom: camelCase di kode, `@map("snake_case")` kalau beda.
+
+## Portal publik (ringkas — detail di BLUEPRINT-v0.3 §3 + ADR-001)
+
+- Token tunggal `--portal-*` di `src/app/globals.css`. Larang hex hardcode di module CSS.
+- Dasar putih, aksi merah logo `#C52004`. WA hijau `#128C5E`.
+- Halaman `/agents` di-HIDE via flag (data + route tetap utuh untuk section iklan broker).
+- Detail properti TIDAK menampilkan broker pemilik listing.
 
 ## UI Design System Admin — "Modern SaaS Refined" (Theme C)
 

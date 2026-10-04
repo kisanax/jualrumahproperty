@@ -9,7 +9,6 @@ import {
   Clock,
   Gavel,
   AlertCircle,
-  MapPin,
 } from "lucide-react";
 import Link from "next/link";
 import { effectiveStatus } from "@/lib/auctions";
@@ -43,7 +42,6 @@ async function getDashboardData(actor: OperationalActor) {
     recentListings,
     recentLeads,
     auctionRows,
-    areaCount,
   ] = await Promise.all([
     prisma.property.count({ where: propertyAccessFilter(actor) }),
     prisma.listing.count({ where: combineListingFilters(actor, { status: "ACTIVE" }) }),
@@ -83,7 +81,6 @@ async function getDashboardData(actor: OperationalActor) {
         activeUntil: true,
       },
     }),
-    prisma.area.count({ where: { isActive: true } }),
   ]);
 
   const activeAuctions = auctionRows.filter(
@@ -115,7 +112,6 @@ async function getDashboardData(actor: OperationalActor) {
     totalAuctions: auctionRows.length,
     activeAuctions,
     expiredAuctions,
-    areaCount,
   };
 }
 
@@ -335,18 +331,6 @@ export default async function AdminDashboard() {
           </div>
         </Link>}
 
-        <div className="admin-stat-card">
-          <div
-            className="admin-stat-icon"
-            style={{ backgroundColor: "rgba(6, 118, 71, 0.12)", color: "#067647" }}
-          >
-            <MapPin size={22} />
-          </div>
-          <div>
-            <div className="admin-stat-value">{data.areaCount.toLocaleString("id-ID")}</div>
-            <div className="admin-stat-label">Data Wilayah Tersinkron</div>
-          </div>
-        </div>
       </div>
 
       {/* Two Column: Recent Listings + Recent Leads */}

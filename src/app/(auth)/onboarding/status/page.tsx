@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOut } from "@/auth";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
+import BrandLogo from "@/components/portal/BrandLogo";
 import styles from "../../auth.module.css";
 
 const content = {
@@ -33,7 +34,7 @@ export default async function BrokerStatusPage() {
 
   return (
     <section className={styles.card}>
-      <Link href="/" className={styles.brand}><span className={styles.brandMark}>J</span><span>jualrumahproperty</span></Link>
+      <header className={styles.brand}><BrandLogo /></header>
       <div className={styles.body}>
         <p className={styles.eyebrow}>{status.eyebrow}</p>
         <h1 className={styles.title}>{status.title}</h1>

@@ -1,3 +1,8 @@
+> ARSIP v0.2 — digantikan `BLUEPRINT-v0.3.md` FINAL (29 Sep 2026). Jangan jadikan acuan.
+> Keputusan yang masih berlaku pindah ke BLUEPRINT-v0.3 + `docs/adr/`.
+> (Catatan: isi di bawah direkonstruksi dari backup bacaan 29 Sep 2026 setelah
+> tertimpa akibat tabrakan nama file case-insensitive di Windows.)
+
 Blueprint jakselproperti.com
 Versi: Draft 0.2
 Cakupan: tujuan bisnis, workflow listing, rancangan data, keputusan operasional

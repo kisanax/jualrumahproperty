@@ -8,8 +8,15 @@ import { redirect } from "next/navigation";
 import { safeReturnTo } from "@/lib/auth-redirect";
 
 const loginSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
-  password: z.string().min(8).max(128),
+  // Email ATAU username (tanpa @). Username admin dev: "admin".
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .refine((v) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v) || /^[a-z0-9._-]{2,32}$/.test(v), {
+      message: "Isi email atau username yang valid",
+    }),
+  password: z.string().min(4).max(128),
 });
 
 export async function signInWithEmail(formData: FormData) {
@@ -22,6 +29,7 @@ export async function signInWithEmail(formData: FormData) {
   try {
     const redirectTo = safeReturnTo(formData.get("returnTo")) ?? "/login/redirect";
     await signIn("credentials", {
+      // Diteruskan sebagai "email" — authorize() membedakan email vs username
       email: parsed.data.email,
       password: parsed.data.password,
       redirectTo,

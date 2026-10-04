@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import PortalHeader from "@/components/portal/PortalHeader";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import PortalFooter from "@/components/portal/PortalFooter";
 import { prisma } from "@/lib/prisma";
 import { getMediaUrl } from "@/lib/storage";
 import styles from "./sales.module.css";
@@ -95,6 +96,9 @@ export default async function SalesPage({
   const areaIdRaw = Number(get("area")) || undefined;
   const areaId =
     areaIdRaw && Number.isInteger(areaIdRaw) ? areaIdRaw : undefined;
+  const kawasanId = get("kawasan").slice(0, 64) || undefined;
+  const cityIdRaw = Number(get("city")) || undefined;
+  const cityId = cityIdRaw && Number.isInteger(cityIdRaw) ? cityIdRaw : undefined;
   const budget = get("budget");
   const beds = get("beds");
   const sort = ["newest", "price-asc", "price-desc"].includes(get("sort"))
@@ -124,6 +128,8 @@ export default async function SalesPage({
     property: {
       ...(type ? { type } : {}),
       ...(areaId ? { areaId } : {}),
+      ...(kawasanId ? { kawasanId } : {}),
+      ...(cityId ? { area: { parentId: cityId } } : {}),
       ...(beds && !isNaN(Number(beds))
         ? { bedrooms: { gte: Number(beds) } }
         : {}),
@@ -191,6 +197,8 @@ export default async function SalesPage({
       q: query,
       type: type || "",
       area: areaId ? String(areaId) : "",
+      kawasan: kawasanId || "",
+      city: cityId ? String(cityId) : "",
       budget,
       beds,
       sort,
@@ -204,12 +212,17 @@ export default async function SalesPage({
       <PortalHeader
         activeType={type || ""}
         initialArea={areaId ? String(areaId) : ""}
+        initialKawasan={kawasanId || ""}
+        initialCity={cityId ? String(cityId) : ""}
+        initialQuery={query}
         initialAreaName={areaName}
         initialBudget={budget}
       />
       <main className={styles.content}>
         {/* ── FILTER BAR ── */}
         <form action="/jual" className={styles.filters}>
+          {kawasanId && <input type="hidden" name="kawasan" value={kawasanId} />}
+          {cityId && <input type="hidden" name="city" value={cityId} />}
           <label className={styles.search}>
             <SearchIcon />
             <span className={styles.srOnly}>
@@ -436,11 +449,7 @@ export default async function SalesPage({
         )}
 
         {/* ── FOOTER ── */}
-        <footer className={styles.footer}>
-          <Link href="/">Jual Rumah Property</Link>
-          <p>Properti pilihan. Perspektif yang personal.</p>
-          <Link href="/daftar-broker">Bergabung sebagai broker ↗</Link>
-        </footer>
+        <PortalFooter />
         <MobileBottomNav />
       </main>
     </div>

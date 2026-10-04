@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { signOut } from "@/auth";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
 import { prisma } from "@/lib/prisma";
+import BrandLogo from "@/components/portal/BrandLogo";
 import styles from "../auth.module.css";
 import { submitBrokerOnboarding } from "./actions";
 
@@ -28,10 +29,9 @@ export default async function BrokerOnboardingPage({ searchParams }: PageProps<"
 
   return (
     <section className={styles.card}>
-      <div className={styles.brand}>
-        <span className={styles.brandMark}>J</span>
-        <span>jualrumahproperty</span>
-      </div>
+      <header className={styles.brand}>
+        <BrandLogo />
+      </header>
       <div className={styles.body}>
         <div className={styles.progress}><span /><span /></div>
         <p className={styles.eyebrow}>{heading.eyebrow}</p>

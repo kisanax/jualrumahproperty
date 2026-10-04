@@ -406,21 +406,22 @@ async function main() {
   // -------------------------------------------------------------------------
   console.log("👤 Seeding default admin user...");
 
-  // DEV-ONLY password — ganti sebelum produksi
-  const adminPassword = await hashPassword("jaksel-admin-2026");
+  // DEV-ONLY credentials — ganti sebelum produksi. Login via username ATAU email.
+  const adminPassword = await hashPassword("admin");
 
   const admin = await prisma.user.upsert({
     where: { email: "admin@jakselproperti.com" },
-    update: {},
+    update: { username: "admin", password: adminPassword },
     create: {
       email: "admin@jakselproperti.com",
+      username: "admin",
       name: "Admin",
       password: adminPassword,
       platformRole: "SUPER_ADMIN",
     },
   });
 
-  console.log("   ✅ Default admin created (admin@jakselproperti.com)\n");
+  console.log("   ✅ Default admin created (username: admin / email: admin@jakselproperti.com)\n");
 
   // -------------------------------------------------------------------------
   // 4a. Seed Demo Support User (tier staff: lihat & edit, tanpa kelola user)

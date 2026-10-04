@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Theme C — Form Preview — Admin jakselproperti.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', system-ui, sans-serif; background: #fafafa; color: #101828; padding: 0 0 90px; }
+
+/* ============ TOPBAR ============ */
+.topbar { position: sticky; top: 0; z-index: 50; background: #fff; border-bottom: 1px solid #eaecf0; display: flex; justify-content: space-between; align-items: center; padding: 12px 32px; }
+.topbar .crumb { font-size: 12px; color: #667085; }
+.topbar .crumb b { color: #101828; font-weight: 600; }
+.topbar .who { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #344054; }
+.avatar { width: 28px; height: 28px; border-radius: 50%; background: #fef3c7; color: #92400e; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+
+/* ============ LAYOUT ============ */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 28px 32px; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; }
+.page-head h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.page-head .sub { font-size: 12.5px; color: #667085; margin-top: 4px; }
+.form-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+
+/* ============ CARDS ============ */
+.card { background: #fff; border: 1px solid #eaecf0; border-radius: 12px; box-shadow: 0 1px 2px rgba(16,24,40,.04); padding: 22px; margin-bottom: 20px; }
+.card-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 3px; }
+.card-desc { font-size: 11.5px; color: #667085; margin-bottom: 18px; }
+.sticky { position: sticky; top: 76px; }
+
+/* ============ FORM PRIMITIVES ============ */
+.row { display: grid; gap: 14px; margin-bottom: 14px; }
+.c2 { grid-template-columns: 1fr 1fr; }
+.c3 { grid-template-columns: 1fr 1fr 1fr; }
+.c4 { grid-template-columns: repeat(4, 1fr); }
+label.fl { display: block; font-size: 11px; font-weight: 500; color: #344054; margin-bottom: 6px; }
+label.fl .req { color: #d92d20; margin-left: 2px; }
+label.fl .hint { float: right; color: #98a2b3; font-weight: 400; font-size: 10.5px; }
+
+/* UNDERLINE INPUT (standar project) */
+.uinput { width: 100%; border: 0; border-bottom: 1.5px solid #d0d5dd; background: transparent; padding: 8px 2px; font-size: 13px; font-family: inherit; color: #101828; outline: none; transition: border-color .15s; }
+.uinput:focus { border-bottom-color: #d97706; }
+.uinput::placeholder { color: #98a2b3; }
+.uinput.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+.uinput.error { border-bottom-color: #d92d20; }
+.err-msg { font-size: 10.5px; color: #d92d20; margin-top: 5px; }
+.uinput:disabled { color: #98a2b3; border-bottom-style: dashed; }
+
+/* BOXED INPUT (alternatif ala Stripe) */
+.binput { width: 100%; border: 1px solid #d0d5dd; background: #fff; padding: 8px 12px; font-size: 13px; font-family: inherit; color: #101828; outline: none; border-radius: 8px; box-shadow: 0 1px 2px rgba(16,24,40,.04); transition: border-color .15s, box-shadow .15s; }
+.binput:focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+.binput.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+
+textarea.uinput, textarea.binput { resize: vertical; min-height: 64px; line-height: 1.5; }
+
+/* SELECT */
+select.uinput { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2'%3e%3cpath d='M6 9l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 4px center; background-size: 14px; padding-right: 24px; cursor: pointer; }
+
+/* RADIO PILLS */
+.pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.pill { border: 1px solid #d0d5dd; border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 500; color: #475467; cursor: pointer; background: #fff; display: flex; align-items: center; gap: 7px; }
+.pill .ic { width: 14px; height: 14px; border-radius: 3px; background: #f2f4f7; border: 1px solid #d0d5dd; }
+.pill.on { border-color: #d97706; color: #92400e; background: #fffbf3; }
+.pill.on .ic { background: #d97706; border-color: #d97706; }
+
+/* TOGGLE */
+.tgl-row { display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; background: #f8fafc; border: 1px solid #eaecf0; border-radius: 8px; }
+.tgl-row .t { font-size: 12px; font-weight: 500; color: #344054; }
+.tgl-row .d { font-size: 10.5px; color: #667085; margin-top: 2px; }
+.tgl { width: 36px; height: 20px; border-radius: 99px; background: #d0d5dd; position: relative; flex-shrink: 0; cursor: pointer; }
+.tgl::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.2); transition: left .15s; }
+.tgl.on { background: #d97706; }
+.tgl.on::after { left: 18px; }
+
+/* CHIPS (fasilitas) */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { font-size: 11px; font-weight: 500; padding: 5px 11px; border-radius: 99px; border: 1px solid #d0d5dd; color: #475467; background: #fff; cursor: pointer; }
+.chip.on { background: #fffbf3; border-color: #d97706; color: #92400e; }
+
+/* DROPZONE */
+.drop { border: 1.5px dashed #d0d5dd; border-radius: 10px; padding: 26px 16px; text-align: center; color: #667085; background: #fcfcfd; cursor: pointer; }
+.drop .big { font-size: 12.5px; font-weight: 500; color: #344054; }
+.drop .fmt { font-size: 10.5px; color: #98a2b3; margin-top: 4px; }
+.thumbs { display: flex; gap: 8px; margin-top: 12px; }
+.thumb { width: 84px; height: 62px; border-radius: 8px; background: linear-gradient(135deg,#e4d4b8,#c9b28a); border: 1px solid #eaecf0; position: relative; }
+.thumb .main { position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); background: #101828; color: #fff; font-size: 8.5px; font-weight: 600; padding: 2px 7px; border-radius: 99px; letter-spacing: .04em; white-space: nowrap; }
+
+/* BUTTONS */
+.btn { font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 8px 16px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; }
+.btn.primary { background: #101828; color: #fff; }
+.btn.primary:hover { background: #263241; }
+.btn.ghost { background: #fff; border-color: #d0d5dd; color: #344054; }
+.btn.ghost:hover { background: #f8fafc; }
+.btn.danger { background: #fff; border-color: #fecdca; color: #b42318; }
+.btn.sm { font-size: 11px; padding: 5px 11px; }
+
+/* SUMMARY CARD */
+.sum { border-radius: 12px; overflow: hidden; border: 1px solid #eaecf0; background: #fff; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.sum-head { padding: 16px 18px; border-bottom: 1px solid #eaecf0; font-size: 13px; font-weight: 600; }
+.sum-body { padding: 16px 18px; }
+.kv { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 10px; }
+.kv .k { color: #667085; }
+.kv .v { font-family: 'JetBrains Mono', monospace; font-weight: 500; color: #101828; }
+.kv .v.gold { color: #b45309; }
+.sum-foot { padding: 14px 18px; border-top: 1px solid #eaecf0; display: flex; gap: 8px; }
+.sum-foot .btn { flex: 1; text-align: center; }
+
+/* BADGE */
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2.5px 9px; border-radius: 99px; }
+.badge.auto { background: #fffbf3; color: #92400e; border: 1px solid #fde5c0; }
+.badge.done { background: #ecfdf3; color: #067647; border: 1px solid #c8f2d8; }
+
+/* SECTION LABEL */
+.sect { font-size: 10.5px; text-transform: uppercase; letter-spacing: .07em; color: #98a2b3; font-weight: 600; margin: 26px 0 14px; }
+.sect:first-child { margin-top: 0; }
+
+/* MODAL DEMO */
+.demo-strip { max-width: 1080px; margin: 40px auto 0; padding: 0 32px; }
+.modal-frame { position: relative; background: #f2f4f7; border-radius: 12px; overflow: hidden; border: 1px solid #d0d5dd; }
+.modal-frame .bgdots { padding: 60px 0; display: flex; justify-content: center; }
+.modal { width: 420px; background: #fff; border-radius: 12px; box-shadow: 0 20px 50px -12px rgba(16,24,40,.25); border: 1px solid #eaecf0; }
+.modal-head { padding: 16px 20px; border-bottom: 1px solid #eaecf0; display: flex; justify-content: space-between; align-items: center; }
+.modal-head .t { font-size: 13.5px; font-weight: 600; }
+.modal-head .x { color: #98a2b3; font-size: 15px; cursor: pointer; }
+.modal-body { padding: 18px 20px; }
+.modal-foot { padding: 14px 20px; border-top: 1px solid #eaecf0; display: flex; justify-content: flex-end; gap: 8px; background: #fcfcfd; }
+
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.note { font-size: 11px; color: #667085; margin-top: 8px; line-height: 1.5; }
+h2.demo-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+p.demo-sub { font-size: 12px; color: #667085; margin-bottom: 16px; }
+
+/* ============ FILLED ============ */
+.finput { width: 100%; border: 1px solid transparent; background: #f2f4f7; padding: 9px 12px; font-size: 13px; font-family: inherit; color: #101828; outline: none; border-radius: 8px; transition: background .15s, border-color .15s, box-shadow .15s; }
+.finput:focus { background: #fff; border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+.finput::placeholder { color: #98a2b3; }
+.finput.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+.finput.focus { background: #fff; border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+
+/* ============ FLOATING LABEL (boxed) ============ */
+.fw { position: relative; }
+.fw .fbox { width: 100%; border: 1px solid #d0d5dd; background: #fff; border-radius: 8px; padding: 15px 12px 7px; font-size: 13px; font-family: inherit; color: #101828; outline: none; transition: border-color .15s, box-shadow .15s; }
+.fw .fbox::placeholder { color: transparent; }
+.fw .flabel { position: absolute; left: 13px; top: 14px; font-size: 12.5px; color: #667085; pointer-events: none; transition: all .15s; background: transparent; }
+.fw.filled .flabel, .fw .fbox:focus + .flabel { top: 5px; font-size: 9.5px; text-transform: uppercase; letter-spacing: .03em; color: #98a2b3; }
+.fw .fbox.focus { border-color: #d97706; box-shadow: 0 0 0 3px rgba(217,119,6,.12); }
+
+/* ============ BORDERLESS CELL (tabel) ============ */
+.mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mini-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: #667085; font-weight: 600; padding: 8px 12px; border-bottom: 1px solid #eaecf0; }
+.mini-table td { padding: 6px 12px; border-bottom: 1px solid #f2f4f7; }
+.mini-table .m { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+.cellinput { border: 0; background: transparent; font: inherit; color: inherit; outline: none; padding: 3px 6px; border-radius: 5px; width: 100%; transition: background .12s, box-shadow .12s; }
+.cellinput:hover { background: #f8fafc; cursor: text; }
+.cellinput.editing { background: #fffbf3; box-shadow: 0 1.5px 0 0 #d97706; }
+.cell-hint { font-size: 9.5px; color: #98a2b3; margin-top: 2px; display: none; }
+.mini-table tr.editing .cell-hint { display: block; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="crumb">Admin / <b>Properti / Tambah Baru</b></span>
+  <span class="who"><span>Administrator</span><span class="avatar">AD</span></span>
+</div>
+
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1>Tambah Properti Baru</h1>
+      <div class="sub">Data properti fisik — listing &amp; harga diatur di langkah berikutnya</div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn ghost">Simpan Draft</button>
+      <button class="btn primary">Simpan &amp; Buat Listing</button>
+    </div>
+  </div>
+
+  <div class="form-grid">
+    <!-- ================= FORM UTAMA ================= -->
+    <div>
+      <div class="card">
+        <div class="card-title">Informasi Utama</div>
+        <div class="card-desc">Tipe, lokasi administratif, dan alamat internal</div>
+
+        <div class="row">
+          <div>
+            <label class="fl">Tipe Properti <span class="req">*</span></label>
+            <div class="pills">
+              <div class="pill on"><span class="ic"></span>Rumah</div>
+              <div class="pill"><span class="ic"></span>Apartemen</div>
+              <div class="pill"><span class="ic"></span>Tanah</div>
+              <div class="pill"><span class="ic"></span>Ruko</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row c2">
+          <div>
+            <label class="fl">Kecamatan <span class="req">*</span></label>
+            <select class="uinput">
+              <option>Mampang Prapatan</option><option>Kebayoran Baru</option><option>Cilandak</option>
+            </select>
+          </div>
+          <div>
+            <label class="fl">Kawasan <span class="hint">opsional</span></label>
+            <select class="uinput">
+              <option>— tanpa kawasan —</option><option>Kemang</option><option>Pondok Indah</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="fl">Alamat Lengkap <span class="req">*</span> <span class="hint">internal — tidak tampil publik</span></label>
+            <input class="uinput" value="Jl. Kemang Utara IX No.12, RT 003/RW 005" />
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="fl">Catatan Internal</label>
+            <textarea class="uinput" placeholder="Catatan khusus tim (tidak tampil ke publik)…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Spesifikasi Fisik</div>
+        <div class="card-desc">Angka otomatis ditampilkan dengan font mono</div>
+
+        <div class="row c4">
+          <div><label class="fl">Luas Tanah <span class="hint">m²</span></label><input class="uinput mono" value="320" /></div>
+          <div><label class="fl">Luas Bangunan <span class="hint">m²</span></label><input class="uinput mono" value="280" /></div>
+          <div><label class="fl">Kamar Tidur</label><input class="uinput mono" value="4" /></div>
+          <div><label class="fl">Kamar Mandi</label><input class="uinput mono" value="3" /></div>
+        </div>
+
+        <div class="row c4">
+          <div><label class="fl">Lantai</label><input class="uinput mono" value="2" /></div>
+          <div><label class="fl">Garasi</label><input class="uinput mono" value="1" /></div>
+          <div><label class="fl">Daya Listrik <span class="hint">VA</span></label><input class="uinput mono" value="3500" /></div>
+          <div>
+            <label class="fl">Sumber Air</label>
+            <select class="uinput"><option>PAM</option><option>Sumur</option></select>
+          </div>
+        </div>
+
+        <div class="row c3">
+          <div>
+            <label class="fl">Sertifikat</label>
+            <select class="uinput"><option>SHM</option><option>SHGB</option><option>AJB</option><option>Girik</option></select>
+          </div>
+          <div><label class="fl">Tahun Dibangun</label><input class="uinput mono" value="2018" /></div>
+          <div>
+            <label class="fl">Orientasi Hadap</label>
+            <select class="uinput"><option>Selatan</option><option>Utara</option><option>Barat</option></select>
+          </div>
+        </div>
+
+        <div class="row" style="margin-bottom:0;">
+          <div>
+            <label class="fl">Fasilitas</label>
+            <div class="chips">
+              <span class="chip on">Kolam Renang</span><span class="chip on">Garden</span><span class="chip">Smart Home</span>
+              <span class="chip">Gym</span><span class="chip">Masjid</span><span class="chip">Playground</span>
+              <span class="chip on">Security 24 Jam</span><span class="chip">CCTV</span><span class="chip">One Gate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Listing &amp; Harga</div>
+        <div class="card-desc">Harga disimpan sebagai Decimal(15,0) dalam Rupiah</div>
+
+        <div class="row c2">
+          <div>
+            <label class="fl">Harga Penawaran <span class="req">*</span></label>
+            <input class="uinput mono" value="Rp 8.500.000.000" />
+            <div class="err-msg" style="color:#067647;">✓ Masih dalam rentang pasar kawasan Kemang (±12%)</div>
+          </div>
+          <div>
+            <label class="fl">Harga Minimum Owner <span class="hint">internal</span></label>
+            <input class="uinput mono" value="Rp 7.800.000.000" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-bottom:16px;">
+          <div class="tgl-row">
+            <div><div class="t">Price on Request</div><div class="d">Sembunyikan harga dari publik — tampilkan "Hubungi Kami"</div></div>
+            <div class="tgl"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label class="fl">Judul Listing <span class="hint">0/100</span></label>
+            <input class="uinput" value="Rumah Luas 2 Lantai di Kemang, Jakarta Selatan" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-bottom:0;">
+          <div>
+            <label class="fl">Deskripsi Publik</label>
+            <textarea class="uinput" rows="3">Rumah dengan halaman luas di kawasan elite Kemang. Dekat pusat kuliner, sekolah internasional, dan akses tol.</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Media</div>
+        <div class="card-desc">Foto tersimpan di Cloudflare R2 — bukan database</div>
+        <div class="thumbs">
+          <div class="thumb"><span class="main">FOTO UTAMA</span></div>
+          <div class="thumb"></div>
+          <div class="thumb"></div>
+        </div>
+        <div class="drop" style="margin-top:16px;">
+          <div class="big">Tarik &amp; lepas foto/video di sini</div>
+          <div class="fmt">JPG / PNG / WebP / MP4 — maks 10 file</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PANEL KANAN ================= -->
+    <div>
+      <div class="sum sticky">
+        <div class="sum-head">Ringkasan</div>
+        <div class="sum-body">
+          <div class="kv"><span class="k">Kode Properti</span><span class="v gold">JS-KMG-0002</span></div>
+          <div class="kv"><span class="k">Nomor Publik</span><span class="v">100001-7</span></div>
+          <div class="kv"><span class="k">Kawasan</span><span class="v">KMG</span></div>
+          <div class="kv"><span class="k">Sertifikat</span><span class="v">SHM</span></div>
+          <div class="kv" style="margin-bottom:14px;"><span class="k">Harga</span><span class="v">8,5 M</span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <span class="badge auto">kode otomatis</span>
+            <span class="badge done">siap listing</span>
+          </div>
+        </div>
+        <div class="sum-foot">
+          <button class="btn ghost">Batal</button>
+          <button class="btn primary">Simpan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= DEMO STRIP: MODAL & COMPARISON ================= -->
+<div class="demo-strip">
+  <h2 class="demo-title">Modal — "Tambah Owner"</h2>
+  <p class="demo-sub">Struktur modal sesuai standar project: header sticky, body scroll, footer sticky</p>
+  <div class="modal-frame">
+    <div class="bgdots">
+      <div class="modal">
+        <div class="modal-head"><span class="t">Tambah Owner Baru</span><span class="x">✕</span></div>
+        <div class="modal-body">
+          <div class="row">
+            <div><label class="fl">Nama Owner <span class="req">*</span></label><input class="uinput" placeholder="Nama lengkap sesuai identitas" /></div>
+          </div>
+          <div class="row c2" style="margin-bottom:0;">
+            <div><label class="fl">No. Telepon / WA</label><input class="uinput mono" placeholder="08xx xxxx xxxx" /></div>
+            <div><label class="fl">Email</label><input class="uinput" placeholder="opsional" /></div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button class="btn ghost sm">Batal</button>
+          <button class="btn primary sm">Tambah Owner</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="demo-title" style="margin-top:40px;">Keputusan style input — underline vs boxed</h2>
+  <p class="demo-sub">Standar project sekarang: underline. Look Stripe/Theme C biasanya boxed. Dua-duanya valid di Theme C — kamu yang pilih.</p>
+  <div class="compare">
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title">A — Underline <span class="badge auto" style="margin-left:6px;">standar project</span></div>
+      <div class="card-desc">Minimalis, ringan, elegan — serasi situs publik Playfair</div>
+      <div class="row"><div><label class="fl">Alamat Lengkap</label><input class="uinput" value="Jl. Kemang Utara IX No.12" /></div></div>
+      <div class="row" style="margin-bottom:0;"><div><label class="fl">Harga Penawaran</label><input class="uinput mono" value="Rp 8.500.000.000" /></div></div>
+    </div>
+    <div class="card" style="margin-bottom:0;">
+      <div class="card-title">B — Boxed <span class="badge auto" style="margin-left:6px;">ala Stripe</span></div>
+      <div class="card-desc">Klik area lebih besar, gampang di layar sentuh, states jelas</div>
+      <div class="row"><div><label class="fl">Alamat Lengkap</label><input class="binput" value="Jl. Kemang Utara IX No.12" /></div></div>
+      <div class="row" style="margin-bottom:0;"><div><label class="fl">Harga Penawaran</label><input class="binput mono" value="Rp 8.500.000.000" /></div></div>
+    </div>
+  </div>
+
+  <h2 class="demo-title" style="margin-top:40px;">States input</h2>
+  <p class="demo-sub">Error, disabled, dan focus ring — diperlukan agar form terasa "mahal"</p>
+  <div class="card" style="margin-bottom:0;">
+    <div class="row c3" style="margin-bottom:0;">
+      <div>
+        <label class="fl">Error</label>
+        <input class="uinput error" value="Jl. Kemang" style="border-bottom-color:#d92d20;" />
+        <div class="err-msg">Alamat minimal 10 karakter</div>
+      </div>
+      <div>
+        <label class="fl">Disabled</label>
+        <input class="uinput" value="100001-7" disabled />
+        <div class="err-msg" style="color:#98a2b3;">Nomor publik otomatis</div>
+      </div>
+      <div>
+        <label class="fl">Focus</label>
+        <input class="uinput" value="320" style="border-bottom-color:#d97706;" />
+        <div class="err-msg" style="color:#98a2b3;">Aksen amber saat aktif</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="demo-title" style="margin-top:40px;">Style 3 — Filled</h2>
+  <p class="demo-sub">Background abu lembut tanpa garis keras (Material-style). Area klik besar, jelas mana field mana bukan — nyaman untuk entry seharian.</p>
+  <div class="card" style="margin-bottom:0;">
+    <div class="row c3" style="margin-bottom:0;">
+      <div>
+        <label class="fl">Nama Owner</label>
+        <input class="finput" placeholder="Nama lengkap" />
+        <div class="err-msg" style="color:#98a2b3;">Kosong — label terpisah di atas</div>
+      </div>
+      <div>
+        <label class="fl">Harga Penawaran</label>
+        <input class="finput mono" value="Rp 8.500.000.000" />
+        <div class="err-msg" style="color:#98a2b3;">Terisi</div>
+      </div>
+      <div>
+        <label class="fl">Luas Tanah (m²)</label>
+        <input class="finput mono focus" value="320" />
+        <div class="err-msg" style="color:#98a2b3;">Focus — jadi putih + ring amber</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="demo-title" style="margin-top:40px;">Style 4 — Floating Label (boxed)</h2>
+  <p class="demo-sub">Label "melayang" naik ke atas saat field terisi/fokus (shadcn-style). Form terasa rapat &amp; modern — standar SaaS 2024+.</p>
+  <div class="card" style="margin-bottom:0;">
+    <div class="row c4" style="margin-bottom:0;">
+      <div class="fw">
+        <input class="fbox" placeholder="Nama Owner" />
+        <span class="flabel">Nama Owner</span>
+      </div>
+      <div class="fw filled">
+        <input class="fbox" value="Budi Santoso" />
+        <span class="flabel">Nama Owner</span>
+      </div>
+      <div class="fw filled">
+        <input class="fbox mono" value="08121234567" />
+        <span class="flabel">Telepon / WA</span>
+      </div>
+      <div class="fw filled">
+        <input class="fbox focus" value="Jl. Kemang Utara IX" />
+        <span class="flabel">Alamat</span>
+      </div>
+    </div>
+    <div class="note" style="margin-top:12px;">Kiri → kanan: kosong (label di dalam), terisi (label naik), mono, dan state focus. Semua tetap Theme C: radius 8px, ring amber.</div>
+  </div>
+
+  <h2 class="demo-title" style="margin-top:40px;">Style 5 — Borderless Editable Cell (tabel)</h2>
+  <p class="demo-sub">Input tak terlihat sampai hover/focus — untuk edit cepat harga &amp; catatan langsung di tabel listing, ala Notion database. Bukan pengganti form utama.</p>
+  <div class="card" style="margin-bottom:0;padding:10px;">
+    <table class="mini-table">
+      <tr><th>Nomor</th><th>Properti</th><th>Kawasan</th><th>Harga</th><th>Catatan Internal</th></tr>
+      <tr>
+        <td class="m">100001-7</td><td>Rumah 2LT, SHM</td><td>Kemang</td>
+        <td><input class="cellinput m" value="Rp 8.500.000.000" /></td>
+        <td><input class="cellinput" value="Owner kooperatif" /></td>
+      </tr>
+      <tr class="editing">
+        <td class="m">100002-5</td><td>Rumah mewah, kolam</td><td>Pondok Indah</td>
+        <td><input class="cellinput m editing" value="Rp 15.000.000.000" /><div class="cell-hint">Enter untuk simpan · Esc batal</div></td>
+        <td><input class="cellinput" value="Bisa nego 5%" /></td>
+      </tr>
+      <tr>
+        <td class="m">100003-0</td><td>Tanah 800 m²</td><td>Senopati</td>
+        <td><input class="cellinput m" value="Rp 40.000.000.000" /></td>
+        <td><input class="cellinput" value="" placeholder="—" /></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</body>
+</html>

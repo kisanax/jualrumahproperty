@@ -2,17 +2,58 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import styles from "./MobileBottomNav.module.css";
 
 export default function MobileBottomNavClient({ isLoggedIn }: { isLoggedIn: boolean }) {
   const pathname = usePathname();
+  const [isHidden, setIsHidden] = useState(false);
   const accountHref = isLoggedIn ? "/akun" : `/login?returnTo=${encodeURIComponent(pathname)}`;
   const isExplore = pathname === "/" || pathname === "/jual" || pathname.startsWith("/properti/");
 
+  useEffect(() => {
+    let lastY = window.scrollY;
+    let lastDirection = 0;
+    let directionDistance = 0;
+
+    const handleScroll = () => {
+      const currentY = Math.max(0, window.scrollY);
+      const delta = currentY - lastY;
+      lastY = currentY;
+
+      if (currentY < 56) {
+        directionDistance = 0;
+        setIsHidden(false);
+        return;
+      }
+
+      const direction = Math.sign(delta);
+      if (!direction) return;
+      if (direction !== lastDirection) {
+        lastDirection = direction;
+        directionDistance = 0;
+      }
+      directionDistance += Math.abs(delta);
+
+      if (directionDistance >= 12) {
+        setIsHidden(direction > 0);
+        directionDistance = 0;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <>
-    <div className={styles.spacer} aria-hidden="true" />
-    <nav className={styles.nav} aria-label="Navigasi utama mobile">
+    {pathname !== "/" && <div className={styles.spacer} aria-hidden="true" />}
+    <nav
+      className={`${styles.nav} ${isHidden ? styles.hidden : ""}`}
+      aria-label="Navigasi utama mobile"
+      aria-hidden={isHidden}
+      inert={isHidden}
+    >
       <Link href="/" className={isExplore ? styles.active : undefined} aria-current={isExplore ? "page" : undefined}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
         <span>Jelajah</span>

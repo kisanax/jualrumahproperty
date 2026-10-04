@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
 import { safeReturnTo } from "@/lib/auth-redirect";
+import BrandLogo from "@/components/portal/BrandLogo";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
 import styles from "../auth.module.css";
 import { registerMember } from "./actions";
@@ -31,10 +31,8 @@ export default async function RegistrationPage({
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
       </Link>
       <div className={styles.loginBody}>
-        <Link href="/" className={styles.loginLogo} aria-label="Jakarta Selatan Properti — beranda">
-          <Image src="/logo.png" alt="Jakarta Selatan Properti" width={230} height={80} priority />
-        </Link>
-        <h1 className={styles.loginTitle}>Buat akun</h1>
+        <BrandLogo />
+        <h1 className={styles.loginTitle}>Buat akun jualrumahproperty.com</h1>
         <form action={registerMember} className={styles.loginForm}>
           <input type="hidden" name="returnTo" value={returnTo} />
           <div className={styles.field}><label htmlFor="name" className={styles.srOnly}>Nama lengkap</label><input id="name" name="name" className={styles.loginInput} autoComplete="name" required minLength={2} maxLength={100} placeholder="Nama lengkap" /></div>

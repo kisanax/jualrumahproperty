@@ -16,6 +16,14 @@
     box-shadow: 0 -8px 24px rgba(24, 33, 42, .06);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
+    transform: translateY(0);
+    transition: transform 220ms cubic-bezier(.2, .75, .25, 1);
+    will-change: transform;
+  }
+
+  .nav.hidden {
+    transform: translateY(calc(100% + 2px));
+    pointer-events: none;
   }
 
   .spacer { display: block; height: calc(68px + env(safe-area-inset-bottom)); }
@@ -43,5 +51,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .nav a { transition: none; }
+  .nav, .nav a { transition: none; }
 }

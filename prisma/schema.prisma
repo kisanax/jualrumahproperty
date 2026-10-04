@@ -175,6 +175,7 @@ enum BrokerVerificationStatus {
 model User {
   id            String       @id @default(uuid())
   email         String?      @unique
+  username      String?      @unique
   emailVerified DateTime?
   name          String?
   image         String?      @db.VarChar(1000)

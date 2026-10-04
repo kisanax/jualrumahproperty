@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import PortalHeader from "@/components/portal/PortalHeader";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import PortalFooter from "@/components/portal/PortalFooter";
 import { prisma } from "@/lib/prisma";
 import styles from "./agents.module.css";
 
@@ -135,7 +136,7 @@ export default async function AgentsPage({
           </h2>
           <p className={styles.joinDesc}>
             Anda broker independen atau bagian dari agency? Perluas jangkauan
-            listing Anda bersama Jakarta Selatan Properti. Daftar dengan akun
+            listing Anda bersama Jual Rumah Property. Daftar dengan akun
             Google, lengkapi profil, dan tim internal kami akan meninjaunya.
           </p>
           <Link href="/daftar-broker?mode=daftar" className={styles.joinButton}>
@@ -148,11 +149,7 @@ export default async function AgentsPage({
         </section>
 
         {/* ── FOOTER ── */}
-        <footer className={styles.footer}>
-          <Link href="/">Jakarta Selatan Properti</Link>
-          <p>Properti pilihan. Perspektif yang personal.</p>
-          <Link href="/jual">Lihat properti dijual</Link>
-        </footer>
+        <PortalFooter />
         <MobileBottomNav />
       </main>
     </div>

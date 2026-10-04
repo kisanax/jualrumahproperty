@@ -1,0 +1,21 @@
+/* ─── Halaman /favorit ─── */
+.fav-content{width:min(1420px,calc(100% - 56px));margin:0 auto;padding:64px 0 140px}
+.fav-icon{width:64px;height:64px;display:grid;place-items:center;margin:0 auto 20px;border:1px solid #e7e3dc;border-radius:50%;color:var(--portal-action)}
+.fav-icon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6}
+.fav-eyebrow{margin:0 0 10px;text-align:center;color:var(--portal-action-deep);font:700 11px/1 var(--font-jakarta),system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.fav-content h1{margin:0;text-align:center;color:var(--portal-ink);font:400 clamp(34px,6vw,52px)/1.1 var(--font-seasons),Georgia,serif}
+.fav-sub{max-width:500px;margin:16px auto 0;text-align:center;color:var(--portal-muted);line-height:1.65}
+
+.fav-empty{margin:34px auto 0;max-width:460px;text-align:center;padding:40px 28px;border:1px solid #ebe7df;border-radius:16px;background:#faf9f6}
+.fav-empty-icon{width:56px;height:56px;display:grid;place-items:center;margin:0 auto 16px;border-radius:50%;background:#fff;color:var(--portal-action);box-shadow:0 2px 10px rgba(21,32,44,.06)}
+.fav-empty-icon svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6}
+.fav-empty-title{margin:0;font:600 16px var(--font-jakarta),system-ui,sans-serif;color:var(--portal-ink)}
+.fav-empty-sub{margin:8px 0 20px;color:var(--portal-muted);font-size:14px;line-height:1.6}
+.fav-empty-cta{min-height:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 22px;border-radius:10px;background:var(--portal-action);color:#fff;font:700 15px var(--font-jakarta),system-ui,sans-serif;text-decoration:none;transition:opacity .15s}
+.fav-empty-cta:hover{opacity:.92}
+
+.fav-grid-wrap{margin-top:40px}
+.fav-loading{margin:0 0 16px;color:var(--portal-muted);font-size:13px}
+.fav-count{margin:24px 0 0;text-align:center;color:var(--portal-muted);font-size:12px}
+
+@media(max-width:640px){.fav-content{padding-top:40px}}

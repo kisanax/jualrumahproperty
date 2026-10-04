@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { signOut } from "@/auth";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
+import PortalHeader from "@/components/portal/PortalHeader";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import PortalFooter from "@/components/portal/PortalFooter";
 import styles from "./account.module.css";
 import type { Metadata } from "next";
 
@@ -25,25 +27,25 @@ export default async function AccountPage() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.brand}>jualrumahproperty</Link>
-        <Link href="/" className={styles.back}>Kembali</Link>
-      </header>
-      <section className={styles.card}>
-        <div className={styles.avatar}>{(access.user.name || access.user.email || "A").charAt(0).toUpperCase()}</div>
-        <div>
-          <p className={styles.kicker}>Akun saya</p>
+      <PortalHeader />
+      <section className={styles.content}>
+        <div className={styles.card}>
+          <div className={styles.avatar} aria-hidden="true">
+            {(access.user.name || access.user.email || "A").charAt(0).toUpperCase()}
+          </div>
+          <p className={styles.eyebrow}>Akun saya</p>
           <h1>{access.user.name || "Pengguna"}</h1>
           <p className={styles.email}>{access.user.email}</p>
+          <div className={styles.actions}>
+            <Link href={destination.href} className={styles.primary}>{destination.label}</Link>
+            <Link href="/jual" className={styles.secondary}>Jelajahi properti</Link>
+          </div>
+          <form action={async () => { "use server"; await signOut({ redirectTo: "/" }); }}>
+            <button type="submit" className={styles.logout}>Keluar</button>
+          </form>
         </div>
-        <div className={styles.actions}>
-          <Link href={destination.href} className={styles.primary}>{destination.label}</Link>
-          <Link href="/jual" className={styles.secondary}>Jelajahi properti</Link>
-        </div>
-        <form action={async () => { "use server"; await signOut({ redirectTo: "/" }); }}>
-          <button type="submit" className={styles.logout}>Keluar</button>
-        </form>
       </section>
+      <PortalFooter />
       <MobileBottomNav />
     </main>
   );

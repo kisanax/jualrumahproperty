@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import logo from "../../../../public/logo.png";
+import BrandLogo from "@/components/portal/BrandLogo";
 import type { Metadata } from "next";
 import { PropertyGallery } from "./PropertyGallery";
 import { PropertyShare } from "./PropertyShare";
 import { PropertyAccordion } from "./PropertyAccordion";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import PortalFooter from "@/components/portal/PortalFooter";
 import { siteConfig } from "@/lib/site-config";
 import { getMediaUrl } from "@/lib/storage";
 
@@ -259,12 +259,9 @@ export default async function PropertyDetailPage({ params }: Props) {
     <div className="raveis-page-root">
       {/* ── SITE HEADER ── */}
       <header className="site-header">
-        <Link className="brand" href="/" aria-label="Jakarta Selatan Properti — Beranda">
-          <Image src={logo} alt="Jakarta Selatan Properti" priority />
-        </Link>
+        <BrandLogo />
         <nav className="desktop-nav" aria-label="Navigasi utama">
           <Link href="/#jual">Properti Dijual</Link>
-          <Link href="/agents">Our Agents</Link>
           <Link href="/#tentang">Tentang Kami</Link>
           <a
             className="nav-contact"
@@ -275,25 +272,10 @@ export default async function PropertyDetailPage({ params }: Props) {
             Hubungi Kami
           </a>
         </nav>
-        <details className="mobile-menu">
-          <summary aria-label="Buka menu navigasi">
-            <span />
-            <span />
-            <span />
-          </summary>
-          <nav aria-label="Navigasi mobile">
-            <Link href="/#jual">Properti Dijual</Link>
-            <Link href="/agents">Our Agents</Link>
-            <Link href="/#tentang">Tentang Kami</Link>
-            <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer">
-              Hubungi Kami
-            </a>
-          </nav>
-        </details>
         <a
           className="mobile-call"
           href="tel:+6281234567890"
-          aria-label="Telepon Jakarta Selatan Properti"
+          aria-label="Telepon Jual Rumah Property"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M7.1 3.8 9 3.3c.5-.1 1 .2 1.2.7l1 2.6c.2.5 0 1-.4 1.3L9.4 9c.9 2 2.6 3.7 4.6 4.6l1.1-1.4c.3-.4.9-.6 1.3-.4l2.6 1c.5.2.8.7.7 1.2l-.5 1.9c-.2 1-1.1 1.7-2.1 1.7A12.7 12.7 0 0 1 4.4 4.9c0-1 .7-1.9 1.7-2.1Z" />
@@ -556,24 +538,24 @@ export default async function PropertyDetailPage({ params }: Props) {
 
             {/* Action Buttons (William Raveis style) */}
             <div className="raveis-cta-group">
-              {/* Primary Filled: Request A Showing */}
+              {/* Primary Filled: Jadwalkan Kunjungan (WhatsApp) */}
               <a
                 className="raveis-action-btn btn-showing"
                 href={`https://wa.me/6281234567890?text=${waShowingText}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                Request A Showing
+                Jadwalkan Kunjungan
               </a>
 
-              {/* Secondary Outlined: Request Info */}
+              {/* Secondary Outlined: Minta Info (WhatsApp) */}
               <a
                 className="raveis-action-btn btn-info"
                 href={`https://wa.me/6281234567890?text=${waInfoText}`}
                 target="_blank"
                 rel="noreferrer"
               >
-                Request Info
+                Minta Info
               </a>
             </div>
 
@@ -616,6 +598,7 @@ export default async function PropertyDetailPage({ params }: Props) {
         </span>
         <span className="cta-arrow">↗</span>
       </a>
+      <PortalFooter />
       <MobileBottomNav />
     </div>
   );

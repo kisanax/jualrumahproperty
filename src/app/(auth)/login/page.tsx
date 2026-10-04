@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import { googleEnabled } from "@/auth";
 import { redirect } from "next/navigation";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
+import BrandLogo from "@/components/portal/BrandLogo";
 import styles from "../auth.module.css";
 import { signInWithEmail, signInWithGoogle } from "./actions";
 import GoogleMark from "../daftar-broker/GoogleMark";
@@ -24,20 +24,18 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
       </Link>
 
       <div className={styles.loginBody}>
-        <Link href="/" className={styles.loginLogo} aria-label="Jakarta Selatan Properti — beranda">
-          <Image src="/logo.png" alt="Jakarta Selatan Properti" width={230} height={80} priority />
-        </Link>
-        <h1 className={styles.loginTitle}>Masuk atau daftar</h1>
+        <BrandLogo />
+        <h1 className={styles.loginTitle}>Masuk ke jualrumahproperty.com</h1>
 
         <form action={signInWithEmail} className={styles.loginForm}>
           <input type="hidden" name="returnTo" value={returnTo} />
           <div className={styles.field}>
-            <label htmlFor="email" className={styles.srOnly}>Email</label>
-            <input id="email" name="email" className={styles.loginInput} type="email" inputMode="email" autoComplete="email" required placeholder="Email" />
+            <label htmlFor="email" className={styles.srOnly}>Email atau username</label>
+            <input id="email" name="email" className={styles.loginInput} type="text" inputMode="email" autoComplete="username" required placeholder="Email atau username" />
           </div>
           <div className={styles.field}>
             <label htmlFor="password" className={styles.srOnly}>Kata sandi</label>
-            <input id="password" name="password" className={styles.loginInput} type="password" autoComplete="current-password" required minLength={8} placeholder="Kata sandi" />
+            <input id="password" name="password" className={styles.loginInput} type="password" autoComplete="current-password" required minLength={4} placeholder="Kata sandi" />
           </div>
           {query.error === "invalid-credentials" && (
             <p className={styles.formError} role="alert">Email atau password tidak sesuai.</p>
@@ -60,6 +58,7 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
         <p className={styles.loginLegal}>
           Belum punya akun? <Link href={`/daftar?returnTo=${encodeURIComponent(returnTo || "/akun")}`}>Daftar</Link>
         </p>
+        <p className={styles.loginTrust}>Propertinya Para Independen — tanpa biaya, tanpa perantara tak dikenal.</p>
       </div>
 
       <MobileBottomNav />

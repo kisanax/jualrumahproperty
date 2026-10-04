@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Theme Preview — Admin jakselproperti.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=EB+Garamond:ital@0;1&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', system-ui, sans-serif; background: #d8dae0; padding: 40px 24px 80px; }
+
+.theme-block { max-width: 1100px; margin: 0 auto 56px; }
+.theme-intro { margin-bottom: 14px; }
+.theme-intro .letter { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #111; color: #fff; font-weight: 700; font-size: 15px; margin-right: 10px; vertical-align: middle; }
+.theme-intro h2 { display: inline; font-size: 17px; font-weight: 700; color: #1a1d27; vertical-align: middle; }
+.theme-intro p { margin-top: 6px; font-size: 13px; color: #555; line-height: 1.5; padding-left: 44px; }
+
+/* ============ STRUKTUR APP FRAME (dipakai semua tema) ============ */
+.frame { display: flex; border-radius: 10px; overflow: hidden; border: 1px solid rgba(0,0,0,.18); min-height: 560px; }
+.sidebar { width: 218px; flex-shrink: 0; display: flex; flex-direction: column; }
+.sb-logo { padding: 18px 18px 14px; }
+.sb-logo .name { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; }
+.sb-logo .tag { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; }
+.sb-nav { padding: 6px 10px; flex: 1; }
+.sb-section { font-size: 10px; text-transform: uppercase; letter-spacing: .09em; opacity: .55; padding: 12px 10px 6px; }
+.sb-item { display: flex; align-items: center; gap: 9px; font-size: 12.5px; padding: 7px 10px; border-radius: 6px; }
+.sb-item.active { font-weight: 600; }
+.sb-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: 13px 22px; }
+.topbar .crumb { font-size: 11.5px; opacity: .6; }
+.topbar .who { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.avatar { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10.5px; font-weight: 700; }
+.content { padding: 20px 22px 28px; flex: 1; }
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; }
+.page-head h3 { font-size: 21px; letter-spacing: -0.01em; }
+.page-head .sub { font-size: 11.5px; opacity: .6; margin-top: 4px; }
+.actions { display: flex; gap: 8px; }
+.btn { font-size: 12px; padding: 7px 14px; border-radius: 6px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+.btn.ghost { background: transparent; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+.stat { padding: 13px 14px; border-radius: 8px; }
+.stat .k { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; opacity: .6; }
+.stat .v { font-family: 'JetBrains Mono', monospace; font-size: 19px; font-weight: 600; margin-top: 5px; }
+.stat .d { font-size: 10.5px; margin-top: 3px; }
+.table-wrap { border-radius: 8px; overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: .07em; opacity: .55; padding: 9px 14px; font-weight: 600; }
+td { padding: 10px 14px; }
+.mono { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; }
+.badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2.5px 8px; border-radius: 99px; letter-spacing: .02em; }
+.field { margin-top: 18px; }
+.field label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; opacity: .6; }
+.field .input { font-size: 12.5px; padding: 8px 2px; width: 100%; background: transparent; outline: none; }
+
+/* ============ TEMA A — LUXURY BROKERAGE OFFICE ============ */
+.tA { background: #f5f1e8; color: #211d15; --line: #d9d2c2; --serif: 'Playfair Display', serif; }
+.tA .sidebar { background: #211d15; color: #ece5d3; border-right: 1px solid #35301f; }
+.tA .sb-logo .tag { color: #c9a24b; }
+.tA .sb-item { color: #b9b19c; }
+.tA .sb-item.active { background: #332c1a; color: #f2e9d2; }
+.tA .sb-dot { background: #6d6753; }
+.tA .sb-item.active .sb-dot { background: #c9a24b; }
+.tA .main { background: #f5f1e8; }
+.tA .topbar { border-bottom: 1px solid var(--line); background: #efe9db; }
+.tA .avatar { background: #211d15; color: #c9a24b; }
+.tA .page-head h3 { font-family: var(--serif); font-weight: 600; }
+.tA .btn.primary { background: #211d15; color: #f2e9d2; border-radius: 4px; }
+.tA .btn.primary:hover { background: #332c1a; }
+.tA .btn.ghost { border-color: var(--line); color: #211d15; border-radius: 4px; }
+.tA .stat { background: #fdfaf2; border: 1px solid var(--line); border-radius: 4px; box-shadow: 0 1px 0 rgba(33,29,21,.04); }
+.tA .stat .d { color: #7a7154; }
+.tA .table-wrap { background: #fdfaf2; border: 1px solid var(--line); border-radius: 4px; }
+.tA th { border-bottom: 1px solid var(--line); color: #211d15; }
+.tA td { border-bottom: 1px solid #ece6d6; }
+.tA tr:last-child td { border-bottom: none; }
+.tA .badge.active { background: #e7dfc9; color: #6b5a20; }
+.tA .badge.draft { background: #eee7d6; color: #8a8060; }
+.tA .badge.nego { background: #dfd8e8; color: #574a7a; }
+.tA .input { border: 0; border-bottom: 1px solid var(--line); color: #211d15; }
+.tA .price { color: #6b5a20; }
+
+/* ============ TEMA B — PROPERTY OPS TERMINAL ============ */
+.tB { background: #0b0e13; color: #d5dae2; --line: #232a36; }
+.tB .sidebar { background: #0e1218; border-right: 1px solid var(--line); }
+.tB .sb-logo .tag { color: #4fd68a; }
+.tB .sb-item { color: #8b94a6; }
+.tB .sb-item.active { background: #1a2230; color: #eef2f7; }
+.tB .sb-dot { background: #3a4354; }
+.tB .sb-item.active .sb-dot { background: #4fd68a; }
+.tB .main { background: #0b0e13; }
+.tB .topbar { border-bottom: 1px solid var(--line); background: #0e1218; }
+.tB .avatar { background: #1a2230; color: #4fd68a; }
+.tB .page-head h3 { font-size: 18px; font-weight: 600; }
+.tB .btn.primary { background: #4fd68a; color: #0b0e13; }
+.tB .btn.ghost { border-color: #2c3547; color: #d5dae2; }
+.tB .stats { gap: 8px; }
+.tB .stat { background: #111621; border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
+.tB .stat .v { font-size: 17px; color: #eef2f7; }
+.tB .stat .d { color: #4fd68a; }
+.tB .table-wrap { background: #111621; border: 1px solid var(--line); border-radius: 6px; }
+.tB th { border-bottom: 1px solid var(--line); }
+.tB td { border-bottom: 1px solid #1a2029; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.tB .badge.active { background: rgba(79,214,138,.14); color: #4fd68a; border: 1px solid rgba(79,214,138,.3); border-radius: 3px; }
+.tB .badge.draft { background: rgba(139,148,166,.12); color: #8b94a6; border: 1px solid rgba(139,148,166,.25); border-radius: 3px; }
+.tB .badge.nego { background: rgba(139,120,255,.14); color: #a99cff; border: 1px solid rgba(139,120,255,.3); border-radius: 3px; }
+.tB .input { border: 0; border-bottom: 1px solid #2c3547; color: #d5dae2; font-family: 'JetBrains Mono', monospace; }
+.tB .price { color: #4fd68a; }
+
+/* ============ TEMA C — MODERN SAAS REFINED ============ */
+.tC { background: #fafafa; color: #101828; --line: #eaecf0; }
+.tC .sidebar { background: #ffffff; border-right: 1px solid var(--line); }
+.tC .sb-logo .tag { color: #d97706; }
+.tC .sb-item { color: #667085; }
+.tC .sb-item.active { background: #f4f0e8; color: #92400e; }
+.tC .sb-dot { background: #d0d5dd; }
+.tC .sb-item.active .sb-dot { background: #d97706; }
+.tC .main { background: #fafafa; }
+.tC .topbar { border-bottom: 1px solid var(--line); background: #ffffff; }
+.tC .avatar { background: #fef3c7; color: #92400e; }
+.tC .page-head h3 { font-weight: 600; letter-spacing: -0.02em; }
+.tC .btn.primary { background: #101828; color: #fff; border-radius: 8px; }
+.tC .btn.ghost { border-color: #d0d5dd; color: #344054; border-radius: 8px; }
+.tC .stat { background: #ffffff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.tC .stat .d { color: #667085; }
+.tC .table-wrap { background: #ffffff; border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 2px rgba(16,24,40,.04); }
+.tC th { border-bottom: 1px solid var(--line); }
+.tC td { border-bottom: 1px solid #f2f4f7; }
+.tC .badge.active { background: #ecfdf3; color: #067647; }
+.tC .badge.draft { background: #f2f4f7; color: #667085; }
+.tC .badge.nego { background: #f4f3ff; color: #5925dc; }
+.tC .input { border: 0; border-bottom: 1px solid #d0d5dd; color: #101828; }
+.tC .price { color: #101828; }
+
+/* ============ TEMA D — WARM MINIMAL ============ */
+.tD { background: #fbf9f7; color: #3d3929; --line: #e8e3db; }
+.tD .sidebar { background: #ffffff; border-right: 1px solid var(--line); }
+.tD .sb-logo .tag { color: #b08968; }
+.tD .sb-item { color: #8c8672; }
+.tD .sb-item.active { background: #f3efe9; color: #3d3929; font-weight: 500; }
+.tD .sb-dot { background: #d8d2c6; }
+.tD .sb-item.active .sb-dot { background: #b08968; }
+.tD .main { background: #fbf9f7; }
+.tD .topbar { border-bottom: 1px solid var(--line); background: #ffffff; }
+.tD .avatar { background: #f3efe9; color: #8c6a4a; }
+.tD .page-head h3 { font-weight: 600; }
+.tD .btn.primary { background: #3d3929; color: #f5f1e8; border-radius: 8px; }
+.tD .btn.ghost { border-color: var(--line); color: #3d3929; border-radius: 8px; }
+.tD .stat { background: #ffffff; border: 1px solid var(--line); border-radius: 10px; }
+.tD .stat .d { color: #a09a86; }
+.tD .table-wrap { background: #ffffff; border: 1px solid var(--line); border-radius: 10px; }
+.tD th { border-bottom: 1px solid var(--line); }
+.tD td { border-bottom: 1px solid #f4f1ec; }
+.tD .badge.active { background: #edf3ea; color: #4a6b3d; }
+.tD .badge.draft { background: #f4f1ec; color: #8c8672; }
+.tD .badge.nego { background: #f0ecf5; color: #6b5b8c; }
+.tD .input { border: 0; border-bottom: 1px solid var(--line); color: #3d3929; }
+.tD .price { color: #8c6a4a; }
+</style>
+</head>
+<body>
+
+<!-- ================================================================ -->
+<div class="theme-block">
+  <div class="theme-intro">
+    <span class="letter">A</span><h2>Luxury Brokerage Office</h2>
+    <p>Gading hangat + tinta gelap + emas. Sidebar gelap dramatis, heading serif Playfair Display, tabel editorial tipis. Serasi dengan situs publik jakselproperti.com (karakter "kantor broker mewah").</p>
+  </div>
+  <div class="frame tA">
+    <div class="sidebar">
+      <div class="sb-logo"><div class="name">JakselProperti</div><div class="tag">Private Office</div></div>
+      <div class="sb-nav">
+        <div class="sb-section">Utama</div>
+        <div class="sb-item active"><span class="sb-dot"></span>Dashboard</div>
+        <div class="sb-item"><span class="sb-dot"></span>Properti</div>
+        <div class="sb-item"><span class="sb-dot"></span>Listing</div>
+        <div class="sb-section">Pihak Terkait</div>
+        <div class="sb-item"><span class="sb-dot"></span>Owner</div>
+        <div class="sb-item"><span class="sb-dot"></span>Perantara</div>
+        <div class="sb-section">CRM</div>
+        <div class="sb-item"><span class="sb-dot"></span>Leads</div>
+        <div class="sb-item"><span class="sb-dot"></span>Customer</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar"><span class="crumb">Utama / Dashboard</span><span class="who"><span>Administrator</span><span class="avatar">AD</span></span></div>
+      <div class="content">
+        <div class="page-head">
+          <div><h3>Ringkasan Kantor</h3><div class="sub">Senin, 14 September 2026 — Jakarta Selatan</div></div>
+          <div class="actions"><button class="btn ghost">Ekspor</button><button class="btn primary">+ Properti Baru</button></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Properti</div><div class="v">128</div><div class="d">+6 bulan ini</div></div>
+          <div class="stat"><div class="k">Listing Aktif</div><div class="v">64</div><div class="d">+3 minggu ini</div></div>
+          <div class="stat"><div class="k">Leads Baru</div><div class="v">12</div><div class="d">4 menunggu tindak lanjut</div></div>
+          <div class="stat"><div class="k">Closing (bulan)</div><div class="v">3</div><div class="d">Rp 14,2 M total</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Kode</th><th>Properti</th><th>Kawasan</th><th>Harga</th><th>Status</th></tr>
+            <tr><td class="mono">100001-7</td><td>Rumah 2LT, SHM</td><td>Kemang</td><td class="mono price">8,5 M</td><td><span class="badge active">AKTIF</span></td></tr>
+            <tr><td class="mono">100002-5</td><td>Rumah mewah, kolam</td><td>Pondok Indah</td><td class="mono price">15 M</td><td><span class="badge nego">NEGOSIASI</span></td></tr>
+            <tr><td class="mono">100003-0</td><td>Tanah 800 m²</td><td>Senopati</td><td class="mono price">40 M</td><td><span class="badge draft">DRAFT</span></td></tr>
+          </table>
+        </div>
+        <div class="field"><label>Alamat properti</label><div class="input">Jl. Kemang Utara IX No. 12</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<div class="theme-block">
+  <div class="theme-intro">
+    <span class="letter">B</span><h2>Property Ops Terminal</h2>
+    <p>Gelap permanen, padat, angka mono di mana-mana, aksen hijau terminal ala Bloomberg/Linear. Untuk operator yang entry listing &amp; kerja leads seharian — efisiensi di atas estetika.</p>
+  </div>
+  <div class="frame tB">
+    <div class="sidebar">
+      <div class="sb-logo"><div class="name">jaksel/ops</div><div class="tag">console</div></div>
+      <div class="sb-nav">
+        <div class="sb-section">Utama</div>
+        <div class="sb-item active"><span class="sb-dot"></span>Dashboard</div>
+        <div class="sb-item"><span class="sb-dot"></span>Properti</div>
+        <div class="sb-item"><span class="sb-dot"></span>Listing</div>
+        <div class="sb-section">Pihak Terkait</div>
+        <div class="sb-item"><span class="sb-dot"></span>Owner</div>
+        <div class="sb-item"><span class="sb-dot"></span>Perantara</div>
+        <div class="sb-section">CRM</div>
+        <div class="sb-item"><span class="sb-dot"></span>Leads</div>
+        <div class="sb-item"><span class="sb-dot"></span>Customer</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar"><span class="crumb">~/admin/dashboard</span><span class="who"><span>admin@jaksel</span><span class="avatar">A</span></span></div>
+      <div class="content">
+        <div class="page-head">
+          <div><h3>Dashboard</h3><div class="sub">sinkron 09:41 WIB · 0 error</div></div>
+          <div class="actions"><button class="btn ghost">Sync</button><button class="btn primary">+ New Property</button></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">PROPERTIES</div><div class="v">128</div><div class="d">▲ +6</div></div>
+          <div class="stat"><div class="k">ACTIVE LST</div><div class="v">64</div><div class="d">▲ +3</div></div>
+          <div class="stat"><div class="k">NEW LEADS</div><div class="v">12</div><div class="d">▲ 4 pending</div></div>
+          <div class="stat"><div class="k">CLOSED MO</div><div class="v">3</div><div class="d">Rp 14.2B</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>NUMBER</th><th>TYPE</th><th>ZONE</th><th>PRICE</th><th>STATUS</th></tr>
+            <tr><td class="mono">100001-7</td><td>HOUSE·SHM</td><td>KMG</td><td class="mono price">8.5B</td><td><span class="badge active">ACTIVE</span></td></tr>
+            <tr><td class="mono">100002-5</td><td>HOUSE·SHM</td><td>PDI</td><td class="mono price">15B</td><td><span class="badge nego">NEGO</span></td></tr>
+            <tr><td class="mono">100003-0</td><td>LAND·SHM</td><td>SNP</td><td class="mono price">40B</td><td><span class="badge draft">DRAFT</span></td></tr>
+          </table>
+        </div>
+        <div class="field"><label>property.address</label><div class="input">Jl. Kemang Utara IX No. 12</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<div class="theme-block">
+  <div class="theme-intro">
+    <span class="letter">C</span><h2>Modern SaaS Refined</h2>
+    <p>Evolusi halus dari tema sekarang (Stripe/Vercel-style): kartu membulat, shadow tipis, aksen amber yang lebih disiplin, tipografi Inter presisi. Aman — familiar tapi lebih mahal kelihatannya.</p>
+  </div>
+  <div class="frame tC">
+    <div class="sidebar">
+      <div class="sb-logo"><div class="name">JakselProperti</div><div class="tag">Admin</div></div>
+      <div class="sb-nav">
+        <div class="sb-section">Utama</div>
+        <div class="sb-item active"><span class="sb-dot"></span>Dashboard</div>
+        <div class="sb-item"><span class="sb-dot"></span>Properti</div>
+        <div class="sb-item"><span class="sb-dot"></span>Listing</div>
+        <div class="sb-section">Pihak Terkait</div>
+        <div class="sb-item"><span class="sb-dot"></span>Owner</div>
+        <div class="sb-item"><span class="sb-dot"></span>Perantara</div>
+        <div class="sb-section">CRM</div>
+        <div class="sb-item"><span class="sb-dot"></span>Leads</div>
+        <div class="sb-item"><span class="sb-dot"></span>Customer</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar"><span class="crumb">Admin / Dashboard</span><span class="who"><span>Administrator</span><span class="avatar">AD</span></span></div>
+      <div class="content">
+        <div class="page-head">
+          <div><h3>Dashboard</h3><div class="sub">Ikhtisar portofolio Jakarta Selatan</div></div>
+          <div class="actions"><button class="btn ghost">Ekspor</button><button class="btn primary">+ Properti Baru</button></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Properti</div><div class="v">128</div><div class="d">+6 bulan ini</div></div>
+          <div class="stat"><div class="k">Listing Aktif</div><div class="v">64</div><div class="d">+3 minggu ini</div></div>
+          <div class="stat"><div class="k">Leads Baru</div><div class="v">12</div><div class="d">4 menunggu</div></div>
+          <div class="stat"><div class="k">Closing</div><div class="v">3</div><div class="d">Rp 14,2 M</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Nomor</th><th>Properti</th><th>Kawasan</th><th>Harga</th><th>Status</th></tr>
+            <tr><td class="mono">100001-7</td><td>Rumah 2LT, SHM</td><td>Kemang</td><td class="mono price">8,5 M</td><td><span class="badge active">Aktif</span></td></tr>
+            <tr><td class="mono">100002-5</td><td>Rumah mewah, kolam</td><td>Pondok Indah</td><td class="mono price">15 M</td><td><span class="badge nego">Negosiasi</span></td></tr>
+            <tr><td class="mono">100003-0</td><td>Tanah 800 m²</td><td>Senopati</td><td class="mono price">40 M</td><td><span class="badge draft">Draft</span></td></tr>
+          </table>
+        </div>
+        <div class="field"><label>Alamat properti</label><div class="input">Jl. Kemang Utara IX No. 12</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================ -->
+<div class="theme-block">
+  <div class="theme-intro">
+    <span class="letter">D</span><h2>Warm Minimal</h2>
+    <p>Terang hangat ala Notion/Linear light: putih tulang + warm gray + aksen kayu/kopi. Tenang, bersih, nyaman untuk kerja panjang — vibe "arsip kantor properti modern".</p>
+  </div>
+  <div class="frame tD">
+    <div class="sidebar">
+      <div class="sb-logo"><div class="name">JakselProperti</div><div class="tag">Workspace</div></div>
+      <div class="sb-nav">
+        <div class="sb-section">Utama</div>
+        <div class="sb-item active"><span class="sb-dot"></span>Dashboard</div>
+        <div class="sb-item"><span class="sb-dot"></span>Properti</div>
+        <div class="sb-item"><span class="sb-dot"></span>Listing</div>
+        <div class="sb-section">Pihak Terkait</div>
+        <div class="sb-item"><span class="sb-dot"></span>Owner</div>
+        <div class="sb-item"><span class="sb-dot"></span>Perantara</div>
+        <div class="sb-section">CRM</div>
+        <div class="sb-item"><span class="sb-dot"></span>Leads</div>
+        <div class="sb-item"><span class="sb-dot"></span>Customer</div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="topbar"><span class="crumb">Workspace / Dashboard</span><span class="who"><span>Administrator</span><span class="avatar">AD</span></span></div>
+      <div class="content">
+        <div class="page-head">
+          <div><h3>Dashboard</h3><div class="sub">Semua berjalan baik. 4 leads menunggu tindak lanjut.</div></div>
+          <div class="actions"><button class="btn ghost">Ekspor</button><button class="btn primary">+ Properti Baru</button></div>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="k">Properti</div><div class="v">128</div><div class="d">+6 bulan ini</div></div>
+          <div class="stat"><div class="k">Listing Aktif</div><div class="v">64</div><div class="d">+3 minggu ini</div></div>
+          <div class="stat"><div class="k">Leads Baru</div><div class="v">12</div><div class="d">4 menunggu</div></div>
+          <div class="stat"><div class="k">Closing</div><div class="v">3</div><div class="d">Rp 14,2 M</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <tr><th>Nomor</th><th>Properti</th><th>Kawasan</th><th>Harga</th><th>Status</th></tr>
+            <tr><td class="mono">100001-7</td><td>Rumah 2LT, SHM</td><td>Kemang</td><td class="mono price">8,5 M</td><td><span class="badge active">Aktif</span></td></tr>
+            <tr><td class="mono">100002-5</td><td>Rumah mewah, kolam</td><td>Pondok Indah</td><td class="mono price">15 M</td><td><span class="badge nego">Negosiasi</span></td></tr>
+            <tr><td class="mono">100003-0</td><td>Tanah 800 m²</td><td>Senopati</td><td class="mono price">40 M</td><td><span class="badge draft">Draft</span></td></tr>
+          </table>
+        </div>
+        <div class="field"><label>Alamat properti</label><div class="input">Jl. Kemang Utara IX No. 12</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

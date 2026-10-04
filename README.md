@@ -1,13 +1,9 @@
-# jakselproperti.com — Internal Admin & Property Portal
+# jualrumahproperty.com — Portal & Internal Properti
 
-Portal internal dan publik khusus listing penjualan properti di wilayah Jakarta Selatan, mengacu pada **Blueprint v0.3**.
-
----
-
-## 📚 Dokumentasi Lengkap
-Dokumentasi teknis menyeluruh, arsitektur data, riwayat fitur yang sudah selesai, serta panduan pengujian dapat dilihat pada:
-👉 **[docs/PROGRESS.md](../docs/PROGRESS.md)**
-👉 **[docs/Blueprint.MD](../docs/Blueprint.MD)**
+Portal internal dan publik khusus listing penjualan properti (berawal Jakarta Selatan,
+data wilayah nasional 4-level). Acuan keputusan: **[docs/BLUEPRINT-v0.3.md](docs/BLUEPRINT-v0.3.md)**,
+detail per keputusan di **[docs/adr/](docs/adr/)**. Riwayat implementasi: **[docs/PROGRESS.md](docs/PROGRESS.md)**.
+Agen coding wajib baca **[AGENTS.md](AGENTS.md)** dulu (hierarki dokumen ada di atas file itu).
 
 ---
 
@@ -31,8 +27,9 @@ npx prisma db push
 # Generate Prisma Client
 npx prisma generate
 
-# Isi data awal (Kecamatan Jakarta Selatan & Seed Demo)
-npx tsx prisma/seed.ts
+# Isi data awal (seed + wilayah nasional, lihat BLUEPRINT §1)
+npm run db:seed
+npm run db:import-wilayah
 ```
 
 ### 4. Menjalankan Server Development
@@ -48,9 +45,9 @@ Buka di browser:
 
 ## 🛠️ Fitur Utama yang Tersedia
 - **Manajemen Properti & Listing:** Transisi 10 status workflow listing, tracking riwayat harga & status, edit properti, dan safe delete terproteksi kode.
-- **Bulk / Batch Import CSV:** Import massal properti dengan auto-generate kode `JS-xxxx`, validasi baris pra-import, dan pencocokan kecamatan/kawasan otomatis.
-- **Pihak Terkait (Owner & Perantara):** Full CRUD owner & broker, 4-tier badge kepercayaan (*Trust Level*), serta proteksi integritas data.
-- **CRM Leads (Kanban):** Pipeline 6-stage kanban dengan native HTML5 Drag & Drop, optimistic updates, dan audit logging aktivitas.
-- **Database Customer:** Deduplikasi calon pembeli via nomor telepon, pencarian terintegrasi, dan riwayat minat properti.
-- **Area 2-Layer:** 10 Kecamatan administratif Jakarta Selatan + Kawasan populer (*Kawasan*) dengan fitur banner beranda.
-
+- **Penomoran:** Nomor publik `100001-7` / `500001-3` (Luhn) + kode kanonis `{kemendagri}-{running}` — lihat ADR-002.
+- **Bulk / Batch Import CSV + Smart Import WA:** Validasi pra-import, pencocokan wilayah nasional, deduplikasi fingerprint.
+- **Pihak Terkait (Owner & Perantara):** Full CRUD owner & perantara, badge kepercayaan (*Trust Level*), proteksi integritas data.
+- **CRM Leads (Kanban):** Pipeline 6-stage kanban dengan Drag & Drop, optimistic updates, audit logging.
+- **Database Customer:** Deduplikasi via nomor telepon + riwayat minat properti.
+- **Role:** SUPER_ADMIN / SUPPORT / BROKER (+ BUYER/SELLER bertahap, ADR-003). Halaman `/agents` di-hide via flag.

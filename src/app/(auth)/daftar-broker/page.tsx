@@ -2,6 +2,7 @@ import Link from "next/link";
 import { googleEnabled } from "@/auth";
 import { redirect } from "next/navigation";
 import { getAccountAccess } from "@/lib/broker-workspace-access";
+import BrandLogo from "@/components/portal/BrandLogo";
 import styles from "../auth.module.css";
 import { beginBrokerApplication, continueWithGoogle } from "./actions";
 import GoogleMark from "./GoogleMark";
@@ -16,10 +17,7 @@ export default async function BrokerRegistrationPage({ searchParams }: PageProps
 
   return (
     <section className={styles.card}>
-      <Link href="/" className={styles.brand}>
-        <span className={styles.brandMark}>J</span>
-        <span>jualrumahproperty</span>
-      </Link>
+      <header className={styles.brand}><BrandLogo /></header>
       <div className={styles.body}>
         <p className={styles.eyebrow}>Daftar Broker</p>
         <h1 className={styles.title}>Bergabung sebagai Broker</h1>

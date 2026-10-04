@@ -16,7 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPages: MetadataRoute.Sitemap = [
     { url: siteConfig.url, lastModified: new Date(), changeFrequency: "daily", priority: 1 },
     { url: `${siteConfig.url}/jual`, lastModified: new Date(), changeFrequency: "daily", priority: 0.9 },
-    { url: `${siteConfig.url}/agents`, lastModified: new Date(), changeFrequency: "weekly", priority: 0.7 },
+    // /agents sengaja TIDAK didaftarkan — halaman di-hide via flag sesuai BLUEPRINT-v0.3
+    // (route tetap utuh untuk section iklan broker; lihat ADR-003).
   ];
 
   const propertyPages: MetadataRoute.Sitemap = listings.map((listing) => ({

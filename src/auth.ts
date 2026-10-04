@@ -25,11 +25,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        const email = typeof credentials.email === "string" ? credentials.email.trim().toLowerCase() : "";
+        const identifier = typeof credentials.email === "string" ? credentials.email.trim().toLowerCase() : "";
         const password = typeof credentials.password === "string" ? credentials.password : "";
-        if (!email || !password) return null;
+        if (!identifier || !password) return null;
 
-        const user = await prisma.user.findUnique({ where: { email } });
+        // Identifier boleh email ATAU username (kolom users.username, unique).
+        const isEmail = identifier.includes("@");
+        const user = await prisma.user.findUnique({
+          where: isEmail ? { email: identifier } : { username: identifier },
+        });
         if (!user?.password || !user.isActive || user.deletedAt) return null;
         if (!(await verifyPassword(password, user.password))) return null;
 

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Palette V2 — White base ala Airbnb</title>
+<style>
+body{font-family:system-ui,sans-serif;background:#fff;margin:0;padding:24px;color:#222}
+h1{font-size:22px;margin:0}p.sub{color:#717171;margin:6px 0 18px;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.card{border:1px solid #EBEBEB;border-radius:12px;overflow:hidden;background:#fff}
+.sw{display:flex}.sw div{flex:1;height:48px}
+.b{padding:16px}.badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;margin-right:6px}
+.price{font-size:20px;font-weight:800;margin:10px 0 2px}.mut{color:#717171;font-size:13px}
+.btn{display:inline-block;padding:10px 18px;border-radius:8px;font-weight:700;margin:8px 6px 0 0;font-size:14px}
+.tok{font-family:monospace;font-size:12px;color:#717171;margin-top:10px;line-height:1.7}
+</style></head>
+<body>
+<h1>Palette V2 — dasar putih, tombol merah (referensi Airbnb)</h1>
+<p class="sub">Airbnb: surface #FFFFFF · ink #222222 · muted #717171 · line #EBEBEB · CTA Rausch #FF385C. Kita adaptasi ke merah bata premium biar tidak plek-plekan.</p>
+<div class="grid">
+<div class="card">
+<div style="padding:14px 16px"><b>A — Putih + Merah Bata (rekomendasi)</b><div class="mut">Hangat dikit, tetap putih bersih</div></div>
+<div class="sw"><div style="background:#FFFFFF;border:1px solid #EBEBEB"></div><div style="background:#F7F7F7"></div><div style="background:#222222"></div><div style="background:#C24F24"></div><div style="background:#FAEEE8"></div></div>
+<div class="b">
+<span class="badge" style="background:#F7F7F7;color:#222">Kemang</span>
+<span class="badge" style="background:#C24F24;color:#fff">Aktif</span>
+<div class="price">Rp 8,5 Miliar</div>
+<div class="mut">Rumah · LT 200 m² · 4 KT · 3 KM</div>
+<a class="btn" style="background:#C24F24;color:#fff">Lihat Detail</a>
+<a class="btn" style="background:#fff;color:#222;border:1px solid #222">Chat WA</a>
+<div class="tok">--portal-surface:#FFFFFF<br>--portal-soft:#F7F7F7<br>--portal-ink:#222222<br>--portal-muted:#717171<br>--portal-line:#EBEBEB<br>--portal-action:#C24F24<br>--portal-action-hover:#A83D18<br>--portal-action-soft:#FAEEE8</div>
+</div></div>
+<div class="card">
+<div style="padding:14px 16px"><b>B — Putih + Rausch Airbnb asli</b><div class="mut">Paling simple, plek Airbnb</div></div>
+<div class="sw"><div style="background:#FFFFFF;border:1px solid #EBEBEB"></div><div style="background:#F7F7F7"></div><div style="background:#222222"></div><div style="background:#FF385C"></div><div style="background:#FFE8EC"></div></div>
+<div class="b">
+<span class="badge" style="background:#F7F7F7;color:#222">Pondok Indah</span>
+<span class="badge" style="background:#FF385C;color:#fff">Aktif</span>
+<div class="price">Rp 25 Miliar</div>
+<div class="mut">Villa · LB 450 m² · 5 KT</div>
+<a class="btn" style="background:#FF385C;color:#fff">Lihat Detail</a>
+<a class="btn" style="background:#fff;color:#222;border:1px solid #222">Chat WA</a>
+<div class="tok">--portal-action:#FF385C<br>--portal-action-hover:#D90B3A<br>--portal-action-soft:#FFE8EC<br>lainnya sama putih #FFFFFF</div>
+</div></div>
+</div>
+<p class="sub">Aturan betah scroll: 90% putih + abu lembut, teks utama #222 (bukan hitam pekat), muted #717171, CTA merah hanya tombol/badge &lt;10%. Foto yang bicara, bukan background.</p>
+</body></html>

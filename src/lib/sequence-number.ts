@@ -186,7 +186,7 @@ export async function getNextPropertyNumber(
  * Counter "listing" dimulai dari 500000, sehingga nomor pertama = 500001.
  *
  * @param prisma - PrismaClient instance
- * @returns Nomor listing lengkap siap pakai (contoh: "500001-4")
+ * @returns Nomor listing publik lengkap dengan check digit (contoh: "500001-3")
  */
 export async function getNextListingNumber(
   prisma: PrismaClient

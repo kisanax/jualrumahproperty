@@ -3,6 +3,8 @@ import Image from "next/image";
 import PortalHeader from "@/components/portal/PortalHeader";
 import MobilePropertyFilter from "@/components/portal/MobilePropertyFilter";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
+import PortalFooter from "@/components/portal/PortalFooter";
+import FavoriteButton from "@/components/portal/FavoriteButton";
 import { prisma } from "@/lib/prisma";
 import { getMediaUrl } from "@/lib/storage";
 
@@ -62,8 +64,7 @@ export default async function Home() {
     <main>
       <PortalHeader />
 
-      {properties.length > 0 && (
-        <MobilePropertyFilter propertyTypes={properties.map((property) => property.type)}>
+      <MobilePropertyFilter propertyTypes={properties.map((property) => property.type)}>
             {properties.map((property) => {
               const listing = property.listings[0];
               const photo = property.propertyMedia[0];
@@ -88,7 +89,7 @@ export default async function Home() {
                       </div>
                     )}
                     <span className="property-card-badge">{typeLabel[property.type] || property.type}</span>
-                    {listing?.status === "ACTIVE" && <span className="property-card-live">Aktif</span>}
+                    <FavoriteButton propertyId={property.id} />
                   </div>
 
                   <div className="property-card-body">
@@ -139,8 +140,7 @@ export default async function Home() {
                 </Link>
               );
             })}
-        </MobilePropertyFilter>
-      )}
+      </MobilePropertyFilter>
 
       <a className="floating-cta" href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20ingin%20konsultasi." target="_blank" rel="noreferrer" aria-label="Konsultasi melalui WhatsApp">
         <span className="pulse" />
@@ -149,6 +149,7 @@ export default async function Home() {
         <span className="cta-arrow">↗</span>
       </a>
 
+      <PortalFooter />
       <MobileBottomNav />
     </main>
   );

@@ -1,3 +1,5 @@
+> ARSIP — digantikan `BLUEPRINT-v0.3.md` FINAL + `docs/adr/` (29 Sep 2026). Jangan jadikan acuan.
+
 # UI Foundation v0.3 — Marketplace Nasional
 
 Status: prototype untuk persetujuan arah visual.
