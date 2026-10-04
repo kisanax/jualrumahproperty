@@ -1,0 +1,29 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: auto;
+  color: var(--portal-ink, #222222);
+  font-family: var(--font-jakarta), sans-serif;
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.image {
+  display: block;
+  height: clamp(40px, 3vw, 46px);
+  width: auto;
+  max-width: 100%;
+}
+
+.logo:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+  border-radius: 4px;
+}

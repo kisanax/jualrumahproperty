@@ -33,6 +33,14 @@
   display: none;
 }
 
+/* ==========================================================================
+   MOBILE BOTTOM SHEET — single scroll, sticky input, chips & riwayat
+   ========================================================================== */
+
+.sheet {
+  display: none;
+}
+
 /* ─── Search Capsule (Airbnb-Style Rounded Pill) ─── */
 .capsule {
   display: flex;
@@ -563,7 +571,7 @@
     display: flex;
     align-items: stretch;
     width: 100%;
-    height: 58px;
+    height: 40px;
     overflow: hidden;
     background: #ffffff;
     border: 1px solid #e4e1da;
@@ -576,8 +584,8 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 8px 10px 8px 16px;
+    gap: 10px;
+    padding: 6px 10px 6px 14px;
     border: 0;
     background: #ffffff;
     color: #222222;
@@ -586,9 +594,9 @@
   }
 
   .mobileSearchTrigger > svg {
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
     fill: none;
     stroke: currentColor;
     stroke-width: 2;
@@ -597,21 +605,14 @@
   .mobileSearchTrigger > span {
     min-width: 0;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
   }
 
   .mobileSearchTrigger strong {
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 600;
     line-height: 1.25;
-  }
-
-  .mobileSearchTrigger small {
-    overflow: hidden;
-    color: #717171;
-    font-size: 11px;
-    line-height: 1.3;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 
   .capsule {
@@ -656,17 +657,294 @@
     clip-path: inset(50%);
   }
 
-  .popoverLocation,
-  .popoverType,
-  .popoverBudget {
-    left: 0;
-    right: auto;
-    width: calc(100vw - 32px);
-    max-height: min(520px, calc(100dvh - 166px));
-    overflow-y: auto;
+  /* Dropdown melayang lama digantikan bottom sheet di mobile */
+  .popover {
+    display: none;
+  }
+
+  /* Scrim menggelapkan halaman di belakang sheet — z-index di atas MobileBottomNav (90) */
+  .scrimActive {
+    background: rgba(34, 34, 34, 0.42);
+    z-index: 100;
   }
 
   .curatedTag { display: none; }
+
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    max-height: min(88dvh, 720px);
+    background: #ffffff;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -8px 40px rgba(34, 34, 34, 0.18);
+    transform: translateY(105%);
+    visibility: hidden;
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1), visibility 0s linear 0.32s;
+  }
+
+  .sheetOpen {
+    transform: translateY(0);
+    visibility: visible;
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .sheetHandle {
+    width: 40px;
+    height: 4px;
+    margin: 10px auto 4px;
+    border-radius: 999px;
+    background: #d9d5cc;
+    flex: 0 0 auto;
+  }
+
+  .sheetHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 20px 12px;
+    border-bottom: 1px solid #f0ede7;
+    flex: 0 0 auto;
+  }
+
+  .sheetTitle {
+    font: 800 16px/1.3 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--portal-ink);
+  }
+
+  .sheetClose {
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #f3f1ec;
+    color: #444444;
+    cursor: pointer;
+  }
+
+  .sheetBody {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 16px 20px 10px;
+  }
+
+  .sheetSearchBox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 14px;
+    background: #f5f3ee;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .sheetSearchBox:focus-within {
+    background: #ffffff;
+    border-color: var(--portal-action);
+  }
+
+  .sheetSearchBox > svg {
+    flex: 0 0 18px;
+    color: #717171;
+  }
+
+  .sheetSearchBox input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font: 500 16px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--portal-ink);
+  }
+
+  .sheetSearchBox input::placeholder {
+    color: #8c8980;
+    font-weight: 400;
+  }
+
+  .sheetClear {
+    flex: 0 0 26px;
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #e4e0d6;
+    color: #555044;
+    cursor: pointer;
+    padding: 0;
+  }
+
+  .sheetSection {
+    margin-top: 20px;
+  }
+
+  .sheetSectionHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .sheetSectionTitle {
+    display: block;
+    font: 800 11px/1.3 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #717171;
+  }
+
+  .sheetLinkBtn {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font: 700 12px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--portal-action);
+    cursor: pointer;
+  }
+
+  .historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+  }
+
+  .historyItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 11px 8px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: var(--portal-ink);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.12s;
+  }
+
+  .historyItem:hover {
+    background: #f7f5f0;
+  }
+
+  .historyItem > svg {
+    flex: 0 0 16px;
+    color: #8c8980;
+  }
+
+  .historyText {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 500 13px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+
+  .historyTextMain {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .historyName {
+    font: 600 14px/1.35 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+
+  .historySub {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 400 11px/1.35 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    color: #717171;
+  }
+
+  .historyCount {
+    flex: 0 0 auto;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font: 700 10px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    color: var(--portal-action-deep);
+    background: var(--portal-action-soft);
+  }
+
+  .sheetEmpty {
+    padding: 16px 8px;
+    text-align: center;
+    color: #717171;
+    font: 400 13px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  }
+
+  .chipRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .chip {
+    min-height: 38px;
+    padding: 8px 14px;
+    border: 1px solid #e2ded7;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #444444;
+    font: 600 13px/1.3 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .chipPicked {
+    background: var(--portal-action);
+    border-color: var(--portal-action);
+    color: #ffffff;
+  }
+
+  .sheetFooter {
+    flex: 0 0 auto;
+    padding: 12px 20px calc(14px + env(safe-area-inset-bottom));
+    border-top: 1px solid #f0ede7;
+    background: #ffffff;
+  }
+
+  .sheetSubmit {
+    width: 100%;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--portal-action);
+    color: #ffffff;
+    font: 700 15px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+    cursor: pointer;
+    transition: background-color 0.15s, transform 0.12s;
+  }
+
+  .sheetSubmit:hover {
+    background: var(--portal-action-hover);
+  }
+
+  .sheetSubmit:active {
+    transform: scale(0.98);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -674,7 +952,8 @@
   .capsule,
   .segment,
   .searchButton,
-  .popover {
+  .popover,
+  .sheet {
     transition: none;
     animation: none;
   }

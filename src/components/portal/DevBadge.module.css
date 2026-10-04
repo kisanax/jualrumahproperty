@@ -1,0 +1,30 @@
+/* Pill kecil "BETA" — floating pojok kiri bawah, lepas via env bukan kode. */
+.pill {
+  position: fixed;
+  left: 14px;
+  bottom: 14px;
+  z-index: 200;
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: rgba(197, 32, 4, 0.92);
+  color: #ffffff;
+  font: 700 10px/1.4 var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  pointer-events: none;
+  user-select: none;
+  box-shadow: 0 2px 8px rgba(21, 32, 44, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+@media print {
+  .pill {
+    display: none;
+  }
+}
+
+/* Di mobile, naikkan di atas bottom-nav (68px) */
+@media (max-width: 640px) {
+  .pill {
+    bottom: 84px;
+  }
+}

@@ -17,6 +17,10 @@
     border-color 0.3s cubic-bezier(0.2, 0, 0, 1);
 }
 
+.mobileTopBar {
+  display: none;
+}
+
 /* ─── Frosted Glass on Scroll (Airbnb Extra-Thick Material) ─── */
 .header[data-at-scroll-top="false"] {
   background-color: rgba(255, 255, 255, 0.92);
@@ -30,8 +34,8 @@
 /* ─── ROW 1: Top Bar (Logo | Center Compact Pill | Profile/Nav) ─── */
 .topBar {
   position: relative;
-  width: min(1480px, calc(100% - 80px));
-  min-height: 80px;
+  width: min(1420px, calc(100% - 56px));
+  min-height: 72px;
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -40,11 +44,11 @@
 }
 
 .header[data-at-scroll-top="false"] .topBar {
-  min-height: 68px;
+  min-height: 62px;
 }
 
 .header[data-search-open="true"] .topBar {
-  min-height: 80px;
+  min-height: 72px;
 }
 
 /* Left: Logo */
@@ -110,15 +114,15 @@
 
 /* ─── ROW 2: Expanded Search Bar (Visible at top, collapses on scroll) ─── */
 .searchRow {
-  width: min(1480px, calc(100% - 80px));
+  width: min(1420px, calc(100% - 56px));
   margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 76px;
+  height: 64px;
   opacity: 1;
   transform: translateY(0);
-  padding-bottom: 16px;
+  padding-bottom: 12px;
   overflow: visible;
   pointer-events: auto;
   transition: height 320ms cubic-bezier(0.2, 0, 0, 1),
@@ -137,10 +141,10 @@
 }
 
 .header[data-search-open="true"] .searchRow {
-  height: 76px;
+  height: 64px;
   opacity: 1;
   transform: translateY(0) scale(1);
-  padding-bottom: 16px;
+  padding-bottom: 12px;
   overflow: visible;
   pointer-events: auto;
 }
@@ -157,11 +161,29 @@
   .topBar {
     width: 100%;
     padding: 0 16px;
-    min-height: 60px;
+  min-height: 66px;
   }
 
   .header[data-at-scroll-top="false"] .topBar {
-    min-height: 54px;
+  min-height: 58px;
+  }
+
+  /* Logo kini besar (64px+) — di lebar ini tidak ada ruang untuk
+     compact pill di tengah topBar tanpa menabrak logo. Jadi bar
+     pencarian besar TIDAK di-collapse saat scroll: header tetap
+     2 baris, dan pill compact disembunyikan. */
+  .searchPill {
+    display: none;
+  }
+
+  .header[data-at-scroll-top="false"] .searchRow,
+  .header[data-search-open="true"] .searchRow {
+    height: 64px;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    padding-bottom: 12px;
+    overflow: visible;
+    pointer-events: auto;
   }
 
   .searchRow {
@@ -175,6 +197,26 @@
 }
 
 @media (max-width: 640px) {
+  .mobileTopBar {
+    display: none;
+  }
+
+  .mobileBrand {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .mobileBrand :global(a) {
+    width: auto;
+    min-height: 34px;
+  }
+
+  .mobileNav {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
   .topBar {
     display: none;
   }
@@ -188,8 +230,8 @@
   .header[data-search-open="true"] .searchRow {
     width: 100%;
     height: auto;
-    min-height: 78px;
-    padding: 10px 16px;
+    min-height: 40px;
+    padding: 5px 12px 6px;
     opacity: 1;
     overflow: visible;
     pointer-events: auto;
@@ -199,4 +241,5 @@
   .header[data-at-scroll-top="false"] {
     box-shadow: 0 3px 16px rgba(34, 34, 34, 0.08);
   }
+
 }

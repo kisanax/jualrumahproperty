@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect, useId, useCallback } from "react";
+import { useState, useRef, useEffect, useId, useCallback, useSyncExternalStore } from "react";
+import { createPortal, flushSync } from "react-dom";
 import styles from "./PortalSubnav.module.css";
 
 export interface PortalSubnavProps {
@@ -8,6 +9,8 @@ export interface PortalSubnavProps {
   initialArea?: string;
   initialBudget?: string;
   initialQuery?: string;
+  initialKawasan?: string;
+  initialCity?: string;
 }
 
 interface SuggestionItem {
@@ -115,6 +118,81 @@ const BUDGET_PRESETS = [
   },
 ];
 
+const TYPE_CHIP_LABEL: Record<string, string> = {
+  "": "Semua Jenis",
+  HOUSE: "Rumah",
+  APARTMENT: "Apartemen",
+  LAND: "Tanah",
+  SHOPHOUSE: "Ruko",
+};
+
+interface SearchHistoryEntry {
+  locationQuery: string;
+  areaId: string;
+  kawasanId: string;
+  cityId?: string;
+  type: string;
+  budget: string;
+}
+
+const HISTORY_KEY = "portal-search-history";
+const HISTORY_LIMIT = 5;
+const HISTORY_EVENT = "portal-search-history-changed";
+
+/* ─── External store: riwayat pencarian (localStorage) ───
+   useSyncExternalStore = bebas hydration mismatch, tanpa setState di effect. */
+let historyCache: { raw: string; value: SearchHistoryEntry[] } | null = null;
+const EMPTY_HISTORY: SearchHistoryEntry[] = [];
+
+function readHistorySnapshot(): SearchHistoryEntry[] {
+  let raw = "";
+  try {
+    raw = window.localStorage.getItem(HISTORY_KEY) ?? "";
+  } catch {
+    // private mode / storage error
+  }
+  if (historyCache?.raw === raw) return historyCache.value;
+  let value: SearchHistoryEntry[] = [];
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw) as SearchHistoryEntry[];
+      if (Array.isArray(parsed)) {
+        value = parsed
+          .filter((p) => p.locationQuery || p.areaId || p.kawasanId || p.type || p.budget)
+          .slice(0, HISTORY_LIMIT);
+      }
+    } catch {
+      // JSON korup — anggap kosong
+    }
+  }
+  historyCache = { raw, value };
+  return value;
+}
+
+function subscribeHistory(onChange: () => void) {
+  window.addEventListener(HISTORY_EVENT, onChange);
+  window.addEventListener("storage", onChange); // perubahan dari tab lain
+  return () => {
+    window.removeEventListener(HISTORY_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function emitHistoryChange() {
+  window.dispatchEvent(new Event(HISTORY_EVENT));
+}
+
+/* ─── External store: media query mobile ─── */
+const MOBILE_MQ = "(max-width: 640px)";
+
+function subscribeMobile(onChange: () => void) {
+  const mq = window.matchMedia(MOBILE_MQ);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+const readMobileSnapshot = () => window.matchMedia(MOBILE_MQ).matches;
+
 const CURATED_JAKSEL_HIGHLIGHTS = [
   { name: "Pondok Indah", tag: "Prime Living", desc: "Kawasan hunian paling bergengsi" },
   { name: "Kebayoran Baru", tag: "Heritage & Luxury", desc: "Senopati, Dharmawangsa, SCBD" },
@@ -127,32 +205,70 @@ export default function PortalSubnav({
   initialArea = "",
   initialBudget = "",
   initialQuery = "",
+  initialKawasan = "",
+  initialCity = "",
 }: PortalSubnavProps) {
   const [activeSegment, setActiveSegment] = useState<SearchSegment | null>(null);
   const [locationQuery, setLocationQuery] = useState(initialQuery);
   const [selectedAreaId, setSelectedAreaId] = useState(initialArea);
-  const [selectedKawasanId, setSelectedKawasanId] = useState("");
+  const [selectedKawasanId, setSelectedKawasanId] = useState(initialKawasan);
+  const [selectedCityId, setSelectedCityId] = useState(initialCity);
   const [selectedType, setSelectedType] = useState(activeType);
   const [selectedBudget, setSelectedBudget] = useState(initialBudget);
 
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const searchHistory = useSyncExternalStore(subscribeHistory, readHistorySnapshot, () => EMPTY_HISTORY);
+  const isMobile = useSyncExternalStore(subscribeMobile, readMobileSnapshot, () => false);
+  const portalTarget = useSyncExternalStore(
+    () => () => {},
+    () => document.body,
+    () => null
+  );
 
   const capsuleRef = useRef<HTMLDivElement>(null);
   const locationInputRef = useRef<HTMLInputElement>(null);
+  const sheetInputRef = useRef<HTMLInputElement>(null);
+  const sheetRootRef = useRef<HTMLDivElement>(null);
+  const mobileTriggerRef = useRef<HTMLButtonElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const suggestionRequestRef = useRef(0);
+  const formRef = useRef<HTMLFormElement>(null);
   const formId = useId();
+  const sheetDialogId = useId();
 
   // Close popover on Escape or Click outside
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (capsuleRef.current && !capsuleRef.current.contains(e.target as Node)) {
-        setActiveSegment(null);
-      }
+      const target = e.target as Node;
+      if (capsuleRef.current?.contains(target)) return;
+      if (sheetRootRef.current?.contains(target)) return;
+      setActiveSegment(null);
     }
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
+        if (activeSegment !== null && window.matchMedia(MOBILE_MQ).matches) {
+          mobileTriggerRef.current?.focus();
+        }
         setActiveSegment(null);
+        return;
+      }
+
+      if (e.key === "Tab" && activeSegment !== null && window.matchMedia(MOBILE_MQ).matches) {
+        const dialog = sheetRootRef.current?.querySelector<HTMLElement>(`[role="dialog"]`);
+        const focusable = dialog?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input:not([disabled]), select:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'
+        );
+        if (!focusable?.length) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -161,7 +277,7 @@ export default function PortalSubnav({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [activeSegment]);
 
   useEffect(() => {
     const handleCompactOpen = (event: Event) => {
@@ -179,20 +295,44 @@ export default function PortalSubnav({
     }));
   }, [activeSegment]);
 
+  // Kunci scroll body saat bottom sheet terbuka di mobile
+  const sheetOpen = activeSegment !== null;
+  useEffect(() => {
+    if (!sheetOpen) return;
+    if (!window.matchMedia("(max-width: 640px)").matches) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [sheetOpen]);
+
+  // Fokus masuk ke sheet saat menjadi modal dan dikembalikan ke pemicunya saat ditutup.
+  useEffect(() => {
+    if (sheetOpen && isMobile) {
+      requestAnimationFrame(() => sheetInputRef.current?.focus());
+    }
+  }, [sheetOpen, isMobile]);
+
   // Fetch suggestions when location segment is opened or query changes
-  const fetchSuggestions = useCallback(async (query: string) => {
+  const fetchSuggestions = useCallback(async (query: string): Promise<SuggestionItem[]> => {
+    const requestId = ++suggestionRequestRef.current;
     setLoadingSuggestions(true);
     try {
       const res = await fetch(`/api/portal/search-suggestions?q=${encodeURIComponent(query)}`);
       if (res.ok) {
         const data = await res.json();
-        setSuggestions(data.suggestions || []);
+        const nextSuggestions = Array.isArray(data.suggestions) ? data.suggestions : [];
+        if (requestId === suggestionRequestRef.current) setSuggestions(nextSuggestions);
+        return nextSuggestions;
       }
     } catch {
       // Ignore network errors gracefully
     } finally {
-      setLoadingSuggestions(false);
+      if (requestId === suggestionRequestRef.current) setLoadingSuggestions(false);
     }
+    if (requestId === suggestionRequestRef.current) setSuggestions([]);
+    return [];
   }, []);
 
   useEffect(() => {
@@ -209,22 +349,37 @@ export default function PortalSubnav({
 
   // Focus location input when segment is active
   useEffect(() => {
-    if (activeSegment === "location") {
+    if (activeSegment !== "location") return;
+    if (isMobile) {
+      sheetInputRef.current?.focus();
+    } else {
       locationInputRef.current?.focus();
     }
-  }, [activeSegment]);
+  }, [activeSegment, isMobile]);
 
   const handleSelectSuggestion = (item: SuggestionItem) => {
     if (item.type === "kawasan") {
       setSelectedKawasanId(item.kawasanId || "");
       setSelectedAreaId(item.areaId ? String(item.areaId) : "");
+      setSelectedCityId("");
+      setLocationQuery(item.name);
+    } else if (item.type === "kota") {
+      setSelectedKawasanId("");
+      setSelectedAreaId("");
+      setSelectedCityId(item.cityId ? String(item.cityId) : "");
       setLocationQuery(item.name);
     } else {
       setSelectedKawasanId("");
       setSelectedAreaId(item.areaId ? String(item.areaId) : "");
+      setSelectedCityId("");
       setLocationQuery(item.name);
     }
-    setActiveSegment("type"); // Advance naturally to next segment
+    if (isMobile) {
+      // Bottom sheet: tetap terbuka, biarkan user lanjut atur chip tipe/budget
+      setActiveSegment("location");
+    } else {
+      setActiveSegment("type"); // Desktop: advance naturally to next segment
+    }
   };
 
   const handleClearLocation = (e: React.MouseEvent) => {
@@ -232,7 +387,63 @@ export default function PortalSubnav({
     setLocationQuery("");
     setSelectedAreaId("");
     setSelectedKawasanId("");
-    locationInputRef.current?.focus();
+    setSelectedCityId("");
+    if (isMobile) {
+      sheetInputRef.current?.focus();
+    } else {
+      locationInputRef.current?.focus();
+    }
+  };
+
+  const saveHistory = useCallback(() => {
+    const entry: SearchHistoryEntry = {
+      locationQuery,
+      areaId: selectedAreaId,
+      kawasanId: selectedKawasanId,
+      cityId: selectedCityId,
+      type: selectedType,
+      budget: selectedBudget,
+    };
+    // Jangan simpan pencarian tanpa filter apa pun
+    if (!entry.locationQuery && !entry.areaId && !entry.kawasanId && !entry.cityId && !entry.type && !entry.budget) return;
+    try {
+      const prev = JSON.parse(window.localStorage.getItem(HISTORY_KEY) || "[]") as SearchHistoryEntry[];
+      const deduped = prev.filter(
+        (p) => !(p.locationQuery === entry.locationQuery && p.type === entry.type && p.budget === entry.budget)
+      );
+      const next = [entry, ...deduped].slice(0, HISTORY_LIMIT);
+      window.localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+      emitHistoryChange();
+    } catch {
+      // abaikan
+    }
+  }, [locationQuery, selectedAreaId, selectedKawasanId, selectedCityId, selectedType, selectedBudget]);
+
+  const handleFormSubmit = () => {
+    saveHistory();
+  };
+
+  const applyHistory = (entry: SearchHistoryEntry) => {
+    // flushSync: pastikan hidden inputs form sudah berisi nilai riwayat sebelum submit
+    flushSync(() => {
+      setLocationQuery(entry.locationQuery);
+      setSelectedAreaId(entry.areaId);
+      setSelectedKawasanId(entry.kawasanId);
+      setSelectedCityId(entry.cityId || "");
+      setSelectedType(entry.type);
+      setSelectedBudget(entry.budget);
+    });
+    formRef.current?.requestSubmit();
+  };
+
+  const clearHistory = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      window.localStorage.removeItem(HISTORY_KEY);
+    } catch {
+      // abaikan
+    }
+    emitHistoryChange();
   };
 
   const currentTypeLabel = PROPERTY_TYPES.find((t) => t.value === selectedType)?.label || "Semua Jenis";
@@ -242,26 +453,25 @@ export default function PortalSubnav({
 
   const openLocationSearch = () => {
     setActiveSegment("location");
-    requestAnimationFrame(() => locationInputRef.current?.focus());
+    fetchSuggestions("");
+    requestAnimationFrame(() => {
+      if (!window.matchMedia("(max-width: 640px)").matches) {
+        locationInputRef.current?.focus();
+      }
+    });
   };
 
   return (
     <>
-      {/* Soft Backdrop Scrim when search capsule is active */}
-      <div
-        className={`${styles.scrim} ${isAnyPopoverOpen ? styles.scrimActive : ""}`}
-        style={{ background: "transparent", backdropFilter: "none", WebkitBackdropFilter: "none" }}
-        onClick={() => setActiveSegment(null)}
-        aria-hidden="true"
-      />
-
       <div ref={capsuleRef} className={styles.container} data-active-segment={activeSegment || undefined}>
         <div className={styles.mobileSearchBar}>
           <button
+            ref={mobileTriggerRef}
             type="button"
             className={styles.mobileSearchTrigger}
             onClick={openLocationSearch}
             aria-expanded={isAnyPopoverOpen}
+            aria-controls={sheetDialogId}
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <circle cx="11" cy="11" r="7" />
@@ -269,16 +479,170 @@ export default function PortalSubnav({
             </svg>
             <span>
               <strong>Cari properti</strong>
-              <small>{locationQuery || currentTypeLabel} · {currentBudgetLabel}</small>
             </span>
           </button>
         </div>
 
+        {/* ─── MOBILE BOTTOM SHEET (portal ke body agar bebas transform/backdrop-filter header) ─── */}
+        {portalTarget && createPortal(
+          <div
+            ref={sheetRootRef}
+            className={`${styles.scrim} ${isAnyPopoverOpen ? styles.scrimActive : ""}`}
+            onClick={() => {
+              mobileTriggerRef.current?.focus();
+              setActiveSegment(null);
+            }}
+            role="presentation"
+          >
+            <div
+              className={`${styles.sheet} ${isAnyPopoverOpen ? styles.sheetOpen : ""}`}
+              id={sheetDialogId}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Pencarian properti"
+              aria-hidden={!isMobile || !isAnyPopoverOpen}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className={styles.sheetHandle} aria-hidden="true" />
+              <div className={styles.sheetHeader}>
+            <span className={styles.sheetTitle}>Cari properti</span>
+            <button
+              type="button"
+              className={styles.sheetClose}
+              onClick={() => {
+                mobileTriggerRef.current?.focus();
+                setActiveSegment(null);
+              }}
+              aria-label="Tutup pencarian"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className={styles.sheetBody}>
+            {/* Riwayat pencarian — muncul saat input kosong & tidak sedang mencari */}
+            {!locationQuery && searchHistory.length > 0 && (
+              <div className={styles.sheetSection}>
+                <div className={styles.sheetSectionHead}>
+                  <span className={styles.sheetSectionTitle}>Pencarian terakhir</span>
+                  <button type="button" className={styles.sheetLinkBtn} onClick={clearHistory}>
+                    Hapus
+                  </button>
+                </div>
+                <div className={styles.chipRow}>
+                  {searchHistory.map((entry, i) => (
+                    <button
+                      key={`${entry.locationQuery}-${entry.type}-${entry.budget}-${i}`}
+                      type="button"
+                      className={styles.chip}
+                      onClick={() => applyHistory(entry)}
+                    >
+                      {entry.locationQuery || "Semua lokasi"} · {TYPE_CHIP_LABEL[entry.type] || "Semua Jenis"} · {BUDGET_PRESETS.find((b) => b.value === entry.budget)?.badge || "Semua Harga"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Kawasan populer — chips horizontal */}
+            <div className={styles.sheetSection}>
+              <span className={styles.sheetSectionTitle}>Kawasan populer</span>
+              <div className={styles.chipRow}>
+                <button
+                  type="button"
+                  className={`${styles.chip} ${!locationQuery && !selectedAreaId && !selectedKawasanId && !selectedCityId ? styles.chipPicked : ""}`}
+                  onClick={handleClearLocation}
+                >
+                  Semua lokasi
+                </button>
+                {CURATED_JAKSEL_HIGHLIGHTS.map((item) => {
+                  const isPicked = locationQuery === item.name;
+                  return (
+                    <button
+                      key={item.name}
+                      type="button"
+                      className={`${styles.chip} ${isPicked ? styles.chipPicked : ""}`}
+                      onClick={() => {
+                        setLocationQuery(item.name);
+                        setSelectedAreaId("");
+                        setSelectedKawasanId("");
+                        setSelectedCityId("");
+                        void fetchSuggestions(item.name)
+                          .then((matches) => {
+                            const match = matches.find((suggestion) =>
+                              suggestion.name.toLowerCase() === item.name.toLowerCase()
+                            );
+                            if (match) handleSelectSuggestion(match);
+                          })
+                          .catch(() => undefined);
+                      }}
+                    >
+                      {item.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Tipe properti — chips */}
+            <div className={styles.sheetSection}>
+              <span className={styles.sheetSectionTitle}>Tipe properti</span>
+              <div className={styles.chipRow}>
+                {PROPERTY_TYPES.map((t) => (
+                  <button
+                    key={t.value || "all"}
+                    type="button"
+                    className={`${styles.chip} ${selectedType === t.value ? styles.chipPicked : ""}`}
+                    onClick={() => setSelectedType(t.value)}
+                  >
+                    {TYPE_CHIP_LABEL[t.value] ?? t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Budget — chips */}
+            <div className={styles.sheetSection}>
+              <span className={styles.sheetSectionTitle}>Rentang harga</span>
+              <div className={styles.chipRow}>
+                {BUDGET_PRESETS.map((b) => (
+                  <button
+                    key={b.value || "all"}
+                    type="button"
+                    className={`${styles.chip} ${selectedBudget === b.value ? styles.chipPicked : ""}`}
+                    onClick={() => setSelectedBudget(b.value)}
+                  >
+                    {b.badge}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer sticky dengan tombol Cari */}
+          <div className={styles.sheetFooter}>
+            <button type="submit" form={formId} className={styles.sheetSubmit}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" width="18" height="18" aria-hidden="true">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+              Cari Properti
+            </button>
+          </div>
+          </div>
+        </div>,
+        portalTarget
+      )}
+
         {/* Main Search Form Capsule */}
         <form
+          ref={formRef}
           id={formId}
           action="/jual"
           method="GET"
+          onSubmit={handleFormSubmit}
           role="search"
           aria-label="Pencarian Properti Eksklusif"
           className={`${styles.capsule} ${isAnyPopoverOpen ? styles.capsuleOpen : ""}`}
@@ -286,6 +650,7 @@ export default function PortalSubnav({
           {/* Hidden inputs to pass params to /jual */}
           <input type="hidden" name="area" value={selectedAreaId} />
           {selectedKawasanId && <input type="hidden" name="kawasan" value={selectedKawasanId} />}
+          {selectedCityId && <input type="hidden" name="city" value={selectedCityId} />}
           <input type="hidden" name="type" value={selectedType} />
           <input type="hidden" name="budget" value={selectedBudget} />
           {locationQuery && !selectedAreaId && <input type="hidden" name="q" value={locationQuery} />}
