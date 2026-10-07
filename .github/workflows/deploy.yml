@@ -32,6 +32,8 @@ jobs:
       # Tidak dipakai untuk query — semua halaman data sudah force-dynamic.
       DATABASE_URL: "mysql://build:build@127.0.0.1:3306/build"
       AUTH_SECRET: "build-only-dummy-secret"
+      # NEXT_PUBLIC_* di-inline saat build (client bundle), bukan dibaca runtime.
+      NEXT_PUBLIC_SITE_STATUS: "production"
     steps:
       - uses: actions/checkout@v4
 
