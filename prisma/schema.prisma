@@ -5,7 +5,10 @@
 // =============================================================================
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // Engine ikut di-bundle untuk host produksi (Node 22 selector Hostinger =
+  // OpenSSL 1.1) dan runner/SDK lokal. Lengkap + aman lintas environment.
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
