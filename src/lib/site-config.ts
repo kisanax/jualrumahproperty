@@ -5,7 +5,7 @@ export const siteConfig = {
   tagline: "Marketplace properti dijual di Indonesia",
   contact: {
     email: "info@jualrumahproperty.com",
-    phone: "+62 811-1234-5678",
+    phone: "+62 813-1796-9259",
   },
   seo: {
     defaultTitle: "Jual Rumah Property | Marketplace Properti Indonesia",
@@ -14,6 +14,6 @@ export const siteConfig = {
   },
   links: {
     instagram: "https://instagram.com/jualrumahproperty",
-    whatsapp: "https://wa.me/6281112345678",
+    whatsapp: "https://wa.me/6281317969259",
   },
 };

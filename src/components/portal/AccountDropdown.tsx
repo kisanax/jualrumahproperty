@@ -117,7 +117,7 @@ export default function AccountDropdown({
               )}
 
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20butuh%20bantuan."
+                href="https://wa.me/6281317969259?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20butuh%20bantuan."
                 target="_blank"
                 rel="noreferrer"
                 className={styles.menuItem}
@@ -155,7 +155,7 @@ export default function AccountDropdown({
             /* Guest (Not Logged In) Menu — Matches Airbnb Exactly */
             <>
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20butuh%20bantuan."
+                href="https://wa.me/6281317969259?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20butuh%20bantuan."
                 target="_blank"
                 rel="noreferrer"
                 className={styles.menuItem}
@@ -194,7 +194,7 @@ export default function AccountDropdown({
               </Link>
 
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20ingin%20konsultasi%20titip%20jual."
+                href="https://wa.me/6281317969259?text=Halo%20Jual%20Rumah%20Property%2C%20saya%20ingin%20konsultasi%20titip%20jual."
                 target="_blank"
                 rel="noreferrer"
                 className={styles.menuItem}

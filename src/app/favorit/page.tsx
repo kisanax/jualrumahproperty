@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import PortalHeader from "@/components/portal/PortalHeader";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";

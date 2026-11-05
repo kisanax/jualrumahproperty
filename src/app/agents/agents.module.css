@@ -1,6 +1,6 @@
 /* ==========================================================================
    /agents — Our Agents (Direktori Broker + Pendaftaran)
-   Adapted from William Raveis Nantucket /agents
+   Adapted from JRP Nantucket /agents
 
    TYPOGRAPHY SPEC (konsisten dengan /jual):
    ┌──────────────────────────────┬──────────────┬────────┬──────┬─────────┬───────────────────┐
@@ -57,7 +57,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   HERO — centered serif ala Raveis "Trusted Local Insight"
+   HERO — centered serif ala JRP "Trusted Local Insight"
    -------------------------------------------------------------------------- */
 .hero {
   text-align: center;
@@ -130,7 +130,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   AGENT GRID — 5 kolom desktop ala Raveis
+   AGENT GRID — 5 kolom desktop ala JRP
    -------------------------------------------------------------------------- */
 .gridSection {
   padding: 0 0 10px;

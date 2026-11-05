@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 /**
@@ -52,7 +53,7 @@ export default function PortalFooterNews() {
             </small>
           )}
           <small>
-            Dengan berlangganan Anda menyetujui <a href="/#">ketentuan</a> kami.
+            Dengan berlangganan Anda menyetujui <Link href="#">ketentuan</Link> kami.
             Berhenti kapan saja.
           </small>
         </>

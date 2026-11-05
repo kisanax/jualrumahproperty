@@ -31,13 +31,13 @@ export function PropertyAccordion({
   }
 
   return (
-    <div className="raveis-info-section">
-      <h2 className="raveis-info-title">Property Information</h2>
+    <div className="pd-info-section">
+      <h2 className="pd-info-title">Property Information</h2>
 
-      <div className="raveis-details-accordion">
+      <div className="pd-details-accordion">
         <button
           type="button"
-          className="raveis-accordion-header"
+          className="pd-accordion-header"
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
         >
@@ -45,23 +45,23 @@ export function PropertyAccordion({
           <svg
             viewBox="0 0 24 24"
             aria-hidden="true"
-            className={`raveis-chevron ${isOpen ? "open" : ""}`}
+            className={`pd-chevron ${isOpen ? "open" : ""}`}
           >
             <path d="m6 9 6 6 6-6" />
           </svg>
         </button>
 
         {isOpen && (
-          <div className="raveis-accordion-panel">
+          <div className="pd-accordion-panel">
             {/* Location Section */}
             {validLocation.length > 0 && (
-              <div className="raveis-panel-group">
-                <h3 className="raveis-group-heading">Location</h3>
-                <div className="raveis-kv-grid">
+              <div className="pd-panel-group">
+                <h3 className="pd-group-heading">Location</h3>
+                <div className="pd-kv-grid">
                   {validLocation.map((item, index) => (
-                    <div key={index} className="raveis-kv-item">
-                      <span className="raveis-kv-key">{item.label}</span>
-                      <span className="raveis-kv-val">{item.value}</span>
+                    <div key={index} className="pd-kv-item">
+                      <span className="pd-kv-key">{item.label}</span>
+                      <span className="pd-kv-val">{item.value}</span>
                     </div>
                   ))}
                 </div>
@@ -70,13 +70,13 @@ export function PropertyAccordion({
 
             {/* Features Section */}
             {validSpecs.length > 0 && (
-              <div className="raveis-panel-group">
-                <h3 className="raveis-group-heading">Property Features</h3>
-                <div className="raveis-kv-grid">
+              <div className="pd-panel-group">
+                <h3 className="pd-group-heading">Property Features</h3>
+                <div className="pd-kv-grid">
                   {validSpecs.map((item, index) => (
-                    <div key={index} className="raveis-kv-item">
-                      <span className="raveis-kv-key">{item.label}</span>
-                      <span className="raveis-kv-val">{item.value}</span>
+                    <div key={index} className="pd-kv-item">
+                      <span className="pd-kv-key">{item.label}</span>
+                      <span className="pd-kv-val">{item.value}</span>
                     </div>
                   ))}
                 </div>

@@ -64,12 +64,13 @@ export default function FavoritesGrid() {
   }, []);
 
   useEffect(() => {
-    if (!ids || ids.length === 0) {
-      setItems([]);
-      return;
-    }
+    // Daftar kosong tidak perlu setState — items dirampungkan lewat `stale`
+    // (lihat di bawah) agar tidak ada setState sinkron dalam effect body.
+    if (!ids || ids.length === 0) return;
     let cancelled = false;
-    setLoading(true);
+    // setState dimundurkan 1 microtask agar tidak memicu cascading render
+    // (aturan react-hooks/set-state-in-effect).
+    queueMicrotask(() => setLoading(true));
     fetch(`/api/properties/public?ids=${ids.join(",")}`)
       .then((r) => (r.ok ? r.json() : { properties: [] }))
       .then((data) => {
@@ -85,6 +86,10 @@ export default function FavoritesGrid() {
       cancelled = true;
     };
   }, [ids]);
+
+  // Fallback tampilan saat daftar kosong — tanpa state tambahan.
+  const shownItems = !ids || ids.length === 0 ? [] : items;
+  const shownLoading = !ids || ids.length === 0 ? false : loading;
 
   if (!ids) return null; // belum hydration
 
@@ -103,9 +108,9 @@ export default function FavoritesGrid() {
 
   return (
     <div className="fav-grid-wrap">
-      {loading && <p className="fav-loading">Memuat favorit…</p>}
+      {shownLoading && <p className="fav-loading">Memuat favorit…</p>}
       <div className="listing-grid">
-        {items.map((p) => (
+        {shownItems.map((p) => (
           <Link key={p.id} href={`/properti/${p.id}`} className="property-card-link">
             <article className="property-card">
               <div className="property-card-image">
@@ -136,8 +141,8 @@ export default function FavoritesGrid() {
           </Link>
         ))}
       </div>
-      {items.length > 0 && (
-        <p className="fav-count">{items.length} properti tersimpan</p>
+      {shownItems.length > 0 && (
+        <p className="fav-count">{shownItems.length} properti tersimpan</p>
       )}
     </div>
   );

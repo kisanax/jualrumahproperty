@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import PortalHeader from "@/components/portal/PortalHeader";
 import MobileBottomNav from "@/components/portal/MobileBottomNav";
 import PortalFooter from "@/components/portal/PortalFooter";
 import { prisma } from "@/lib/prisma";
 import styles from "./agents.module.css";
+
+// Direktori agen publik ditahan (rencana publish agent per listing dibatalkan).
+// Data + route tetap utuh; set NEXT_PUBLIC_AGENTS_ENABLED="true" untuk mengaktifkan.
+const AGENTS_ENABLED = process.env.NEXT_PUBLIC_AGENTS_ENABLED === "true";
 
 // Data broker live — jangan di-prerender saat build (menghindari koneksi DB saat next build).
 export const dynamic = "force-dynamic";
@@ -39,6 +44,8 @@ export default async function AgentsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  if (!AGENTS_ENABLED) notFound();
+
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q.trim().slice(0, 80) : "";
 

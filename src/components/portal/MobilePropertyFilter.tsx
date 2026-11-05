@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Children, type ReactNode, useEffect, useRef, useState } from "react";
+import { Children, type ReactNode, useState } from "react";
 
 type PropertyFilter = "" | "HOUSE" | "APARTMENT" | "LAND" | "SHOPHOUSE";
 const categoryIconVersion = "20261004-1";

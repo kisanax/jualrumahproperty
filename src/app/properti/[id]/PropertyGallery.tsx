@@ -45,8 +45,8 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
   if (totalPhotos === 0) {
     return (
-      <section className="raveis-gallery-empty-wrap" aria-label="Galeri Foto">
-        <div className="raveis-gallery-empty">
+      <section className="pd-gallery-empty-wrap" aria-label="Galeri Foto">
+        <div className="pd-gallery-empty">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="m3 11 9-7 9 7v9H3v-9Z" />
             <path d="M9 20v-6h6v6" />
@@ -63,10 +63,10 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
   return (
     <>
-      <section className="raveis-gallery-wrapper" aria-label={`Galeri Foto ${title}`}>
+      <section className="pd-gallery-wrapper" aria-label={`Galeri Foto ${title}`}>
         {/* Main large hero photo (left ~54%) */}
         <div
-          className="raveis-gallery-main"
+          className="pd-gallery-main"
           onClick={() => setLightboxOpen(true)}
           role="button"
           tabIndex={0}
@@ -145,7 +145,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
         {/* 2x2 grid of 4 photos on the right (~46%) */}
         {sidePhotos.length > 0 && (
-          <div className="raveis-gallery-grid">
+          <div className="pd-gallery-grid">
             {sidePhotos.map((photo, idx) => {
               const photoIndex = idx + 1;
               const isLastItem = idx === 3;
@@ -153,7 +153,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
               return (
                 <div
                   key={photo.id}
-                  className={`raveis-gallery-thumb ${
+                  className={`pd-gallery-thumb ${
                     activeIndex === photoIndex ? "active-thumb" : ""
                   }`}
                   onClick={() => {
@@ -172,16 +172,16 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
                   {/* If 4th item has extra photos, show subtle overlay */}
                   {isLastItem && remainingCount > 0 ? (
-                    <div className="raveis-more-overlay">
+                    <div className="pd-more-overlay">
                       <span>+{remainingCount + 1} Foto</span>
                       <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="m9 18 6-6-6-6" />
                       </svg>
                     </div>
                   ) : (
-                    /* Subtle chevron arrow on the 4th photo matching William Raveis */
+                    /* Subtle chevron arrow on the 4th photo matching JRP */
                     isLastItem && (
-                      <div className="raveis-thumb-chevron">
+                      <div className="pd-thumb-chevron">
                         <svg viewBox="0 0 24 24" aria-hidden="true">
                           <path d="m9 18 6-6-6-6" />
                         </svg>
@@ -198,19 +198,19 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
       {/* FULLSCREEN LIGHTBOX MODAL */}
       {lightboxOpen && (
         <div
-          className="raveis-lightbox"
+          className="pd-lightbox"
           role="dialog"
           aria-modal="true"
           aria-label={`Foto ukuran penuh — ${title}`}
           onClick={() => setLightboxOpen(false)}
         >
           <div
-            className="raveis-lightbox-container"
+            className="pd-lightbox-container"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="raveis-lightbox-header">
-              <div className="raveis-lightbox-heading">
+            <div className="pd-lightbox-header">
+              <div className="pd-lightbox-heading">
                 <strong>{title}</strong>
                 <span>
                   Foto {activeIndex + 1} dari {totalPhotos}
@@ -218,7 +218,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
               </div>
               <button
                 type="button"
-                className="raveis-lightbox-exit"
+                className="pd-lightbox-exit"
                 onClick={() => setLightboxOpen(false)}
                 aria-label="Tutup foto"
               >
@@ -229,10 +229,10 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
             </div>
 
             {/* Stage */}
-            <div className="raveis-lightbox-stage">
+            <div className="pd-lightbox-stage">
               <button
                 type="button"
-                className="raveis-lightbox-arrow arrow-left"
+                className="pd-lightbox-arrow arrow-left"
                 onClick={prevPhoto}
                 aria-label="Foto sebelumnya"
               >
@@ -241,7 +241,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
                 </svg>
               </button>
 
-              <div className="raveis-lightbox-photo-box">
+              <div className="pd-lightbox-photo-box">
                 <img
                   src={getMediaUrl(currentPhoto.filePath)}
                   alt={
@@ -253,7 +253,7 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
 
               <button
                 type="button"
-                className="raveis-lightbox-arrow arrow-right"
+                className="pd-lightbox-arrow arrow-right"
                 onClick={nextPhoto}
                 aria-label="Foto berikutnya"
               >
@@ -264,12 +264,12 @@ export function PropertyGallery({ photos, title }: PropertyGalleryProps) {
             </div>
 
             {/* Thumbnail Strip */}
-            <div className="raveis-lightbox-strip">
+            <div className="pd-lightbox-strip">
               {photos.map((p, i) => (
                 <button
                   key={p.id}
                   type="button"
-                  className={`raveis-strip-thumb ${
+                  className={`pd-strip-thumb ${
                     i === activeIndex ? "active" : ""
                   }`}
                   onClick={() => setActiveIndex(i)}

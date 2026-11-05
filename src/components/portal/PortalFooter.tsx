@@ -1,6 +1,10 @@
 import Link from "next/link";
 import PortalFooterNews from "./PortalFooterNews";
 
+// Direktori agen publik ditahan (rencana publish agent per listing dibatalkan).
+// Link footer ikut hilang; set NEXT_PUBLIC_AGENTS_ENABLED="true" untuk mengaktifkan.
+const AGENTS_ENABLED = process.env.NEXT_PUBLIC_AGENTS_ENABLED === "true";
+
 /**
  * Footer global portal publik.
  * Atas: section informasi ala laravel.com (brand + tagline, kolom link,
@@ -25,7 +29,7 @@ const FOOTER_COLUMNS: { title: string; links: { label: string; href: string }[] 
   {
     title: "Bantuan",
     links: [
-      { label: "Hubungi Kami", href: "https://wa.me/628118000960" },
+      { label: "Hubungi Kami", href: "https://wa.me/6281317969259" },
       { label: "Tentang Kami", href: "/#" },
     ],
   },
@@ -49,7 +53,10 @@ export default function PortalFooter() {
             <p className="portal-footer-copy">© 2026 Jual Rumah Property</p>
           </div>
           <nav className="portal-footer-cols" aria-label="Tautan footer">
-            {FOOTER_COLUMNS.map((col) => (
+            {FOOTER_COLUMNS.map((col) => ({
+              ...col,
+              links: col.links.filter((l) => AGENTS_ENABLED || l.href !== "/agents"),
+            })).map((col) => (
               <div key={col.title} className="portal-footer-col">
                 <h3>{col.title}</h3>
                 <ul>

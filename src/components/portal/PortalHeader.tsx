@@ -62,7 +62,7 @@ export default async function PortalHeader({
   const phoneLink = (
     <a
       className="mobile-call"
-      href="tel:+6281234567890"
+      href="tel:+6281317969259"
       aria-label="Telepon Jual Rumah Property"
     >
       <svg viewBox="0 0 24 24" aria-hidden="true">

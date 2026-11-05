@@ -256,7 +256,7 @@ export default async function PropertyDetailPage({ params }: Props) {
   ];
 
   return (
-    <div className="raveis-page-root">
+    <div className="pd-page-root">
       {/* ── SITE HEADER ── */}
       <header className="site-header">
         <BrandLogo />
@@ -265,7 +265,7 @@ export default async function PropertyDetailPage({ params }: Props) {
           <Link href="/#tentang">Tentang Kami</Link>
           <a
             className="nav-contact"
-            href="https://wa.me/6281234567890"
+            href="https://wa.me/6281317969259"
             target="_blank"
             rel="noreferrer"
           >
@@ -274,7 +274,7 @@ export default async function PropertyDetailPage({ params }: Props) {
         </nav>
         <a
           className="mobile-call"
-          href="tel:+6281234567890"
+          href="tel:+6281317969259"
           aria-label="Telepon Jual Rumah Property"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -284,7 +284,7 @@ export default async function PropertyDetailPage({ params }: Props) {
       </header>
 
       {/* ── BREADCRUMB ── */}
-      <nav className="raveis-breadcrumb" aria-label="Breadcrumb">
+      <nav className="pd-breadcrumb" aria-label="Breadcrumb">
         <Link href="/">Beranda</Link>
         <span className="sep">/</span>
         <Link href="/#jual">Properti Dijual</Link>
@@ -292,89 +292,89 @@ export default async function PropertyDetailPage({ params }: Props) {
         <span className="current">{property.area.name}</span>
       </nav>
 
-      {/* ── GALLERY (William Raveis style: 1 Hero + 2x2 Grid) ── */}
+      {/* ── GALLERY (JRP style: 1 Hero + 2x2 Grid) ── */}
       <PropertyGallery photos={photos} title={title} />
 
       {/* ── MAIN CONTENT CONTAINER ── */}
-      <div className="raveis-layout">
+      <div className="pd-layout">
         {/* LEFT COLUMN: Main Info & Specifications */}
-        <section className="raveis-content-left">
+        <section className="pd-content-left">
           {/* Title in Elegant Serif */}
-          <h1 className="raveis-heading-title">{title}</h1>
+          <h1 className="pd-heading-title">{title}</h1>
 
           {/* Status Badges */}
-          <div className="raveis-badge-strip">
-            <span className="raveis-pill pill-status">
+          <div className="pd-badge-strip">
+            <span className="pd-pill pill-status">
               {listing?.status === "ACTIVE"
                 ? "ACTIVE"
                 : listing?.status === "READY_TO_PUBLISH"
                 ? "SIAP PUBLISH"
                 : "DRAFT"}
             </span>
-            <span className="raveis-pill">
+            <span className="pd-pill">
               {typeLabel[property.type] || property.type}
             </span>
             {property.kawasan?.name && (
-              <span className="raveis-pill">{property.kawasan.name}</span>
+              <span className="pd-pill">{property.kawasan.name}</span>
             )}
             {property.certificateType && (
-              <span className="raveis-pill">{property.certificateType}</span>
+              <span className="pd-pill">{property.certificateType}</span>
             )}
           </div>
 
           {/* 4-COLUMN SPECS GRID (Icon + Label on top, Value below) */}
           {/* ONLY populated fields are displayed */}
-          <div className="raveis-spec-grid">
+          <div className="pd-spec-grid">
             {/* Property Type */}
-            <div className="raveis-spec-cell">
-              <div className="raveis-spec-top">
+            <div className="pd-spec-cell">
+              <div className="pd-spec-top">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="m3 11 9-7 9 7v9H3v-9Z" />
                 </svg>
                 <span>Tipe Properti</span>
               </div>
-              <div className="raveis-spec-bottom">
+              <div className="pd-spec-bottom">
                 {typeLabel[property.type] || property.type}
               </div>
             </div>
 
             {/* Bedrooms */}
             {property.bedrooms != null && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 7v10M21 7v10M3 17h18M3 13h18M5 13V7h14v6" />
                   </svg>
                   <span>Kamar Tidur</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.bedrooms}</div>
+                <div className="pd-spec-bottom">{property.bedrooms}</div>
               </div>
             )}
 
             {/* Bathrooms */}
             {property.bathrooms != null && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1ZM6 12V5a2 2 0 0 1 2-2h3v3H8v6" />
                   </svg>
                   <span>Kamar Mandi</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.bathrooms}</div>
+                <div className="pd-spec-bottom">{property.bathrooms}</div>
               </div>
             )}
 
             {/* Luas Bangunan */}
             {property.buildingArea != null && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="m3 11 9-7 9 7v9H3v-9Z" />
                     <path d="M9 20v-6h6v6" />
                   </svg>
                   <span>Luas Bangunan</span>
                 </div>
-                <div className="raveis-spec-bottom">
+                <div className="pd-spec-bottom">
                   {property.buildingArea.toLocaleString("id-ID")} m²
                 </div>
               </div>
@@ -382,15 +382,15 @@ export default async function PropertyDetailPage({ params }: Props) {
 
             {/* Luas Tanah */}
             {property.landArea != null && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <path d="M3 9h18M9 3v18" />
                   </svg>
                   <span>Luas Tanah</span>
                 </div>
-                <div className="raveis-spec-bottom">
+                <div className="pd-spec-bottom">
                   {property.landArea.toLocaleString("id-ID")} m²
                 </div>
               </div>
@@ -398,55 +398,55 @@ export default async function PropertyDetailPage({ params }: Props) {
 
             {/* Sertifikat */}
             {property.certificateType && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" />
                     <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
                   </svg>
                   <span>Sertifikat</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.certificateType}</div>
+                <div className="pd-spec-bottom">{property.certificateType}</div>
               </div>
             )}
 
             {/* Parking */}
             {totalParking > 0 && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="4" width="18" height="16" rx="2" />
                     <path d="M9 16V8h4a2 2 0 1 1 0 4H9" />
                   </svg>
                   <span>Parkir</span>
                 </div>
-                <div className="raveis-spec-bottom">{totalParking} Mobil</div>
+                <div className="pd-spec-bottom">{totalParking} Mobil</div>
               </div>
             )}
 
             {/* Floors */}
             {property.floors != null && property.floors > 1 && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M3 21h18M3 17h18M3 13h18M3 9h18" />
                   </svg>
                   <span>Lantai</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.floors} Lantai</div>
+                <div className="pd-spec-bottom">{property.floors} Lantai</div>
               </div>
             )}
 
             {/* Electricity */}
             {property.electricity != null && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z" />
                   </svg>
                   <span>Daya Listrik</span>
                 </div>
-                <div className="raveis-spec-bottom">
+                <div className="pd-spec-bottom">
                   {property.electricity.toLocaleString("id-ID")} Watt
                 </div>
               </div>
@@ -454,49 +454,49 @@ export default async function PropertyDetailPage({ params }: Props) {
 
             {/* Water Source */}
             {property.waterSource && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 2s-6 7.5-6 12a6 6 0 0 0 12 0c0-4.5-6-12-6-12Z" />
                   </svg>
                   <span>Sumber Air</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.waterSource}</div>
+                <div className="pd-spec-bottom">{property.waterSource}</div>
               </div>
             )}
 
             {/* Facing */}
             {property.facing && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <circle cx="12" cy="12" r="10" />
                     <path d="m16.2 7.8-4.2 4.2M12 2v4M12 18v4M2 12h4M18 12h4" />
                   </svg>
                   <span>Arah Hadap</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.facing}</div>
+                <div className="pd-spec-bottom">{property.facing}</div>
               </div>
             )}
 
             {/* Year Built */}
             {property.yearBuilt != null && (
-              <div className="raveis-spec-cell">
-                <div className="raveis-spec-top">
+              <div className="pd-spec-cell">
+                <div className="pd-spec-top">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <rect x="3" y="4" width="18" height="18" rx="2" />
                     <path d="M16 2v4M8 2v4M3 10h18" />
                   </svg>
                   <span>Tahun Dibangun</span>
                 </div>
-                <div className="raveis-spec-bottom">{property.yearBuilt}</div>
+                <div className="pd-spec-bottom">{property.yearBuilt}</div>
               </div>
             )}
           </div>
 
           {/* Description Section */}
           {listing?.description && (
-            <div className="raveis-copy-section">
+            <div className="pd-copy-section">
               <p>{listing.description}</p>
             </div>
           )}
@@ -509,39 +509,39 @@ export default async function PropertyDetailPage({ params }: Props) {
         </section>
 
         {/* RIGHT COLUMN: Sidebar (Price, Share, CTAs — NO MAP) */}
-        <aside className="raveis-content-right">
-          <div className="raveis-card-sidebar">
+        <aside className="pd-content-right">
+          <div className="pd-card-sidebar">
             {/* Share property inline icons */}
             <PropertyShare title={title} code={property.code} />
 
             {/* Price Display */}
-            <div className="raveis-pricing-group">
-              <div className="raveis-price-main">
+            <div className="pd-pricing-group">
+              <div className="pd-price-main">
                 {listing && !listing.priceOnRequest
                   ? formatRupiahShort(listing.askingPrice)
                   : "Hubungi Kami"}
               </div>
               {listing && !listing.priceOnRequest && (
-                <div className="raveis-price-sub">
+                <div className="pd-price-sub">
                   {formatRupiahFull(listing.askingPrice)}
                 </div>
               )}
             </div>
 
             {/* Location & Listing ID */}
-            <div className="raveis-address-group">
-              <div className="raveis-location-line">{locationDisplay}</div>
-              <div className="raveis-id-line">
+            <div className="pd-address-group">
+              <div className="pd-location-line">{locationDisplay}</div>
+              <div className="pd-id-line">
                 Listing ID {property.code}
               </div>
             </div>
 
-            {/* Action Buttons (William Raveis style) */}
-            <div className="raveis-cta-group">
+            {/* Action Buttons (JRP style) */}
+            <div className="pd-cta-group">
               {/* Primary Filled: Jadwalkan Kunjungan (WhatsApp) */}
               <a
-                className="raveis-action-btn btn-showing"
-                href={`https://wa.me/6281234567890?text=${waShowingText}`}
+                className="pd-action-btn btn-showing"
+                href={`https://wa.me/6281317969259?text=${waShowingText}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -550,8 +550,8 @@ export default async function PropertyDetailPage({ params }: Props) {
 
               {/* Secondary Outlined: Minta Info (WhatsApp) */}
               <a
-                className="raveis-action-btn btn-info"
-                href={`https://wa.me/6281234567890?text=${waInfoText}`}
+                className="pd-action-btn btn-info"
+                href={`https://wa.me/6281317969259?text=${waInfoText}`}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -560,14 +560,14 @@ export default async function PropertyDetailPage({ params }: Props) {
             </div>
 
             {/* Advisor Assistance */}
-            <div className="raveis-agent-strip">
-              <div className="raveis-agent-desc">
+            <div className="pd-agent-strip">
+              <div className="pd-agent-desc">
                 <span>Butuh Bantuan Langsung?</span>
-                <strong>+62 812-3456-7890</strong>
+                <strong>+62 813-1796-9259</strong>
               </div>
               <a
-                href="tel:+6281234567890"
-                className="raveis-agent-call-btn"
+                href="tel:+6281317969259"
+                className="pd-agent-call-btn"
                 aria-label="Telepon Advisor"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -582,7 +582,7 @@ export default async function PropertyDetailPage({ params }: Props) {
       {/* ── FLOATING WHATSAPP CTA ── */}
       <a
         className="floating-cta"
-        href={`https://wa.me/6281234567890?text=${waShowingText}`}
+        href={`https://wa.me/6281317969259?text=${waShowingText}`}
         target="_blank"
         rel="noreferrer"
         aria-label="Chat WhatsApp untuk survei properti"

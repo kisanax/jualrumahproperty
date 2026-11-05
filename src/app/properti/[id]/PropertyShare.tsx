@@ -38,13 +38,13 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
   const encodedUrl = encodeURIComponent(getShareUrl());
 
   return (
-    <div className="raveis-share-row">
-      <span className="raveis-share-label">Share property</span>
-      <div className="raveis-share-inline-icons">
+    <div className="pd-share-row">
+      <span className="pd-share-label">Share property</span>
+      <div className="pd-share-inline-icons">
         {/* Email */}
         <a
           href={`mailto:?subject=${shareText}&body=${encodedUrl}`}
-          className="raveis-share-icon"
+          className="pd-share-icon"
           aria-label="Email property"
           title="Kirim via Email"
         >
@@ -59,7 +59,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
           href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="raveis-share-icon"
+          className="pd-share-icon"
           aria-label="Share on Facebook"
           title="Bagikan ke Facebook"
         >
@@ -73,7 +73,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
           href={`https://api.whatsapp.com/send?text=${shareText}%20${encodedUrl}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="raveis-share-icon"
+          className="pd-share-icon"
           aria-label="Share on WhatsApp"
           title="Bagikan ke WhatsApp"
         >
@@ -88,7 +88,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
           href={`https://twitter.com/intent/tweet?text=${shareText}&url=${encodedUrl}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="raveis-share-icon"
+          className="pd-share-icon"
           aria-label="Share on X"
           title="Bagikan ke X"
         >
@@ -101,7 +101,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
         <button
           type="button"
           onClick={handleCopy}
-          className="raveis-share-icon"
+          className="pd-share-icon"
           aria-label="Salin tautan"
           title={copied ? "Tersalin!" : "Salin tautan"}
         >
@@ -117,7 +117,7 @@ export function PropertyShare({ title, code }: PropertyShareProps) {
           )}
         </button>
       </div>
-      {copied && <span className="raveis-copied-toast">Tersalin!</span>}
+      {copied && <span className="pd-copied-toast">Tersalin!</span>}
     </div>
   );
 }
