@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "node:crypto";
-import sharp from "sharp";
+import { watermarkPhoto } from "@/lib/image-watermark";
 import { getStorage } from "@/lib/storage";
 
 export async function POST(req:Request, ctx:{params:Promise<{id:string}>}) {
@@ -10,7 +10,10 @@ export async function POST(req:Request, ctx:{params:Promise<{id:string}>}) {
   const form=await req.formData(); const file=form.get("file");
   if(!(file instanceof File) || !["image/jpeg","image/png","image/webp"].includes(file.type) || file.size>10*1024*1024 || !file.size) return Response.json({error:"Foto harus JPG/PNG/WebP maksimal 10 MB"},{status:400});
   let bytes:Buffer;
-  try {bytes=await sharp(Buffer.from(await file.arrayBuffer()), {limitInputPixels:40000000}).rotate().resize({width:1920,height:1920,fit:"inside",withoutEnlargement:true}).webp({quality:82}).toBuffer();}
+  try {
+    const marked=await watermarkPhoto(Buffer.from(await file.arrayBuffer()), {style:"tiled"});
+    bytes=marked.data;
+  }
   catch {return Response.json({error:"File gambar tidak dapat dibaca"},{status:400});}
 
   const storage = getStorage();

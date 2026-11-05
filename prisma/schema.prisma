@@ -199,6 +199,7 @@ model User {
   priceChanges           PriceHistory[]
   leadActivities         LeadActivity[]
   managedListings        Listing[] @relation("ListingManagedBy")
+  brokerAgreements       MarketingAgreement[] @relation("AgreementBroker")
 
   @@map("users")
 }
@@ -249,6 +250,8 @@ model BrokerProfile {
   id                    String                   @id @default(uuid())
   userId                String                   @unique
   brokerType            BrokerType?
+  /// Nama kantor broker — dipakai pada surat perjanjian pemasaran
+  company               String?                  @db.VarChar(200)
   phone                 String?                  @db.VarChar(40)
   city                  String?                  @db.VarChar(120)
   province              String?                  @db.VarChar(120)
@@ -394,6 +397,7 @@ model Owner {
 
   // Relations
   propertyOwners PropertyOwner[]
+  agreements     MarketingAgreement[]
 
   @@index([name])
   @@index([phone])
@@ -588,6 +592,7 @@ model Listing {
   // Relations
   property              Property               @relation(fields: [propertyId], references: [id])
   managedBy             User?                  @relation("ListingManagedBy", fields: [managedById], references: [id])
+  agreements            MarketingAgreement[]
   listingIntermediaries ListingIntermediary[]
   listingSources        ListingSource[]
   statusHistory         ListingStatusHistory[]
@@ -739,6 +744,7 @@ model Document {
 
   // Relations
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  archivedAgreement MarketingAgreement? @relation("AgreementArchive")
 
   @@index([propertyId])
   @@index([type])
@@ -909,4 +915,165 @@ model Offer {
   @@index([listingId])
   @@index([status])
   @@map("offers")
+}
+
+// =============================================================================
+// PERJANJIAN PEMASARAN — SURAT PERJANJIAN BROKER ↔ OWNER
+//
+// Alur: DRAFT (broker menyusun) → ISSUED (nomor digenerate, snapshot difreeze,
+// siap tanda tangan) → PARTIALLY_SIGNED → SIGNED (surat final + finalHash).
+//
+// Prinsip integritas: isi surat TIDAK boleh berubah setelah ISSUED, karena
+// surat yang ditandatangani harus tetap sama persis saat diverifikasi.
+// Lihat lib/agreement-hash.ts.
+// =============================================================================
+
+enum AgreementStatus {
+  DRAFT
+  ISSUED
+  PARTIALLY_SIGNED
+  SIGNED
+  CANCELLED
+  EXPIRED
+}
+
+enum AgreementSignerRole {
+  BROKER // pihak yang memasarkan
+  OWNER // pihak pemilik properti
+}
+
+/// Metode tanda tangan — dibedakan agar jelas mana yang tersertifikasi
+/// (PSrE, roadmap) dan mana yang tidak (DRAWN/TYPED, sesuai PP 71/2019 Pasal 60).
+enum SignatureMethod {
+  DRAWN // gambar tangan di canvas
+  TYPED // nama dikonversi font tanda tangan
+  CERTIFIED // via Penyelenggara Sertifikasi Elektronik — roadmap
+}
+
+enum SignatureStatus {
+  PENDING
+  SIGNED
+  DECLINED
+}
+
+/// Template pasal surat perjanjian — editable SUPER_ADMIN, berversi.
+/// `body` berisi array pasal dengan placeholder {{...}} yang di-render
+/// saat perjanjian diterbitkan. Versi lama tetap tersimpan agar surat yang
+/// sudah ditandatangani bisa direproduksi persis.
+model AgreementTemplate {
+  id          String   @id @default(uuid())
+  name        String   @db.VarChar(150)
+  version     Int      @default(1)
+  isActive    Boolean  @default(true)
+  headerTitle String   @db.VarChar(255)
+  opening     String   @db.Text // paragraf pembuka (identitas para pihak)
+  body        Json // array pasal: [{ title, paragraphs: string[] }]
+  closing     String   @db.Text // paragraf penutup sebelum tanda tangan
+  placeholders Json? // katalog variabel yang tersedia — untuk bantuan editor
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  agreements MarketingAgreement[]
+
+  @@unique([name, version])
+  @@index([isActive])
+  @@map("agreement_templates")
+}
+
+/// Surat Perjanjian Pemasaran Properti — satu perjanjian untuk satu listing.
+/// Bila masa berlaku habis, broker menerbitkan perjanjian BARU (tidak
+/// mengubah yang lama) supaya jejak surat lama tetap utuh.
+model MarketingAgreement {
+  id              String          @id @default(uuid())
+  agreementNumber String          @unique @db.VarChar(40)
+  listingId       String
+  ownerId         String
+  brokerUserId    String
+  templateId      String?
+  /// Versi template saat surat diterbitkan — di-freeze agar bisa direproduksi.
+  templateVersion Int             @default(1)
+  status          AgreementStatus @default(DRAFT)
+
+  // Syarat komersial (ikut difreeze ke snapshot saat ISSUED)
+  exclusive         Boolean  @default(false)
+  commissionPercent Decimal? @db.Decimal(5, 2)
+  commissionAmount  Decimal? @db.Decimal(15, 0)
+  commissionNotes   String?  @db.Text
+
+  startDate   DateTime
+  endDate     DateTime
+  signedPlace String?  @db.VarChar(150) // kota penandatanganan
+
+  // Snapshot & integritas isi surat
+  snapshot    Json?     // seluruh isi surat yang difreeze saat ISSUED
+  contentHash String?   @db.VarChar(64) // SHA-256 snapshot saat ISSUED
+  finalHash   String?   @db.VarChar(64) // SHA-256 setelah SEMUA pihak ttd
+  issuedAt    DateTime?
+  signedAt    DateTime?
+  cancelledAt DateTime?
+  cancelReason String?  @db.Text
+
+  /// Arsip ke tabel `documents` (DocumentType.CONSIGNMENT_AGREEMENT)
+  /// setelah surat ditandatangani lengkap.
+  archivedDocumentId String? @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing          Listing            @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  owner            Owner              @relation(fields: [ownerId], references: [id])
+  broker           User               @relation("AgreementBroker", fields: [brokerUserId], references: [id])
+  template         AgreementTemplate? @relation(fields: [templateId], references: [id])
+  signatures       AgreementSignature[]
+  archivedDocument Document?          @relation("AgreementArchive", fields: [archivedDocumentId], references: [id])
+
+  @@index([listingId])
+  @@index([ownerId])
+  @@index([brokerUserId])
+  @@index([status])
+  @@map("marketing_agreements")
+}
+
+/// Slot tanda tangan per pihak + bundel bukti elektronik.
+///
+/// Gambar tanda tangan SENDIRI tidak bernilai — yang memberi bobot hukum
+/// adalah bundel bukti di baris ini: consent, waktu, IP, device, dan hash.
+/// Marker bukti tidak pernah dihapus walau tanda tangan diperbarui.
+model AgreementSignature {
+  id          String                @id @default(uuid())
+  agreementId String
+  signerRole  AgreementSignerRole
+  status      SignatureStatus       @default(PENDING)
+  method      SignatureMethod?
+
+  // Identitas penanda tangan
+  signerName  String  @db.VarChar(150)
+  signerPhone String? @db.VarChar(40)
+  signerEmail String? @db.VarChar(191)
+
+  // Kanal publik (owner tanpa akun) — token hanya disimpan sebagai hash.
+  // Single-use: tokenUsedAt diisi saat dipakai, jadi link mati setelah ttd.
+  accessTokenHash String?   @unique @db.VarChar(64)
+  tokenExpiresAt  DateTime?
+  tokenUsedAt     DateTime?
+
+  // Bukti tanda tangan
+  signatureImagePath String?   @db.VarChar(500) // path R2
+  signatureImageHash String?   @db.VarChar(64)
+  consentAt          DateTime? // waktu persetujuan dicentang
+  signedAt           DateTime?
+
+  // Audit trail
+  signerIp     String? @db.VarChar(64)
+  signerUa     String? @db.VarChar(500)
+  evidenceHash String? @db.VarChar(64) // SHA-256 gabungan bundel bukti
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  agreement MarketingAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+
+  @@unique([agreementId, signerRole])
+  @@index([agreementId])
+  @@map("agreement_signatures")
 }

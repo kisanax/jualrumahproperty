@@ -2,6 +2,11 @@ import { PrismaClient } from "@prisma/client";
 import { hashPassword } from "../src/lib/password";
 import { MODULES, MODULE_DEFAULTS } from "../src/lib/module-access";
 
+import {
+  DEFAULT_AGREEMENT_TEMPLATE,
+  AGREEMENT_PLACEHOLDERS,
+} from "../src/lib/agreement-template";
+
 const prisma = new PrismaClient();
 
 // =============================================================================
@@ -283,7 +288,42 @@ async function main() {
     create: { name: "listing", currentValue: 500000 },
   });
 
-  console.log("   ✅ Sequence counters initialized (property: 100000, listing: 500000)\n");
+  // Counter nomor surat perjanjian pemasaran. Nomor tidak pernah didaur ulang
+  // walau surat dibatalkan — celah urutan = jejak audit, bukan bug.
+  await prisma.sequenceCounter.upsert({
+    where: { name: "agreement" },
+    update: {},
+    create: { name: "agreement", currentValue: 0 },
+  });
+
+  console.log("   ✅ Sequence counters initialized (property: 100000, listing: 500000, agreement: 0)\n");
+
+  // -------------------------------------------------------------------------
+  // 0b. Seed Template Surat Perjanjian Pemasaran (editable SUPER_ADMIN)
+  // -------------------------------------------------------------------------
+  console.log("📄 Seeding template perjanjian pemasaran...");
+
+  await prisma.agreementTemplate.upsert({
+    where: {
+      name_version: {
+        name: DEFAULT_AGREEMENT_TEMPLATE.name,
+        version: 1,
+      },
+    },
+    update: {},
+    create: {
+      name: DEFAULT_AGREEMENT_TEMPLATE.name,
+      version: 1,
+      isActive: true,
+      headerTitle: DEFAULT_AGREEMENT_TEMPLATE.headerTitle,
+      opening: DEFAULT_AGREEMENT_TEMPLATE.opening,
+      body: DEFAULT_AGREEMENT_TEMPLATE.body,
+      closing: DEFAULT_AGREEMENT_TEMPLATE.closing,
+      placeholders: AGREEMENT_PLACEHOLDERS,
+    },
+  });
+
+  console.log("   ✅ Template perjanjian pemasaran v1 siap\n");
 
   // -------------------------------------------------------------------------
   // 1. Seed Areas (hierarki Kemendagri: DKI → Kota Adm. Jaksel → kecamatan → kelurahan)
@@ -410,10 +450,10 @@ async function main() {
   const adminPassword = await hashPassword("admin");
 
   const admin = await prisma.user.upsert({
-    where: { email: "admin@jakselproperti.com" },
+    where: { email: "admin@jualrumahproperty.com" },
     update: { username: "admin", password: adminPassword },
     create: {
-      email: "admin@jakselproperti.com",
+      email: "admin@jualrumahproperty.com",
       username: "admin",
       name: "Admin",
       password: adminPassword,
@@ -421,7 +461,7 @@ async function main() {
     },
   });
 
-  console.log("   ✅ Default admin created (username: admin / email: admin@jakselproperti.com)\n");
+  console.log("   ✅ Default admin created (username: admin / email: admin@jualrumahproperty.com)\n");
 
   // -------------------------------------------------------------------------
   // 4a. Seed Demo Support User (tier staff: lihat & edit, tanpa kelola user)
@@ -431,37 +471,17 @@ async function main() {
   const supportPassword = await hashPassword("jaksel-support-2026");
 
   await prisma.user.upsert({
-    where: { email: "support@jakselproperti.com" },
+    where: { email: "support@jualrumahproperty.com" },
     update: {},
     create: {
-      email: "support@jakselproperti.com",
+      email: "support@jualrumahproperty.com",
       name: "Support Dini",
       password: supportPassword,
       platformRole: "SUPPORT",
     },
   });
 
-  console.log("   ✅ Demo support created (support@jakselproperti.com)\n");
-
-  // -------------------------------------------------------------------------
-  // 4b. Seed Demo Member User (akun portal publik, bukan broker)
-  // -------------------------------------------------------------------------
-  console.log("👤 Seeding demo member user...");
-
-  const memberPassword = await hashPassword("jaksel-member-2026");
-
-  await prisma.user.upsert({
-    where: { email: "member@jakselproperti.com" },
-    update: {},
-    create: {
-      email: "member@jakselproperti.com",
-      name: "Member Demo",
-      password: memberPassword,
-      platformRole: "MEMBER",
-    },
-  });
-
-  console.log("   ✅ Demo member created (member@jakselproperti.com)\n");
+  console.log("   ✅ Demo support created (support@jualrumahproperty.com)\n");
 
   // -------------------------------------------------------------------------
   // 4c. Seed Matriks Akses Modul default (role × modul)
@@ -487,46 +507,6 @@ async function main() {
   }
 
   console.log("   ✅ Module access matrix seeded\n");
-
-  // -------------------------------------------------------------------------
-  // 4b. Seed Demo Broker Terverifikasi (untuk halaman publik /agents)
-  // -------------------------------------------------------------------------
-  console.log("👤 Seeding demo broker terverifikasi...");
-  const brokerPassword = await hashPassword("jaksel-broker-2026");
-
-  const demoBroker = await prisma.user.upsert({
-    where: { email: "sarah@jakselproperti.com" },
-    update: { password: brokerPassword },
-    create: {
-      email: "sarah@jakselproperti.com",
-      name: "Sarah Wijaya",
-      password: brokerPassword,
-      platformRole: "BROKER",
-    },
-  });
-
-  await prisma.brokerProfile.upsert({
-    where: { userId: demoBroker.id },
-    update: {
-      verificationStatus: "VERIFIED",
-      onboardingCompletedAt: new Date(),
-      brokerType: "INDEPENDENT",
-      phone: "08123456789",
-      city: "Jakarta Selatan",
-      province: "DKI Jakarta",
-    },
-    create: {
-      userId: demoBroker.id,
-      verificationStatus: "VERIFIED",
-      onboardingCompletedAt: new Date(),
-      brokerType: "INDEPENDENT",
-      phone: "08123456789",
-      city: "Jakarta Selatan",
-      province: "DKI Jakarta",
-    },
-  });
-
-  console.log("   ✅ Demo broker created (sarah@jakselproperti.com, VERIFIED)\n");
 
   // -------------------------------------------------------------------------
   // 5. Seed Sample Data (Property + Kawasan + Customer + Lead Kanban)

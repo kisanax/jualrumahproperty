@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getStorage } from "@/lib/storage";
+import { watermarkPhoto } from "@/lib/image-watermark";
 import { requireOperationalUser } from "@/lib/api-auth";
 import { combinePropertyFilters } from "@/lib/services/property-listing-access";
 import crypto from "crypto";
@@ -60,13 +61,25 @@ export async function POST(
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Generate file hash for duplicate detection
+    // Generate file hash for duplicate detection (hash file asli yang diupload)
     const fileHash = crypto.createHash("md5").update(buffer).digest("hex");
 
-    // Upload via storage provider
+    // Terapkan watermark "jualrumahproperty.com" + konversi WebP sebelum masuk storage
+    let processed: Buffer;
+    let dimensions: { width: number; height: number };
+    try {
+      const result = await watermarkPhoto(buffer);
+      processed = result.data;
+      dimensions = { width: result.width, height: result.height };
+    } catch {
+      return NextResponse.json({ error: "File gambar tidak dapat dibaca" }, { status: 400 });
+    }
+
+    // Upload hasil ber-watermark via storage provider
     const storage = getStorage();
     const folder = `properties/${id}`;
-    const result = await storage.upload(buffer, file.name, folder, file.type);
+    const webpName = `${file.name.replace(/\.[^.]+$/, "") || "foto"}.webp`;
+    const result = await storage.upload(processed, webpName, folder, "image/webp");
 
     // If setting as primary, unset existing primary
     if (isPrimary) {
@@ -86,6 +99,10 @@ export async function POST(
         fileSize: result.fileSize,
         mimeType: result.mimeType,
         fileHash,
+        width: dimensions.width,
+        height: dimensions.height,
+        webpPath: result.filePath,
+        hasWatermark: true,
         sortOrder,
         isPrimary,
         isPublic: true,
