@@ -6,6 +6,7 @@ import { getAccountAccess } from "@/lib/broker-workspace-access";
 import { getAccessibleModules } from "@/lib/module-access";
 import AdminShell from "./AdminShell";
 import PWARegister from "./PWARegister";
+import { Toaster } from "sonner";
 import "./admin.css";
 import "@/components/admin-ui/admin-ui.css";
 
@@ -71,6 +72,17 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           {children}
         </AdminShell>
         <PWARegister />
+        {/* Satu Toaster global untuk seluruh admin — styling ikut token tema admin */}
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: "var(--color-admin-surface)",
+              border: "1px solid var(--color-admin-border)",
+              color: "var(--color-admin-text)",
+            },
+          }}
+        />
       </div>
     </>
   );

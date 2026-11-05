@@ -2,9 +2,19 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Edit2, Trash2, X, AlertTriangle } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { Edit2, Trash2, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
+import { ButtonLink } from "@/components/admin-ui/Button";
 
 interface PropertyDetailActionsProps {
   propertyId: string;
@@ -49,22 +59,21 @@ export default function PropertyDetailActions({
 
   return (
     <>
-      <Toaster position="top-right" richColors />
       <div className="admin-detail-action-subgroup">
-        <Link
+        <ButtonLink variant="secondary"
           href={`/admin/properties/${propertyId}/edit`}
-          className="admin-btn admin-btn-secondary"
+          className="h-10 px-4"
           style={{ display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none" }}
         >
           <Edit2 size={14} /> Edit Properti
-        </Link>
-        <button
+        </ButtonLink>
+        <UiButton variant="outline"
           type="button"
           onClick={() => {
             setConfirmCode("");
             setDeleteModalOpen(true);
           }}
-          className="admin-btn admin-btn-secondary"
+          className="h-10 px-4"
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -73,79 +82,70 @@ export default function PropertyDetailActions({
           }}
         >
           <Trash2 size={14} /> Hapus
-        </button>
+        </UiButton>
       </div>
 
       {/* Delete Confirmation Modal */}
-      {deleteModalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setDeleteModalOpen(false)}>
-          <div className="admin-modal-container" style={{ maxWidth: 460 }} onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#ef4444" }}>
-                <AlertTriangle size={20} />
-                <h3 style={{ fontSize: 17, fontWeight: 700, margin: 0, color: "var(--color-admin-text)" }}>
-                  Hapus Properti {propertyCode}?
-                </h3>
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent className="sm:max-w-[460px]">
+          <DialogHeader>
+            <DialogTitle style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--color-admin-text)" }}>
+              <AlertTriangle size={20} style={{ color: "#ef4444" }} />
+              Hapus Properti {propertyCode}?
+            </DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleDelete}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <p style={{ fontSize: 13, color: "var(--color-admin-text-secondary)", lineHeight: 1.5, margin: 0 }}>
+                Tindakan ini permanen. Semua data terkait properti ini (termasuk riwayat listing, foto, riwayat harga, dokumen, dan lead) akan ikut dihapus.
+              </p>
+
+              <div>
+                <UiLabel htmlFor="delete-confirm-code" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
+                  Ketik <strong>{propertyCode}</strong> untuk konfirmasi:
+                </UiLabel>
+                <UiInput
+                  id="delete-confirm-code"
+                  type="text"
+                  className="min-h-10 px-3 text-base md:text-sm"
+                  placeholder={propertyCode}
+                  value={confirmCode}
+                  onChange={(e) => setConfirmCode(e.target.value)}
+                  required
+                />
               </div>
-              <button
-                className="admin-modal-close-btn"
-                onClick={() => setDeleteModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
             </div>
 
-            <form onSubmit={handleDelete} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
-                <p style={{ fontSize: 13, color: "var(--color-admin-text-secondary)", lineHeight: 1.5, margin: 0 }}>
-                  Tindakan ini permanen. Semua data terkait properti ini (termasuk riwayat listing, foto, riwayat harga, dokumen, dan lead) akan ikut dihapus.
-                </p>
-
-                <div>
-                  <label className="admin-label">
-                    Ketik <strong>{propertyCode}</strong> untuk konfirmasi:
-                  </label>
-                  <input
-                    type="text"
-                    className="admin-input"
-                    placeholder={propertyCode}
-                    value={confirmCode}
-                    onChange={(e) => setConfirmCode(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setDeleteModalOpen(false)}
-                  disabled={isDeleting}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isDeleting || confirmCode.trim() !== propertyCode}
-                  style={{
-                    backgroundColor: "#ef4444",
-                    borderColor: "#ef4444",
-                    color: "#fff",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  <Trash2 size={14} />
-                  {isDeleting ? "Menghapus..." : "Ya, Hapus Properti"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton variant="outline"
+                type="button"
+                className="h-10 px-4"
+                onClick={() => setDeleteModalOpen(false)}
+                disabled={isDeleting}
+              >
+                Batal
+              </UiButton>
+              <UiButton variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isDeleting || confirmCode.trim() !== propertyCode}
+                style={{
+                  backgroundColor: "#ef4444",
+                  borderColor: "#ef4444",
+                  color: "#fff",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                }}
+              >
+                <Trash2 size={14} />
+                {isDeleting ? "Menghapus..." : "Ya, Hapus Properti"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

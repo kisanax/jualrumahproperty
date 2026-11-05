@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Download, X } from "lucide-react";
+import { Button as UiButton } from "@/components/ui/button";
+
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -126,13 +128,13 @@ export default function PWARegister() {
           Akses cepat via home screen HP Anda
         </div>
       </div>
-      <button
+      <UiButton size="sm" variant="default"
         onClick={handleInstallClick}
-        className="admin-btn admin-btn-primary admin-btn-sm"
+        className="h-10 px-4"
         style={{ whiteSpace: "nowrap" }}
       >
         Pasang
-      </button>
+      </UiButton>
       <button
         onClick={handleDismiss}
         aria-label="Tutup pemberitahuan"

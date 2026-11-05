@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -21,8 +21,12 @@ import {
   Network,
   Bell,
   SlidersHorizontal,
+  FileSignature,
   LogOut,
+  ChevronDown,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Breadcrumb, type Crumb } from "@/components/admin-ui/Breadcrumb";
 import ThemeToggle from "./ThemeToggle";
 
 // =============================================================================
@@ -55,6 +59,7 @@ const navItems: NavItem[] = [
   { label: "Kawasan", href: "/admin/kawasan", icon: Sparkles, section: "Area & Lokasi", moduleKey: "kawasan" },
   { label: "Konfigurasi Akses", href: "/admin/settings/module-access", icon: SlidersHorizontal, section: "Pengaturan", superAdminOnly: true },
   { label: "Pengaturan Notifikasi", href: "/admin/settings/notifications", icon: Bell, section: "Pengaturan", moduleKey: "notifications" },
+  { label: "Template Perjanjian", href: "/admin/agreements/templates", icon: FileSignature, section: "Pengaturan", superAdminOnly: true },
 ];
 
 // Bottom nav shows 4 core items + 1 "Menu" trigger that opens the full sidebar drawer
@@ -65,6 +70,31 @@ const bottomNavItems = [
   { label: "Leads", href: "/admin/leads", icon: MessageSquare, moduleKey: "leads" },
   { label: "Menu", href: "#menu", icon: Menu, isTrigger: true },
 ];
+
+// Label breadcrumb per segmen URL (di luar /admin).
+const CRUMB_LABELS: Record<string, string> = {
+  properties: "Properti",
+  listings: "Listing",
+  auctions: "Sitaan & Lelang",
+  owners: "Owner",
+  intermediaries: "Perantara",
+  customers: "Customer",
+  kawasan: "Kawasan",
+  leads: "Leads",
+  users: "Tim & Akses",
+  brokers: "Broker",
+  settings: "Pengaturan",
+  notifications: "Notifikasi",
+  "module-access": "Konfigurasi Akses",
+  agreements: "Perjanjian",
+  templates: "Template",
+  new: "Tambah Baru",
+  import: "Import CSV",
+  "smart-import": "Smart Paste WA",
+};
+
+// Segmen UUID = halaman detail resource → crumb dirender oleh DetailHeader halaman tsb.
+const UUID_SEGMENT_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 
 // =============================================================================
@@ -88,9 +118,74 @@ export default function AdminShell({
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [navQuery, setNavQuery] = useState("");
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const navFilterRef = useRef<HTMLInputElement>(null);
 
   const displayName = userName?.trim() || userEmail?.split("@")[0] || "Pengguna";
   const userInitial = displayName.charAt(0).toUpperCase();
+
+  // ---- Breadcrumb otomatis dari pathname (ala Cloudflare) ----
+  // Halaman detail (ada segmen UUID) tidak memakai crumb otomatis —
+  // DetailHeader halaman tersebut merender crumb sendiri dengan kode resource.
+  const crumbs = useMemo<Crumb[]>(() => {
+    const segs = pathname.split("/").filter(Boolean);
+    if (segs[0] !== "admin") return [];
+    const tail = segs.slice(1);
+    if (tail.length === 0) return []; // dashboard: tanpa breadcrumb
+    if (tail.some((seg) => UUID_SEGMENT_RE.test(seg))) return []; // detail page
+    const labels: Record<string, string> = CRUMB_LABELS;
+    let path = "/admin";
+    const out: Crumb[] = [{ label: "Admin", href: "/admin" }];
+    tail.forEach((seg, i) => {
+      path += `/${seg}`;
+      const isLast = i === tail.length - 1;
+      out.push({ label: labels[seg] || seg, href: isLast ? undefined : path });
+    });
+    return out;
+  }, [pathname]);
+
+  // ---- Persist state lipat section nav ----
+  // Memuat preferensi UI tersimpan sekali saat mount (client-only);
+  // lazy initializer menimbulkan hydration mismatch.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("admin-nav-collapsed");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sinkronisasi sekali dengan localStorage saat mount
+      if (raw) setCollapsedSections(JSON.parse(raw) as Record<string, boolean>);
+    } catch {
+      // ignore corrupted storage
+    }
+  }, []);
+
+  const toggleSection = useCallback((section: string) => {
+    setCollapsedSections((prev) => {
+      const next = { ...prev, [section]: !prev[section] };
+      try {
+        localStorage.setItem("admin-nav-collapsed", JSON.stringify(next));
+      } catch {
+        // ignore storage failure
+      }
+      return next;
+    });
+  }, []);
+
+  // Tombol "/" memfokuskan filter sidebar (ala Cloudflare docs)
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const typing =
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target?.isContentEditable;
+      if (e.key === "/" && !typing) {
+        e.preventDefault();
+        navFilterRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, []);
 
   const handleSignOut = async () => {
     if (isSigningOut) return;
@@ -156,6 +251,27 @@ export default function AdminShell({
     {} as Record<string, NavItem[]>
   );
 
+  // Filter menu (kotak "Filter menu" ala Cloudflare docs) — saat aktif,
+  // semua section diperlakukan terbuka dan section kosong disembunyikan.
+  const navFilter = navQuery.trim().toLowerCase();
+  const isFiltering = navFilter.length > 0;
+  const sectionEntries = Object.entries(sections);
+  const displaySections = isFiltering
+    ? sectionEntries
+        .map(
+          ([section, items]) =>
+            [
+              section,
+              items.filter(
+                (item) =>
+                  item.label.toLowerCase().includes(navFilter) ||
+                  item.href.toLowerCase().includes(navFilter)
+              ),
+            ] as const
+        )
+        .filter(([, items]) => items.length > 0)
+    : sectionEntries;
+
   return (
     <>
       {/* ---- Sidebar Overlay (Mobile/Tablet) ---- */}
@@ -168,45 +284,89 @@ export default function AdminShell({
       {/* ---- Sidebar ---- */}
       <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="admin-sidebar-logo">
-          <Home size={22} style={{ color: "var(--color-admin-accent)" }} />
+          <div
+            aria-hidden="true"
+            style={{
+              width: 38,
+              height: 38,
+              flexShrink: 0,
+              borderRadius: 12,
+              background: "var(--color-admin-accent)",
+              color: "var(--color-admin-accent-text)",
+              display: "grid",
+              placeItems: "center",
+              boxShadow: "0 2px 8px rgba(197, 32, 4, 0.35)",
+            }}
+          >
+            <Home size={20} />
+          </div>
           <div>
             <h1>jualrumahproperty</h1>
             <span>Broker Workspace</span>
           </div>
           {/* Close button for mobile */}
-          <button
-            className="admin-menu-toggle"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="admin-menu-toggle ml-auto"
             onClick={closeSidebar}
             aria-label="Tutup menu"
-            style={{ marginLeft: "auto" }}
           >
-            <X size={20} />
-          </button>
+            <X size={20} aria-hidden="true" />
+          </Button>
         </div>
 
         <nav className="admin-sidebar-nav">
-          {Object.entries(sections).map(([section, items]) => (
-            <div key={section} className="admin-nav-section">
-              <div className="admin-nav-section-title">{section}</div>
-              {items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`admin-nav-item ${isActive(item.href) ? "active" : ""}`}
-                    onClick={closeSidebar}
-                  >
-                    <Icon className="nav-icon" size={20} />
-                    {item.label}
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className="admin-nav-badge">{item.badge}</span>
-                    )}
-                  </Link>
-                );
-              })}
+          <div className="admin-nav-filter">
+            <input
+              ref={navFilterRef}
+              type="text"
+              value={navQuery}
+              onChange={(e) => setNavQuery(e.target.value)}
+              placeholder="Filter menu…"
+              aria-label="Filter menu navigasi"
+            />
+            <kbd aria-hidden="true">/</kbd>
+          </div>
+          {displaySections.map(([section, items]) => {
+            const collapsed = !isFiltering && Boolean(collapsedSections[section]);
+            return (
+              <div key={section} className="admin-nav-section">
+                <button
+                  type="button"
+                  className="admin-nav-section-toggle"
+                  onClick={() => toggleSection(section)}
+                  aria-expanded={!collapsed}
+                >
+                  {section}
+                  <ChevronDown size={14} aria-hidden="true" />
+                </button>
+                {items.map((item) => {
+                  if (collapsed) return null;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={`admin-nav-item ${isActive(item.href) ? "active" : ""}`}
+                      onClick={closeSidebar}
+                    >
+                      <Icon className="nav-icon" size={20} />
+                      {item.label}
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <span className="admin-nav-badge">{item.badge}</span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
+          {displaySections.length === 0 && (
+            <div className="admin-dt-muted" style={{ padding: "8px 10px", fontSize: 12.5 }}>
+              Tidak ada menu yang cocok.
             </div>
-          ))}
+          )}
         </nav>
         <div className="admin-sidebar-footer">
           <div className="admin-sidebar-account">
@@ -217,15 +377,16 @@ export default function AdminShell({
             </div>
           </div>
           <ThemeToggle showLabel />
-          <button
+          <Button
             type="button"
+            variant="ghost"
             className="admin-nav-item admin-logout-button"
             onClick={handleSignOut}
             disabled={isSigningOut}
           >
-            <LogOut className="nav-icon" size={20} />
+            <LogOut className="nav-icon" size={20} aria-hidden="true" />
             {isSigningOut ? "Keluar..." : "Keluar dari akun"}
-          </button>
+          </Button>
         </div>
       </aside>
 
@@ -234,13 +395,15 @@ export default function AdminShell({
         {/* Top Bar */}
         <header className="admin-topbar">
           <div className="admin-topbar-left">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               className="admin-menu-toggle"
               onClick={toggleSidebar}
               aria-label="Buka menu"
             >
-              <Menu size={22} />
-            </button>
+              <Menu size={22} aria-hidden="true" />
+            </Button>
             <div className="admin-topbar-brand">
               <span style={{ fontWeight: 700, fontSize: 15, letterSpacing: "-0.02em" }}>jualrumahproperty</span>
               <span style={{ fontSize: 10, fontWeight: 600, color: "var(--color-admin-accent)", marginLeft: 6, textTransform: "uppercase" }}>Workspace</span>
@@ -261,7 +424,10 @@ export default function AdminShell({
         </header>
 
         {/* Page Content */}
-        <div className="admin-content">{children}</div>
+        <div className="admin-content">
+          {crumbs.length > 0 && <Breadcrumb items={crumbs} />}
+          {children}
+        </div>
       </main>
 
       {/* ---- Bottom Navigation (Mobile) ---- */}
@@ -271,17 +437,17 @@ export default function AdminShell({
             const Icon = item.icon;
             if (item.isTrigger) {
               return (
-                <button
+                <Button
                   key="menu-trigger"
                   type="button"
+                  variant="ghost"
                   onClick={toggleSidebar}
                   className={`admin-bottom-nav-item ${sidebarOpen ? "active" : ""}`}
                   aria-label="Menu Lengkap"
-                  style={{ background: "none", border: "none", cursor: "pointer", width: "100%" }}
                 >
-                  <Icon className="nav-icon" size={22} />
+                  <Icon className="nav-icon" size={22} aria-hidden="true" />
                   <span>{item.label}</span>
-                </button>
+                </Button>
               );
             }
             return (

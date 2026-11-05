@@ -12,8 +12,13 @@ import {
   RefreshCw,
   Sparkles,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { parseCSV, generatePropertyImportTemplate, PropertyImportRow } from "@/lib/csv-parser";
+import { Button as UiButton } from "@/components/ui/button";
+import { Card as UiCard } from "@/components/ui/card";
+import { Table as UiTable, TableHeader as UiTableHeader, TableRow as UiTableRow, TableHead as UiTableHead, TableBody as UiTableBody, TableCell as UiTableCell } from "@/components/ui/table";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { ButtonLink } from "@/components/admin-ui/Button";
 
 interface AreaOption {
   id: number;
@@ -183,7 +188,6 @@ export default function ImportPropertyClient({
 
   return (
     <div className="animate-fade-in" style={{ maxWidth: 1040, margin: "0 auto" }}>
-      <Toaster position="top-right" richColors />
 
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
@@ -225,9 +229,9 @@ export default function ImportPropertyClient({
             </p>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
-            <Link
+            <ButtonLink variant="secondary"
               href="/admin/properties/smart-import"
-              className="admin-btn admin-btn-secondary"
+              className="h-10 px-4"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -239,22 +243,22 @@ export default function ImportPropertyClient({
               }}
             >
               <Sparkles size={16} /> Smart Paste WA
-            </Link>
-            <button
+            </ButtonLink>
+            <UiButton variant="outline"
               type="button"
               onClick={handleDownloadTemplate}
-              className="admin-btn admin-btn-secondary"
+              className="h-10 px-4"
               style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
             >
               <Download size={16} /> Unduh Template CSV
-            </button>
+            </UiButton>
           </div>
         </div>
       </div>
 
       {/* RESULT VIEW */}
       {result ? (
-        <div className="admin-card" style={{ padding: 24 }}>
+        <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 24 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
             <CheckCircle2 size={32} style={{ color: "#10b981" }} />
             <div>
@@ -350,34 +354,34 @@ export default function ImportPropertyClient({
                   borderRadius: 8,
                 }}
               >
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Kode Properti</th>
-                      <th>Alamat</th>
-                      <th>Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <UiTable className="w-full text-sm">
+                  <UiTableHeader>
+                    <UiTableRow>
+                      <UiTableHead>Kode Properti</UiTableHead>
+                      <UiTableHead>Alamat</UiTableHead>
+                      <UiTableHead>Aksi</UiTableHead>
+                    </UiTableRow>
+                  </UiTableHeader>
+                  <UiTableBody>
                     {result.createdProperties.map((p) => (
-                      <tr key={p.id}>
-                        <td style={{ fontWeight: 600, color: "var(--color-admin-accent)" }}>
+                      <UiTableRow key={p.id}>
+                        <UiTableCell style={{ fontWeight: 600, color: "var(--color-admin-accent)" }}>
                           {p.code}
-                        </td>
-                        <td>{p.address}</td>
-                        <td>
-                          <Link
+                        </UiTableCell>
+                        <UiTableCell>{p.address}</UiTableCell>
+                        <UiTableCell>
+                          <ButtonLink variant="secondary"
                             href={`/admin/properties/${p.id}`}
-                            className="admin-btn admin-btn-secondary"
+                            className="h-10 px-4"
                             style={{ padding: "4px 8px", fontSize: 12, textDecoration: "none" }}
                           >
                             Buka Detail ↗
-                          </Link>
-                        </td>
-                      </tr>
+                          </ButtonLink>
+                        </UiTableCell>
+                      </UiTableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </UiTableBody>
+                </UiTable>
               </div>
             </div>
           )}
@@ -397,42 +401,42 @@ export default function ImportPropertyClient({
                   background: "rgba(239, 68, 68, 0.05)",
                 }}
               >
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Baris ke-</th>
-                      <th>Kode</th>
-                      <th>Keterangan Error</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <UiTable className="w-full text-sm">
+                  <UiTableHeader>
+                    <UiTableRow>
+                      <UiTableHead>Baris ke-</UiTableHead>
+                      <UiTableHead>Kode</UiTableHead>
+                      <UiTableHead>Keterangan Error</UiTableHead>
+                    </UiTableRow>
+                  </UiTableHeader>
+                  <UiTableBody>
                     {result.errors.map((e, idx) => (
-                      <tr key={idx}>
-                        <td style={{ fontWeight: 600 }}>Baris #{e.row}</td>
-                        <td>{e.code || "—"}</td>
-                        <td style={{ color: "#ef4444" }}>{e.error}</td>
-                      </tr>
+                      <UiTableRow key={idx}>
+                        <UiTableCell style={{ fontWeight: 600 }}>Baris #{e.row}</UiTableCell>
+                        <UiTableCell>{e.code || "—"}</UiTableCell>
+                        <UiTableCell style={{ color: "#ef4444" }}>{e.error}</UiTableCell>
+                      </UiTableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </UiTableBody>
+                </UiTable>
               </div>
             </div>
           )}
 
           <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
-            <button onClick={handleReset} className="admin-btn admin-btn-secondary">
+            <UiButton variant="outline" onClick={handleReset} className="h-10 px-4">
               <RefreshCw size={16} /> Import File Lain
-            </button>
-            <Link href="/admin/properties" className="admin-btn admin-btn-primary">
+            </UiButton>
+            <ButtonLink variant="primary" href="/admin/properties" className="h-10 px-4">
               Selesai & Ke Daftar Properti
-            </Link>
+            </ButtonLink>
           </div>
-        </div>
+        </UiCard>
       ) : (
         /* UPLOAD & PREVIEW VIEW */
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Dropzone Card */}
-          <div className="admin-card" style={{ padding: 24 }}>
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 24 }}>
             <div
               style={{
                 border: "2px dashed var(--color-admin-border)",
@@ -497,11 +501,11 @@ export default function ImportPropertyClient({
                 </div>
               )}
             </div>
-          </div>
+          </UiCard>
 
           {/* Preview Table */}
           {parsedRows.length > 0 && (
-            <div className="admin-card" style={{ padding: 24 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 24 }}>
               <div
                 style={{
                   display: "flex",
@@ -564,77 +568,77 @@ export default function ImportPropertyClient({
                   borderRadius: 8,
                 }}
               >
-                <table className="admin-table">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Kode</th>
-                      <th>Tipe</th>
-                      <th>Kecamatan / Kawasan</th>
-                      <th>Alamat</th>
-                      <th>LT / LB</th>
-                      <th>Harga Penawaran</th>
-                      <th>Owner</th>
-                      <th>Validasi</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <UiTable className="w-full text-sm">
+                  <UiTableHeader>
+                    <UiTableRow>
+                      <UiTableHead>#</UiTableHead>
+                      <UiTableHead>Kode</UiTableHead>
+                      <UiTableHead>Tipe</UiTableHead>
+                      <UiTableHead>Kecamatan / Kawasan</UiTableHead>
+                      <UiTableHead>Alamat</UiTableHead>
+                      <UiTableHead>LT / LB</UiTableHead>
+                      <UiTableHead>Harga Penawaran</UiTableHead>
+                      <UiTableHead>Owner</UiTableHead>
+                      <UiTableHead>Validasi</UiTableHead>
+                    </UiTableRow>
+                  </UiTableHeader>
+                  <UiTableBody>
                     {parsedRows.map((row, idx) => {
                       const issues = validateRow(row);
                       const isValid = issues.length === 0;
 
                       return (
-                        <tr key={idx}>
-                          <td style={{ color: "var(--color-admin-text-muted)" }}>{idx + 1}</td>
-                          <td style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+                        <UiTableRow key={idx}>
+                          <UiTableCell style={{ color: "var(--color-admin-text-muted)" }}>{idx + 1}</UiTableCell>
+                          <UiTableCell style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
                             {row.kode || <span style={{ color: "var(--color-admin-text-muted)" }}>Auto</span>}
-                          </td>
-                          <td>{row.tipe || "Rumah"}</td>
-                          <td>
+                          </UiTableCell>
+                          <UiTableCell>{row.tipe || "Rumah"}</UiTableCell>
+                          <UiTableCell>
                             <div>{row.kecamatan || "—"}</div>
                             {row.kawasan && (
                               <div style={{ fontSize: 11, color: "var(--color-admin-accent)" }}>
                                 ⭐ {row.kawasan}
                               </div>
                             )}
-                          </td>
-                          <td style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          </UiTableCell>
+                          <UiTableCell style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                             {row.alamat || "—"}
-                          </td>
-                          <td style={{ whiteSpace: "nowrap" }}>
+                          </UiTableCell>
+                          <UiTableCell style={{ whiteSpace: "nowrap" }}>
                             {row.luas_tanah || "—"} / {row.luas_bangunan || "—"} m²
-                          </td>
-                          <td style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+                          </UiTableCell>
+                          <UiTableCell style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
                             {row.harga_penawaran ? `Rp ${Number(row.harga_penawaran).toLocaleString("id-ID")}` : "—"}
-                          </td>
-                          <td style={{ whiteSpace: "nowrap" }}>
+                          </UiTableCell>
+                          <UiTableCell style={{ whiteSpace: "nowrap" }}>
                             <div>{row.nama_owner || "—"}</div>
                             {row.telepon_owner && (
                               <div style={{ fontSize: 11, color: "var(--color-admin-text-muted)" }}>
                                 {row.telepon_owner}
                               </div>
                             )}
-                          </td>
-                          <td style={{ whiteSpace: "nowrap" }}>
+                          </UiTableCell>
+                          <UiTableCell style={{ whiteSpace: "nowrap" }}>
                             {isValid ? (
-                              <span className="admin-badge admin-badge-active" style={{ fontSize: 11 }}>
+                              <UiBadge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-transparent bg-muted text-muted-foreground" style={{ fontSize: 11 }}>
                                 Valid
-                              </span>
+                              </UiBadge>
                             ) : (
-                              <span
-                                className="admin-badge admin-badge-suspended"
+                              <UiBadge
+                                className="bg-red-500/10 text-red-700 dark:text-red-300 border-transparent bg-muted text-muted-foreground"
                                 style={{ fontSize: 11 }}
                                 title={issues.join(", ")}
                               >
                                 {issues[0]}
-                              </span>
+                              </UiBadge>
                             )}
-                          </td>
-                        </tr>
+                          </UiTableCell>
+                        </UiTableRow>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </UiTableBody>
+                </UiTable>
               </div>
 
               {/* Action Buttons */}
@@ -648,19 +652,19 @@ export default function ImportPropertyClient({
                   gap: 12,
                 }}
               >
-                <button
+                <UiButton variant="outline"
                   type="button"
                   onClick={handleReset}
-                  className="admin-btn admin-btn-secondary"
+                  className="h-10 px-4"
                   disabled={isProcessing}
                 >
                   <Trash2 size={16} /> Bersihkan Data
-                </button>
+                </UiButton>
 
-                <button
+                <UiButton variant="default"
                   type="button"
                   onClick={handleExecuteImport}
-                  className="admin-btn admin-btn-primary"
+                  className="h-10 px-4"
                   disabled={isProcessing || parsedRows.length === 0}
                   style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 24px" }}
                 >
@@ -668,9 +672,9 @@ export default function ImportPropertyClient({
                   {isProcessing
                     ? "Sedang Memproses Import..."
                     : `Proses Import ${parsedRows.length} Properti`}
-                </button>
+                </UiButton>
               </div>
-            </div>
+            </UiCard>
           )}
         </div>
       )}

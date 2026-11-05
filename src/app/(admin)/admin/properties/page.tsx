@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Plus, Search, Building2, MapPin, Ruler, BedDouble, Bath, FileSpreadsheet, Sparkles } from "lucide-react";
+import { Plus, Search, FileSpreadsheet, Sparkles } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 import { getCurrentOperationalActor } from "@/lib/api-auth";
 import {
@@ -9,6 +9,10 @@ import {
   type OperationalActor,
 } from "@/lib/services/property-listing-access";
 import { notFound } from "next/navigation";
+import { Input as UiInput } from "@/components/ui/input";
+import { Button as UiButton } from "@/components/ui/button";
+import { ButtonLink } from "@/components/admin-ui/Button";
+
 
 // =============================================================================
 // Data Fetching
@@ -96,16 +100,6 @@ function getPropertyTypeLabel(type: string): string {
   return map[type] || type;
 }
 
-function getPropertyTypeIcon(type: string): string {
-  const map: Record<string, string> = {
-    HOUSE: "🏠",
-    APARTMENT: "🏢",
-    LAND: "📐",
-    SHOPHOUSE: "🏪",
-  };
-  return map[type] || "🏠";
-}
-
 function formatRupiah(amount: number | bigint | { toNumber?: () => number }): string {
   let num: number;
   if (typeof amount === "bigint") {
@@ -168,297 +162,242 @@ export default async function PropertiesPage({
 }) {
   const operational = await getCurrentOperationalActor();
   if (!operational) notFound();
+  const params = await searchParams;
+  const search = params.search || "";
+  const type = params.type || "";
+  const areaSlug = params.area || "";
   const { properties, total, page, perPage } = await getProperties(
     searchParams,
     operational.actor
   );
   const totalPages = Math.ceil(total / perPage);
+  const start = total === 0 ? 0 : (page - 1) * perPage + 1;
+  const end = Math.min(page * perPage, total);
+
+  const pageHref = (p: number) => {
+    const sp = new URLSearchParams();
+    if (search) sp.set("search", search);
+    if (type) sp.set("type", type);
+    if (areaSlug) sp.set("area", areaSlug);
+    sp.set("page", String(p));
+    return `/admin/properties?${sp.toString()}`;
+  };
 
   return (
     <div className="animate-fade-in">
       {/* Header */}
       <div className="admin-page-header">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em" }}>
-            Properti
-          </h1>
-          <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
-            {total} properti terdaftar
-          </p>
+          <h1>Properti</h1>
+          <p>{total} properti terdaftar</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Link
+          <ButtonLink variant="secondary"
             href="/admin/properties/smart-import"
-            className="admin-btn admin-btn-secondary"
+            className="h-10 px-4"
           >
             <Sparkles size={16} /> Smart Paste WA
-          </Link>
-          <Link href="/admin/properties/import" className="admin-btn admin-btn-secondary">
+          </ButtonLink>
+          <ButtonLink variant="secondary" href="/admin/properties/import" className="h-10 px-4">
             <FileSpreadsheet size={16} /> Import CSV
-          </Link>
-          <Link href="/admin/properties/new" className="admin-btn admin-btn-primary">
+          </ButtonLink>
+          <ButtonLink variant="primary" href="/admin/properties/new" className="h-10 px-4">
             <Plus size={18} /> Tambah Properti
-          </Link>
+          </ButtonLink>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="admin-card" style={{ marginBottom: 20, padding: 14 }}>
-        <form className="admin-filter-bar">
-          <div className="admin-filter-search">
-            <Search
-              size={16}
-              style={{
-                position: "absolute",
-                left: 14,
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "var(--color-admin-text-muted)",
-              }}
-            />
-            <input
-              name="search"
-              type="text"
-              className="admin-input"
-              placeholder="Cari kode, alamat..."
-              defaultValue={(await searchParams).search || ""}
-              style={{ paddingLeft: 40 }}
-            />
-          </div>
-          <select
-            name="type"
-            className="admin-input admin-filter-select"
-            defaultValue={(await searchParams).type || ""}
-          >
-            <option value="">Semua Tipe</option>
-            <option value="HOUSE">Rumah</option>
-            <option value="APARTMENT">Apartemen</option>
-            <option value="LAND">Tanah</option>
-            <option value="SHOPHOUSE">Ruko</option>
-          </select>
-          <button type="submit" className="admin-btn admin-btn-secondary admin-filter-btn">
-            <Search size={16} /> Filter
-          </button>
-        </form>
-      </div>
-
-      {/* Property Cards */}
-      {properties.length === 0 ? (
-        <div className="admin-card">
-          <div className="admin-empty">
-            <Building2 size={48} className="admin-empty-icon" />
-            <div className="admin-empty-title">Belum ada properti</div>
-            <div className="admin-empty-text">
-              Tambahkan properti pertama untuk mulai membuat listing
-            </div>
-            <Link
-              href="/admin/properties/new"
-              className="admin-btn admin-btn-primary"
-              style={{ marginTop: 16 }}
-            >
-              <Plus size={16} /> Tambah Properti
-            </Link>
-          </div>
+      {/* Filters — GET form, filter tetap server-side */}
+      <form className="admin-dt-toolbar" style={{ marginBottom: 16 }}>
+        <div className="admin-dt-search">
+          <Search size={16} />
+          <UiInput
+            name="search"
+            type="text"
+            className="min-h-10 px-3 text-base md:text-sm"
+            placeholder="Cari kode, alamat..."
+            defaultValue={search}
+          />
         </div>
-      ) : (
-        <>
-          <div className="admin-card-grid">
-            {properties.map((property) => {
-              const latestListing = property.listings[0];
-              const primaryOwner = property.propertyOwners[0];
+        <select
+          name="type"
+          className="admin-input admin-filter-select"
+          defaultValue={type}
+          style={{ minWidth: 150 }}
+          aria-label="Filter tipe properti"
+        >
+          <option value="">Semua Tipe</option>
+          <option value="HOUSE">Rumah</option>
+          <option value="APARTMENT">Apartemen</option>
+          <option value="LAND">Tanah</option>
+          <option value="SHOPHOUSE">Ruko</option>
+        </select>
+        <UiButton variant="outline" type="submit" className="admin-filter-btn h-10 px-4">
+          <Search size={16} /> Filter
+        </UiButton>
+      </form>
 
-              return (
-                <Link
-                  key={property.id}
-                  href={`/admin/properties/${property.id}`}
-                  className="admin-card"
-                  style={{
-                    textDecoration: "none",
-                    color: "inherit",
-                    cursor: "pointer",
-                    display: "block",
-                  }}
-                >
-                  {/* Card Header */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      marginBottom: 12,
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <span style={{ fontSize: 24 }}>
-                        {getPropertyTypeIcon(property.type)}
-                      </span>
-                      <div>
-                        <div
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 600,
-                            color: "var(--color-admin-text)",
-                          }}
+      {/* Tabel Properti (server-rendered, gaya .admin-dt-*) */}
+      <div className="admin-dt-shell">
+        <div className="admin-dt-scroll">
+          <table className="admin-dt-table">
+            <thead>
+              <tr>
+                <th>Kode Properti</th>
+                <th>Lokasi</th>
+                <th>Spek</th>
+                <th>Owner</th>
+                <th>Status Listing</th>
+                <th style={{ textAlign: "right" }}>Harga</th>
+                <th style={{ textAlign: "right" }}>Foto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {properties.length === 0 ? (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="admin-dt-empty">
+                      <div className="admin-dt-empty-title">
+                        {search || type ? "Properti tidak ditemukan" : "Belum ada properti"}
+                      </div>
+                      <div className="admin-dt-empty-text">
+                        {search || type
+                          ? "Coba sesuaikan kata kunci atau filter tipe."
+                          : "Tambahkan properti pertama untuk mulai membuat listing."}
+                      </div>
+                      {!search && !type && (
+                        <div style={{ marginTop: 14 }}>
+                          <ButtonLink variant="primary" href="/admin/properties/new" className="h-10 px-4">
+                            <Plus size={16} /> Tambah Properti
+                          </ButtonLink>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                properties.map((property) => {
+                  const latestListing = property.listings[0];
+                  const primaryOwner = property.propertyOwners[0];
+
+                  const spek = [
+                    property.landArea
+                      ? `${property.landArea}/${property.buildingArea || "-"} m²`
+                      : null,
+                    property.bedrooms ? `${property.bedrooms} KT` : null,
+                    property.bathrooms ? `${property.bathrooms} KM` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ");
+
+                  return (
+                    <tr key={property.id}>
+                      <td>
+                        <Link
+                          href={`/admin/properties/${property.id}`}
+                          className="admin-dt-link"
+                          style={{ fontWeight: 600 }}
                         >
                           {property.code}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "var(--color-admin-text-muted)",
-                          }}
-                        >
+                        </Link>
+                        <div className="admin-dt-muted" style={{ fontSize: 12, marginTop: 2 }}>
                           {getPropertyTypeLabel(property.type)}
                         </div>
-                      </div>
-                    </div>
-                    {latestListing && (
-                      <span
-                        className={`admin-badge ${getStatusBadgeClass(latestListing.status)}`}
-                      >
-                        {getStatusLabel(latestListing.status)}
-                      </span>
-                    )}
-                  </div>
+                      </td>
+                      <td>
+                        <div>
+                          {property.kawasan
+                            ? `${property.kawasan.name} • Kec. ${property.area.name}`
+                            : `Kec. ${property.area.name}`}
+                        </div>
+                        {property.address && (
+                          <div
+                            className="admin-dt-muted"
+                            style={{
+                              fontSize: 12,
+                              marginTop: 2,
+                              maxWidth: 240,
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                            title={property.address}
+                          >
+                            {property.address}
+                          </div>
+                        )}
+                      </td>
+                      <td>
+                        {spek || <span className="admin-dt-muted">—</span>}
+                      </td>
+                      <td>
+                        {primaryOwner ? (
+                          primaryOwner.owner.name
+                        ) : (
+                          <span className="admin-dt-muted">Belum diisi</span>
+                        )}
+                      </td>
+                      <td>
+                        {latestListing ? (
+                          <span className={`admin-badge ${getStatusBadgeClass(latestListing.status)}`}>
+                            {getStatusLabel(latestListing.status)}
+                          </span>
+                        ) : (
+                          <span className="admin-dt-muted">Belum ada listing</span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                        {latestListing && !latestListing.priceOnRequest ? (
+                          <span style={{ fontWeight: 700, color: "var(--workspace-primary)" }}>
+                            {formatRupiah(latestListing.askingPrice)}
+                          </span>
+                        ) : latestListing?.priceOnRequest ? (
+                          <span className="admin-dt-muted" style={{ fontStyle: "italic" }}>
+                            On request
+                          </span>
+                        ) : (
+                          <span className="admin-dt-muted">—</span>
+                        )}
+                      </td>
+                      <td style={{ textAlign: "right" }} className="admin-dt-muted">
+                        {property._count.propertyMedia}
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-                  {/* Location */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      marginBottom: 12,
-                      fontSize: 13,
-                      color: "var(--color-admin-text-secondary)",
-                    }}
-                  >
-                    <MapPin size={14} />
-                    {property.kawasan
-                      ? `${property.kawasan.name} • Kec. ${property.area.name}`
-                      : property.area.name}
-                  </div>
-
-                  {/* Specs */}
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: 16,
-                      fontSize: 13,
-                      color: "var(--color-admin-text-secondary)",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {property.landArea && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <Ruler size={14} /> {property.landArea}/{property.buildingArea || "-"} m²
-                      </span>
-                    )}
-                    {property.bedrooms && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <BedDouble size={14} /> {property.bedrooms} KT
-                      </span>
-                    )}
-                    {property.bathrooms && (
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                        <Bath size={14} /> {property.bathrooms} KM
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Footer */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      flexWrap: "wrap",
-                      gap: 8,
-                      marginTop: 16,
-                      paddingTop: 12,
-                      borderTop: "1px solid var(--color-admin-border)",
-                    }}
-                  >
-                    <div style={{ fontSize: 13, color: "var(--color-admin-text-muted)" }}>
-                      {primaryOwner
-                        ? `Owner: ${primaryOwner.owner.name}`
-                        : "Owner: belum diisi"}
-                    </div>
-                    {latestListing && !latestListing.priceOnRequest ? (
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: 700,
-                          color: "var(--workspace-primary)",
-                        }}
-                      >
-                        {formatRupiah(latestListing.askingPrice)}
-                      </div>
-                    ) : latestListing?.priceOnRequest ? (
-                      <div
-                        style={{
-                          fontSize: 13,
-                          color: "var(--color-admin-text-muted)",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        Harga on request
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          fontSize: 13,
-                          color: "var(--color-admin-text-muted)",
-                        }}
-                      >
-                        Belum ada listing
-                      </div>
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
+        {/* Footer pagination — server-side */}
+        <div className="admin-dt-foot">
+          <span>
+            {total === 0
+              ? "Menampilkan 0 dari 0"
+              : `Menampilkan ${start}\u2013${end} dari ${total}`}
+          </span>
+          <div className="admin-dt-foot-right">
+            {totalPages > 1 && (
+              <>
+                {page > 1 && (
+                  <ButtonLink variant="quiet" href={pageHref(page - 1)} className="h-10 px-4">
+                    &larr; Sebelumnya
+                  </ButtonLink>
+                )}
+                <span className="admin-dt-muted" style={{ fontSize: 13, whiteSpace: "nowrap" }}>
+                  Halaman {page} dari {totalPages}
+                </span>
+                {page < totalPages && (
+                  <ButtonLink variant="quiet" href={pageHref(page + 1)} className="h-10 px-4">
+                    Selanjutnya &rarr;
+                  </ButtonLink>
+                )}
+              </>
+            )}
           </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                marginTop: 24,
-              }}
-            >
-              {page > 1 && (
-                <Link
-                  href={`/admin/properties?page=${page - 1}`}
-                  className="admin-btn admin-btn-ghost admin-btn-sm"
-                >
-                  ← Sebelumnya
-                </Link>
-              )}
-              <span
-                style={{
-                  fontSize: 13,
-                  color: "var(--color-admin-text-secondary)",
-                  padding: "0 12px",
-                }}
-              >
-                Halaman {page} dari {totalPages}
-              </span>
-              {page < totalPages && (
-                <Link
-                  href={`/admin/properties?page=${page + 1}`}
-                  className="admin-btn admin-btn-ghost admin-btn-sm"
-                >
-                  Selanjutnya →
-                </Link>
-              )}
-            </div>
-          )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -10,14 +10,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ---
 
-# AGENTS.md — jakselproperti.com
+# AGENTS.md — jualrumahproperty.com
 
 ## Dokumen panduan (baca berurutan — anti-double)
 1. `docs/BLUEPRINT-v0.3.md` — SATU-SATUNYA sumber keputusan (scope, penomoran, palet, role).
 2. `docs/adr/` — detail tiap keputusan (ADR-001 palet, ADR-002 listing ID, ADR-003 seller/broker).
 3. File ini — aturan coding operasional saja. Bila bertentangan dengan BLUEPRINT/ADR, BLUEPRINT menang.
 4. `docs/PROGRESS.md` — history/changelog, BUKAN acuan keputusan.
-5. Arsip (jangan jadikan acuan): `docs/archive/Blueprint-v0.2.md`,
+5. `docs/dev-accounts.md` — akun testing (password dev, NOT for production).
+6. Arsip (jangan jadikan acuan): `docs/archive/Blueprint-v0.2.md`,
    `docs/archive/Blueprint_v0.3_DRAFT.md`, `docs/archive/ui-foundation-v0.3.md`,
    `../../docs/Blueprint/AUTH-ROLE-IMPLEMENTATION-PLAN-v1.md`
    (teknis auth, sudah selesai di kode — target model ada di BLUEPRINT §5).
@@ -53,35 +54,83 @@ Dokumentasi lengkap fitur yang sudah jadi: `docs/PROGRESS.md`
 
 - Token tunggal `--portal-*` di `src/app/globals.css`. Larang hex hardcode di module CSS.
 - Dasar putih, aksi merah logo `#C52004`. WA hijau `#128C5E`.
-- Halaman `/agents` di-HIDE via flag (data + route tetap utuh untuk section iklan broker).
+- Halaman `/agents` di-HIDE via flag `NEXT_PUBLIC_AGENTS_ENABLED`
+  (default: tersembunyi — rencana publish agent per listing **dibatalkan**;
+  data + route tetap utuh untuk kemungkinan section iklan broker nanti).
+  Link footer "Mode Agen" ikut hilang saat flag mati.
 - Detail properti TIDAK menampilkan broker pemilik listing.
 
-## UI Design System Admin — "Modern SaaS Refined" (Theme C)
+## UI Design System Admin — Cloudflare-inspired
 
-Ditetapkan 14 September 2026. Ini PATTERN WAJIB untuk semua UI admin/broker.
+Direvisi 3 November 2026 (keputusan user via mockup
+`docs/previews/admin-cloudflare-mockup.html`, opsi **"Tabel semua"** —
+men-supersede palet shadcn neutral 29 Okt + badge "Opsi A netral+dot").
+Ini PATTERN WAJIB untuk semua UI admin/broker.
 
 **Arsitektur 2 layer** (import di `admin/layout.tsx`, urutan penting):
 1. `src/app/(admin)/admin/admin.css` — base layer (legacy)
 2. `src/components/admin-ui/admin-ui.css` — **layer aktif**, sistem token
-   `--workspace-*`. Selalu ubah theme lewat file ini, JANGAN admin.css.
+   `--workspace-*` + override token shadcn. Selalu ubah theme lewat file ini,
+   JANGAN admin.css.
+
+**Bahasa desain (mengikuti Cloudflare dashboard):**
+- Background **putih menyeluruh** (bukan abu) — konten langsung di atas putih
+- Aksen biru `#0051c3` untuk primary/tombol/link (bukan near-black)
+- Border hairline `#e4e4e7` flat, radius **6px** seragam
+- Judul halaman **26px/800** + paragraf deskripsi 13.5px muted (max-w 760px)
+- Banner notice kuning lembut `#fff7df`
+- List utama berbentuk **tabel** via komponen `DataTable`
+  (`src/components/admin-ui/DataTable.tsx`: toolbar search + slot filter
+  + sort + pagination "Menampilkan x–y dari z"). Semua list admin sudah
+  tabel — halaman server component (mis. Properties) memakai class
+  `.admin-dt-*` server-rendered dengan pagination/filter GET server-side.
+  JANGAN bikin list grid kartu baru.
+
+**Navigasi & header detail (Fase 4):** breadcrumb trail dirender otomatis
+  oleh `AdminShell` dari pathname (dictionary `CRUMB_LABELS`) — halaman
+  dengan segmen UUID (detail) tidak mendapat crumb otomatis dan HARUS
+  merender `DetailHeader` (`src/components/admin-ui/DetailHeader.tsx`)
+  sendiri dengan crumbs + judul + badge + meta + aksi. Route non-UUID
+  (mis. `/new`, `/import`) JANGAN mengirim crumbs ke `DetailHeader`
+  (auto-crumb sudah ada — duplikasi trail). `RecordHeader` menerima prop
+  `crumbs` opsional yang menggantikan back-arrow. Sidebar nav punya filter
+  (shortcut `/`) + section collapsible persist `admin-nav-collapsed`.
 
 **Palet Light (default):**
-- bg `#fafafa` · surface `#ffffff` · surface-soft `#f8fafc`
-- border `#eaecf0` · border-strong `#d0d5dd`
-- text `#101828` · text-muted `#667085`
-- primary (aksen) amber `#d97706` · hover `#b45309` · soft `#fffbf3`
-- **tombol primary: tinta gelap** `#101828` (hover `#263241`) — amber BUKAN
-  warna tombol primary, hanya aksen (nav aktif, focus, badge, link)
-- danger `#d92d20` · success `#067647` · warning `#b54708`
+- bg `#ffffff` · surface `#ffffff` · surface-soft `#fafafa`
+- nav aktif pill `#f1f1f2` (`--workspace-nav-active`, tanpa garis inset)
+- border `#e4e4e7` · border-strong `#d9d9de`
+- text `#1c1c21` · text-muted `#6e6e76`
+- primary & tombol: biru `#0051c3` (hover `#0044a3`)
+- danger `#b42318` · success `#197a3d` · warning `#b45309`
 
 **Palet Dark (`[data-theme="dark"]`):**
-- bg `#0b0e14` · surface `#141821` · input `#1a212e`
-- primary amber terang `#e8a849` · tombol primary amber (teks gelap `#1a1207`)
+- bg `#0f0f12` · surface `#17171b` · input `#26262b`
+- primary/link TERANG `#7cb3f5` · tombol `#1c64d9` (teks putih)
+- text `#f4f4f6` · text-muted `#a3a3ac` · border `#2a2a30`
 
-**Radius:** input/tombol/pill `--workspace-radius: 8px` ·
-card/modal/stat `--workspace-radius-card: 12px`
+**Override token shadcn di scope admin:** `body:has(.admin-layout)` (light) +
+`[data-theme="dark"] body:has(.admin-layout)` (dark) — WAJIB scope body:has
+agar primitif shadcn yang ter-mount di portal `document.body` (Dialog,
+Toaster, dropdown) ikut palet admin. Jangan pakai warna brand `#C52004` di
+admin; brand merah hanya untuk portal publik (lihat ADR-001).
+Radius di-override eksplisit per level (`--radius-sm/md/lg/xl`) karena
+turunan `--radius` di `:root` globals.css sudah ter-resolve.
 
-**Shadow:** `0 1px 2px rgba(16,24,40,.04)` (light) / none (dark)
+**Radius:** input/tombol/pill `--workspace-radius: 6px` ·
+card/modal/stat `--workspace-radius-card: 8px`
+
+**Shadow:** `0 1px 2px rgba(0,0,0,.04)` (light) / none (dark)
+
+**Badge status (CF soft pills):** badge = pill warna lembut
+(soft bg + teks warna status, radius 999px, 12px/600, TANPA dot, TANPA
+uppercase) — men-supersede "Opsi A netral+dot". Contoh light:
+active `#e7f5e9`/`#197a3d` · ready `#e0ecff`/`#0051c3` · pending
+`#fff0d3`/`#8a5b00` · suspended `#fde8e8`/`#b42318`; dark memakai
+rgba bg + warna teks terang. Specificity rule `[class].admin-badge-*`
+(0,2,0) untuk menimpa rule `[data-theme="light"] .admin-badge-*` unlayered
+di admin.css. Berlaku untuk `.admin-badge` legacy dan `UiBadge` shadcn +
+class `admin-badge-*`.
 
 **Input (FILLED):** idle = bg `--workspace-input-bg`, border transparan ·
 hover = border `border-strong` · focus = bg surface + border primary +
@@ -120,9 +169,9 @@ Ditetapkan 14 September 2026. Model **flat**: `SUPER_ADMIN` / `SUPPORT`
   customers/kawasan/users) di-guard `requireSuperAdmin()`.
 - User terhapus/nonaktif dengan JWT masih aktif tetap valid sampai
   token expire (JWT strategy — keterbatasan yang disadari).
-- **Akun dev:** `admin@jakselproperti.com` / `jaksel-admin-2026` ·
-  `support@jakselproperti.com` / `jaksel-support-2026` ·
-  `sarah@jakselproperti.com` / `jaksel-broker-2026`
+- **Akun dev:** `admin@jualrumahproperty.com` / `admin` ·
+  `support@jualrumahproperty.com` / `jaksel-support-2026`
+  (tabel lengkap + cara verifikasi: `docs/dev-accounts.md`)
 
 ### Konfigurasi Akses Modul (module access)
 

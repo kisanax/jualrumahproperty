@@ -3,23 +3,28 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Handshake,
-  Phone,
-  Building,
-  Mail,
+  Plus,
+  Edit2,
+  Trash2,
+  Save,
   ShieldCheck,
   ShieldAlert,
   ShieldX,
   Shield,
-  Plus,
-  Edit2,
-  Trash2,
-  X,
-  Save,
-  Search,
-  ExternalLink,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
+import { DataTable, type DtColumn } from "@/components/admin-ui/DataTable";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
 
 export interface IntermediaryItem {
   id: string;
@@ -99,19 +104,15 @@ export default function IntermediaryList({ initialIntermediaries }: Intermediary
   const [trustLevel, setTrustLevel] = useState<string>("NEW");
   const [notes, setNotes] = useState("");
 
-  const filteredItems = intermediaries.filter((item) => {
-    const q = search.toLowerCase();
-    const matchSearch =
-      item.name.toLowerCase().includes(q) ||
-      (item.phone && item.phone.toLowerCase().includes(q)) ||
-      (item.company && item.company.toLowerCase().includes(q)) ||
-      (item.notes && item.notes.toLowerCase().includes(q));
+  const trustFiltered = intermediaries.filter((item) =>
+    selectedTrustFilter === "ALL" ? true : item.trustLevel === selectedTrustFilter
+  );
 
-    const matchFilter =
-      selectedTrustFilter === "ALL" ? true : item.trustLevel === selectedTrustFilter;
-
-    return matchSearch && matchFilter;
-  });
+  const searchPredicate = (item: IntermediaryItem, q: string) =>
+    [item.name, item.phone || "", item.company || "", item.email || "", item.notes || ""]
+      .join(" ")
+      .toLowerCase()
+      .includes(q);
 
   const openCreateModal = () => {
     setEditingItem(null);
@@ -221,357 +222,231 @@ export default function IntermediaryList({ initialIntermediaries }: Intermediary
     }
   };
 
+  const intermediaryColumns: DtColumn<IntermediaryItem>[] = [
+    {
+      key: "name",
+      header: "Nama Perantara",
+      sortValue: (item) => item.name,
+      render: (item) => (
+        <div>
+          <div style={{ fontWeight: 600 }}>{item.name}</div>
+          {item.company && (
+            <div className="admin-dt-muted" style={{ fontSize: 12, marginTop: 2 }}>
+              {item.company}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "contact",
+      header: "Kontak",
+      render: (item) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 13 }}>
+          {item.phone && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+              <a href={`tel:${item.phone}`} className="admin-dt-link" style={{ fontWeight: 500 }}>
+                {item.phone}
+              </a>
+              <a
+                href={`https://wa.me/${item.phone.replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontSize: 11, color: "#16a34a", fontWeight: 600, textDecoration: "none" }}
+                title="Chat WhatsApp"
+              >
+                WA ↗
+              </a>
+            </span>
+          )}
+          {item.email && <span className="admin-dt-muted">{item.email}</span>}
+          {!item.phone && !item.email && <span className="admin-dt-muted">—</span>}
+        </div>
+      ),
+    },
+    {
+      key: "trust",
+      header: "Trust Level",
+      sortValue: (item) => item.trustLevel,
+      render: (item) => {
+        const trust = getTrustBadge(item.trustLevel);
+        const TrustIcon = trust.icon;
+        return (
+          <span className={`admin-badge ${trust.cls}`} style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <TrustIcon size={12} /> {trust.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "listings",
+      header: "Listing Terhubung",
+      align: "center",
+      sortValue: (item) => item.listingIntermediaries.length,
+      render: (item) =>
+        item.listingIntermediaries.length > 0 ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center" }}>
+            {item.listingIntermediaries.map((li) => (
+              <Link
+                key={li.id}
+                href={`/admin/properties/${li.listing.property.id}`}
+                className="admin-dt-link"
+                style={{
+                  fontSize: 12,
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  background: "var(--workspace-surface-soft)",
+                  border: "1px solid var(--workspace-border)",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                }}
+                title={li.listing.property.code}
+              >
+                {li.listing.property.code}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "notes",
+      header: "Catatan",
+      render: (item) =>
+        item.notes ? (
+          <span title={item.notes} style={{ display: "inline-block", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "middle", fontStyle: "italic" }}>
+            {item.notes}
+          </span>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (item) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+          <UiButton variant="ghost"
+            type="button"
+            onClick={() => openEditModal(item)}
+            className="h-10 px-4"
+            style={{ padding: "6px 10px", fontSize: 12 }}
+            title="Edit Perantara"
+          >
+            <Edit2 size={14} /> Edit
+          </UiButton>
+          <UiButton variant="ghost"
+            type="button"
+            onClick={() => handleDelete(item)}
+            className="h-10 px-4"
+            style={{
+              padding: "6px 10px",
+              fontSize: 12,
+              color: item.listingIntermediaries.length > 0 ? "var(--workspace-text-muted)" : "var(--workspace-danger)",
+            }}
+            title={
+              item.listingIntermediaries.length > 0
+                ? "Tidak bisa dihapus (terhubung listing)"
+                : "Hapus Perantara"
+            }
+          >
+            <Trash2 size={14} />
+          </UiButton>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
-      <Toaster position="top-right" richColors />
 
       {/* Header */}
       <div className="admin-page-header">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Perantara / Broker</h1>
-          <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
+          <h1>Perantara / Broker</h1>
+          <p>
             Kelola agen eksternal, mediator properti, kantor agensi, dan evaluasi reputasi (Trust Level).
           </p>
         </div>
-        <button
+        <UiButton variant="default"
           onClick={openCreateModal}
-          className="admin-btn admin-btn-primary"
+          className="h-10 px-4"
           style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
         >
           <Plus size={18} /> Tambah Perantara
-        </button>
+        </UiButton>
       </div>
 
-      {/* Filters & Search */}
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-          marginBottom: 20,
-        }}
-      >
-        {/* Pills */}
-        <div className="admin-pill-group">
-          {[
-            { key: "ALL", label: "Semua" },
-            { key: "TRUSTED", label: "Trusted" },
-            { key: "VERIFIED", label: "Verified" },
-            { key: "NEW", label: "Baru" },
-            { key: "BLACKLISTED", label: "Blacklisted" },
-          ].map((pill) => (
-            <button
-              key={pill.key}
-              onClick={() => setSelectedTrustFilter(pill.key)}
-              className={`admin-pill admin-pill-sm ${selectedTrustFilter === pill.key ? "active" : ""}`}
-            >
-              {pill.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Search */}
-        <div style={{ position: "relative", minWidth: 280 }}>
-          <Search
-            size={16}
-            style={{
-              position: "absolute",
-              left: 12,
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "var(--color-admin-text-muted)",
-            }}
-          />
-          <input
-            type="text"
-            className="admin-input"
-            placeholder="Cari perantara / agensi..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={{ paddingLeft: 36 }}
-          />
-        </div>
-      </div>
-
-      {/* Grid */}
-      {filteredItems.length === 0 ? (
-        <div className="admin-card">
-          <div className="admin-empty">
-            <Handshake size={48} className="admin-empty-icon" />
-            <div className="admin-empty-title">
-              {search || selectedTrustFilter !== "ALL"
-                ? "Perantara tidak ditemukan"
-                : "Belum ada perantara terdaftar"}
-            </div>
-            <div className="admin-empty-text">
-              {search || selectedTrustFilter !== "ALL"
-                ? "Coba sesuaikan kata kunci pencarian atau filter Trust Level."
-                : "Klik tombol Tambah Perantara untuk mencatat mediator properti baru."}
-            </div>
-            {!search && selectedTrustFilter === "ALL" && (
+      {/* Tabel Perantara */}
+      <DataTable<IntermediaryItem>
+        rows={trustFiltered}
+        rowKey={(item) => item.id}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari perantara / agensi..."
+        searchPredicate={searchPredicate}
+        initialSort={{ key: "name", dir: "asc" }}
+        pageSize={10}
+        emptyTitle={
+          search || selectedTrustFilter !== "ALL"
+            ? "Perantara tidak ditemukan"
+            : "Belum ada perantara terdaftar"
+        }
+        emptyText={
+          search || selectedTrustFilter !== "ALL"
+            ? "Coba sesuaikan kata kunci pencarian atau filter Trust Level."
+            : "Klik tombol Tambah Perantara untuk mencatat mediator properti baru."
+        }
+        emptyAction={
+          !search && selectedTrustFilter === "ALL" ? (
+            <UiButton variant="default" onClick={openCreateModal} className="h-10 px-4">
+              <Plus size={16} /> Tambah Perantara Pertama
+            </UiButton>
+          ) : undefined
+        }
+        filters={
+          <div className="admin-pill-group">
+            {[
+              { key: "ALL", label: "Semua" },
+              { key: "TRUSTED", label: "Trusted" },
+              { key: "VERIFIED", label: "Verified" },
+              { key: "NEW", label: "Baru" },
+              { key: "BLACKLISTED", label: "Blacklisted" },
+            ].map((pill) => (
               <button
-                onClick={openCreateModal}
-                className="admin-btn admin-btn-primary"
-                style={{ marginTop: 16 }}
+                key={pill.key}
+                onClick={() => setSelectedTrustFilter(pill.key)}
+                className={`admin-pill admin-pill-sm ${selectedTrustFilter === pill.key ? "active" : ""}`}
               >
-                <Plus size={16} /> Tambah Perantara Pertama
+                {pill.label}
               </button>
-            )}
+            ))}
           </div>
-        </div>
-      ) : (
-        <div className="admin-card-grid">
-          {filteredItems.map((int) => {
-            const trust = getTrustBadge(int.trustLevel);
-            const TrustIcon = trust.icon;
-
-            return (
-              <div
-                key={int.id}
-                className="admin-card"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                }}
-              >
-                <div>
-                  {/* Card top */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: 10,
-                    }}
-                  >
-                    <div>
-                      <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>
-                        {int.name}
-                      </h3>
-                      {int.company && (
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: 6,
-                            fontSize: 13,
-                            color: "var(--color-admin-text-secondary)",
-                            marginTop: 4,
-                          }}
-                        >
-                          <Building size={14} style={{ color: "var(--color-admin-text-muted)" }} />
-                          <span>{int.company}</span>
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span
-                        className={`admin-badge ${trust.cls}`}
-                        style={{ display: "inline-flex", alignItems: "center", gap: 4 }}
-                      >
-                        <TrustIcon size={12} /> {trust.label}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Actions & Contact */}
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                      fontSize: 13,
-                      marginTop: 8,
-                    }}
-                  >
-                    {int.phone && (
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "var(--color-admin-text-secondary)",
-                        }}
-                      >
-                        <Phone size={14} style={{ color: "var(--color-admin-accent)" }} />
-                        <a
-                          href={`tel:${int.phone}`}
-                          style={{ color: "inherit", textDecoration: "none" }}
-                        >
-                          {int.phone}
-                        </a>
-                        <a
-                          href={`https://wa.me/${int.phone.replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{
-                            fontSize: 11,
-                            color: "#16a34a",
-                            fontWeight: 600,
-                            textDecoration: "none",
-                            marginLeft: 4,
-                          }}
-                        >
-                          WA ↗
-                        </a>
-                      </div>
-                    )}
-                    {int.email && (
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          color: "var(--color-admin-text-secondary)",
-                        }}
-                      >
-                        <Mail size={14} style={{ color: "var(--color-admin-accent)" }} />
-                        <a
-                          href={`mailto:${int.email}`}
-                          style={{ color: "inherit", textDecoration: "none" }}
-                        >
-                          {int.email}
-                        </a>
-                      </div>
-                    )}
-                    {int.notes && (
-                      <div
-                        style={{
-                          marginTop: 6,
-                          padding: "8px 10px",
-                          borderRadius: 6,
-                          background: "var(--color-admin-bg)",
-                          fontSize: 12,
-                          color: "var(--color-admin-text-secondary)",
-                          borderLeft: "3px solid var(--color-admin-accent)",
-                        }}
-                      >
-                        {int.notes}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Footer of card */}
-                <div>
-                  {int.listingIntermediaries.length > 0 && (
-                    <div
-                      style={{
-                        marginTop: 14,
-                        paddingTop: 12,
-                        borderTop: "1px solid var(--color-admin-border)",
-                      }}
-                    >
-                      <div
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: "var(--color-admin-text-muted)",
-                          textTransform: "uppercase",
-                          letterSpacing: "0.04em",
-                          marginBottom: 8,
-                        }}
-                      >
-                        Listing Terhubung ({int.listingIntermediaries.length})
-                      </div>
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                        {int.listingIntermediaries.map((li) => (
-                          <Link
-                            key={li.id}
-                            href={`/admin/properties/${li.listing.property.id}`}
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 4,
-                              fontSize: 12,
-                              padding: "4px 8px",
-                              borderRadius: 4,
-                              background: "var(--color-admin-bg)",
-                              border: "1px solid var(--color-admin-border)",
-                              color: "var(--color-admin-accent)",
-                              textDecoration: "none",
-                              fontWeight: 500,
-                            }}
-                          >
-                            <span>{li.listing.property.code}</span>
-                            <ExternalLink size={10} />
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 8,
-                      marginTop: 14,
-                      paddingTop: 10,
-                      borderTop: "1px solid var(--color-admin-border)",
-                    }}
-                  >
-                    <button
-                      onClick={() => openEditModal(int)}
-                      className="admin-btn admin-btn-secondary"
-                      style={{ padding: "6px 12px", fontSize: 13, gap: 6 }}
-                    >
-                      <Edit2 size={13} /> Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(int)}
-                      className="admin-btn admin-btn-secondary"
-                      style={{
-                        padding: "6px 10px",
-                        fontSize: 13,
-                        color:
-                          int.listingIntermediaries.length > 0
-                            ? "var(--color-admin-text-muted)"
-                            : "#ef4444",
-                      }}
-                      title={
-                        int.listingIntermediaries.length > 0
-                          ? "Tidak bisa dihapus (terhubung listing)"
-                          : "Hapus Perantara"
-                      }
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+        }
+        columns={intermediaryColumns}
+      />
 
       {/* Modal Add / Edit */}
-      {modalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="admin-modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h2>{editingItem ? "Edit Data Perantara" : "Tambah Perantara Baru"}</h2>
-              <button
-                type="button"
-                className="admin-modal-close-btn"
-                onClick={() => setModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? "Edit Data Perantara" : "Tambah Perantara Baru"}</DialogTitle>
+          </DialogHeader>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
+          <form onSubmit={handleSubmit}>
+            <div>
                 <div>
-                  <label className="admin-label">
+                  <UiLabel htmlFor="int-name" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
                     Nama Perantara / Kontak <span style={{ color: "#ef4444" }}>*</span>
-                  </label>
-                  <input
+                  </UiLabel>
+                  <UiInput
+                    id="int-name"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="Contoh: Pak Anton / Bu Rina ERA"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -581,20 +456,22 @@ export default function IntermediaryList({ initialIntermediaries }: Intermediary
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div>
-                    <label className="admin-label">Nomor WhatsApp / HP</label>
-                    <input
+                    <UiLabel htmlFor="int-phone" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nomor WhatsApp / HP</UiLabel>
+                    <UiInput
+                      id="int-phone"
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="0812xxxx"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="admin-label">Perusahaan / Kantor Agensi</label>
-                    <input
+                    <UiLabel htmlFor="int-company" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Perusahaan / Kantor Agensi</UiLabel>
+                    <UiInput
+                      id="int-company"
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="ERA, Ray White, Independent..."
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
@@ -603,10 +480,11 @@ export default function IntermediaryList({ initialIntermediaries }: Intermediary
                 </div>
 
                 <div>
-                  <label className="admin-label">Email</label>
-                  <input
+                  <UiLabel htmlFor="int-email" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Email</UiLabel>
+                  <UiInput
+                    id="int-email"
                     type="email"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="broker@agensi.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -615,7 +493,7 @@ export default function IntermediaryList({ initialIntermediaries }: Intermediary
 
                 {/* Trust Level Selector */}
                 <div>
-                  <label className="admin-label">Tingkat Kepercayaan (Trust Level)</label>
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Tingkat Kepercayaan (Trust Level)</UiLabel>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 4 }}>
                     {[
                       {
@@ -684,40 +562,42 @@ export default function IntermediaryList({ initialIntermediaries }: Intermediary
                 </div>
 
                 <div>
-                  <label className="admin-label">Catatan Reputasi & Track Record</label>
-                  <textarea
-                    className="admin-input"
+                  <UiLabel htmlFor="int-notes" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan Reputasi & Track Record</UiLabel>
+                  <UiTextarea
+                    id="int-notes"
+                    className="min-h-24 text-base md:text-sm"
                     rows={3}
                     placeholder="Catatan mengenai perantara ini, riwayat komisi, atau kedekatan dengan owner..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                   />
                 </div>
-              </div>
+            </div>
 
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setModalOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isSubmitting}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-                >
-                  <Save size={16} />
-                  {isSubmitting ? "Menyimpan..." : editingItem ? "Simpan Perubahan" : "Tambah Perantara"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton
+                variant="outline"
+                type="button"
+                className="h-10 px-4"
+                onClick={() => setModalOpen(false)}
+                disabled={isSubmitting}
+              >
+                Batal
+              </UiButton>
+              <UiButton
+                variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isSubmitting}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                <Save size={16} />
+                {isSubmitting ? "Menyimpan..." : editingItem ? "Simpan Perubahan" : "Tambah Perantara"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

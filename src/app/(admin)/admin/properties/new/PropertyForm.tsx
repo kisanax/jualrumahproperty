@@ -17,8 +17,14 @@ import {
   FileText,
   Sparkles,
 } from "lucide-react";
-import { Toaster, toast } from "sonner";
+import { toast } from "sonner";
 import { AreaPicker } from "@/components/admin-ui";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import { Card as UiCard } from "@/components/ui/card";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { Label as UiLabel } from "@/components/ui/label";
 
 // =============================================================================
 // Types
@@ -438,16 +444,6 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
   return (
     <>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            background: "var(--color-admin-surface)",
-            border: "1px solid var(--color-admin-border)",
-            color: "var(--color-admin-text)",
-          },
-        }}
-      />
 
       {/* Progress Stepper */}
       <div style={{ marginBottom: 24 }}>
@@ -486,10 +482,10 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
             Punya teks listing dari WhatsApp? Ekstrak data & foto otomatis tanpa perlu mengetik manual.
           </span>
         </div>
-        <button
+        <UiButton variant="outline"
           type="button"
           onClick={() => router.push("/admin/properties/smart-import")}
-          className="admin-btn admin-btn-secondary"
+          className="h-10 px-4"
           style={{
             fontSize: 12,
             padding: "6px 12px",
@@ -499,7 +495,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
           }}
         >
           <Sparkles size={14} /> Buka Smart Paste WA
-        </button>
+        </UiButton>
       </div>
 
       {/* ================================================================= */}
@@ -528,7 +524,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Kawasan Populer (Opsional) */}
           <div className="admin-input-group">
-            <label className="admin-label">Kawasan Populer / Branded (Opsional)</label>
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kawasan Populer / Branded (Opsional)</UiLabel>
             <select
               className="admin-input"
               value={formData.kawasanId}
@@ -559,10 +555,10 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Address */}
           <div className="admin-input-group">
-            <label className="admin-label">Alamat (internal saja) *</label>
-            <input
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Alamat (internal saja) *</UiLabel>
+            <UiInput
               type="text"
-              className="admin-input"
+              className="min-h-10 px-3 text-base md:text-sm"
               placeholder="Jl. Kemang Utara IX No.12"
               value={formData.address}
               onChange={(e) => {
@@ -583,7 +579,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Property Type */}
           <div className="admin-input-group">
-            <label className="admin-label">Tipe properti *</label>
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Tipe properti *</UiLabel>
             <div className="admin-pill-group admin-property-type-grid">
               {PROPERTY_TYPES.map((pt) => (
                 <button
@@ -601,10 +597,10 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
           {/* Land & Building Area */}
           <div className="admin-grid-2">
             <div className="admin-input-group">
-              <label className="admin-label">Luas tanah (m²) *</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Luas tanah (m²) *</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="320"
                 value={formData.landArea}
                 onChange={(e) => updateField("landArea", e.target.value)}
@@ -612,10 +608,10 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
             </div>
             {formData.type !== "LAND" && (
               <div className="admin-input-group">
-                <label className="admin-label">Luas bangunan (m²)</label>
-                <input
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Luas bangunan (m²)</UiLabel>
+                <UiInput
                   type="number"
-                  className="admin-input"
+                  className="min-h-10 px-3 text-base md:text-sm"
                   placeholder="280"
                   value={formData.buildingArea}
                   onChange={(e) => updateField("buildingArea", e.target.value)}
@@ -628,20 +624,20 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
           {formData.type !== "LAND" && (
             <div className="admin-grid-2">
               <div className="admin-input-group">
-                <label className="admin-label">Kamar tidur</label>
-                <input
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kamar tidur</UiLabel>
+                <UiInput
                   type="number"
-                  className="admin-input"
+                  className="min-h-10 px-3 text-base md:text-sm"
                   placeholder="4"
                   value={formData.bedrooms}
                   onChange={(e) => updateField("bedrooms", e.target.value)}
                 />
               </div>
               <div className="admin-input-group">
-                <label className="admin-label">Kamar mandi</label>
-                <input
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kamar mandi</UiLabel>
+                <UiInput
                   type="number"
-                  className="admin-input"
+                  className="min-h-10 px-3 text-base md:text-sm"
                   placeholder="3"
                   value={formData.bathrooms}
                   onChange={(e) => updateField("bathrooms", e.target.value)}
@@ -665,17 +661,17 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
               <div className="admin-collapse-content">
                 <div className="admin-grid-2">
                   <div className="admin-input-group">
-                    <label className="admin-label">Lantai</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Lantai</UiLabel>
+                    <UiInput
                       type="number"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="2"
                       value={formData.floors}
                       onChange={(e) => updateField("floors", e.target.value)}
                     />
                   </div>
                   <div className="admin-input-group">
-                    <label className="admin-label">Sertifikat</label>
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Sertifikat</UiLabel>
                     <select
                       className="admin-input"
                       value={formData.certificateType}
@@ -692,20 +688,20 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
                 </div>
                 <div className="admin-grid-2">
                   <div className="admin-input-group">
-                    <label className="admin-label">Tahun dibangun</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Tahun dibangun</UiLabel>
+                    <UiInput
                       type="number"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="2018"
                       value={formData.yearBuilt}
                       onChange={(e) => updateField("yearBuilt", e.target.value)}
                     />
                   </div>
                   <div className="admin-input-group">
-                    <label className="admin-label">Hadap</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Hadap</UiLabel>
+                    <UiInput
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="Selatan"
                       value={formData.facing}
                       onChange={(e) => updateField("facing", e.target.value)}
@@ -714,20 +710,20 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
                 </div>
                 <div className="admin-grid-2">
                   <div className="admin-input-group">
-                    <label className="admin-label">Listrik (Watt)</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Listrik (Watt)</UiLabel>
+                    <UiInput
                       type="number"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="3500"
                       value={formData.electricity}
                       onChange={(e) => updateField("electricity", e.target.value)}
                     />
                   </div>
                   <div className="admin-input-group">
-                    <label className="admin-label">Sumber air</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Sumber air</UiLabel>
+                    <UiInput
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="PAM"
                       value={formData.waterSource}
                       onChange={(e) => updateField("waterSource", e.target.value)}
@@ -752,26 +748,26 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
             {ownerExpanded && (
               <div className="admin-collapse-content">
                 <div className="admin-input-group">
-                  <label className="admin-label" style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>
+                  <UiLabel style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>
                     Owner
-                  </label>
+                  </UiLabel>
                 </div>
                 <div className="admin-grid-2">
                   <div className="admin-input-group">
-                    <label className="admin-label">Nama owner</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nama owner</UiLabel>
+                    <UiInput
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="Nama pemilik"
                       value={formData.ownerName}
                       onChange={(e) => updateField("ownerName", e.target.value)}
                     />
                   </div>
                   <div className="admin-input-group">
-                    <label className="admin-label">No. HP owner</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">No. HP owner</UiLabel>
+                    <UiInput
                       type="tel"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="08xxx"
                       value={formData.ownerPhone}
                       onChange={(e) => updateField("ownerPhone", e.target.value)}
@@ -779,26 +775,26 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
                   </div>
                 </div>
                 <div className="admin-input-group" style={{ marginTop: 8 }}>
-                  <label className="admin-label" style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>
+                  <UiLabel style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>
                     Perantara
-                  </label>
+                  </UiLabel>
                 </div>
                 <div className="admin-grid-2">
                   <div className="admin-input-group">
-                    <label className="admin-label">Nama perantara</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nama perantara</UiLabel>
+                    <UiInput
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="Nama broker/referral"
                       value={formData.intermediaryName}
                       onChange={(e) => updateField("intermediaryName", e.target.value)}
                     />
                   </div>
                   <div className="admin-input-group">
-                    <label className="admin-label">No. HP perantara</label>
-                    <input
+                    <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">No. HP perantara</UiLabel>
+                    <UiInput
                       type="tel"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="08xxx"
                       value={formData.intermediaryPhone}
                       onChange={(e) =>
@@ -812,15 +808,15 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
           </div>
 
           {/* Next Button */}
-          <button
+          <UiButton size="lg" variant="default"
             type="button"
-            className="admin-btn admin-btn-primary admin-btn-lg admin-btn-full admin-form-primary-action"
+            className="w-full admin-form-primary-action h-10 px-4"
             disabled={!canGoNext()}
             onClick={goNext}
             style={{ marginTop: 8, opacity: canGoNext() ? 1 : 0.4 }}
           >
             Lanjut ke foto <ArrowRight size={18} />
-          </button>
+          </UiButton>
         </div>
       )}
 
@@ -942,21 +938,21 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Navigation */}
           <div className="admin-form-actions" style={{ display: "flex", gap: 12, marginTop: 16 }}>
-            <button
+            <UiButton size="lg" variant="ghost"
               type="button"
-              className="admin-btn admin-btn-ghost admin-btn-lg"
+              className="h-10 px-4"
               onClick={goBack}
             >
               <ArrowLeft size={18} /> Kembali
-            </button>
-            <button
+            </UiButton>
+            <UiButton size="lg" variant="default"
               type="button"
-              className="admin-btn admin-btn-primary admin-btn-lg"
+              className="h-10 px-4"
               onClick={goNext}
               style={{ flex: 1 }}
             >
               Lanjut ke detail <ArrowRight size={18} />
-            </button>
+            </UiButton>
           </div>
         </div>
       )}
@@ -968,10 +964,10 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
         <div className="animate-slide-up">
           {/* Title */}
           <div className="admin-input-group">
-            <label className="admin-label">Judul listing</label>
-            <input
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Judul listing</UiLabel>
+            <UiInput
               type="text"
-              className="admin-input"
+              className="min-h-10 px-3 text-base md:text-sm"
               placeholder={autoTitle || "Judul listing..."}
               value={formData.title}
               onChange={(e) => updateField("title", e.target.value)}
@@ -985,11 +981,11 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Price */}
           <div className="admin-input-group">
-            <label className="admin-label">Harga (Rp) *</label>
-            <input
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Harga (Rp) *</UiLabel>
+            <UiInput
               type="text"
               inputMode="numeric"
-              className="admin-input"
+              className="min-h-10 px-3 text-base md:text-sm"
               placeholder="8.500.000.000"
               value={formatPriceDisplay(formData.askingPrice)}
               onChange={(e) => handlePriceChange("askingPrice", e.target.value)}
@@ -1019,9 +1015,9 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Description */}
           <div className="admin-input-group">
-            <label className="admin-label">Deskripsi publik</label>
-            <textarea
-              className="admin-input admin-textarea"
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Deskripsi publik</UiLabel>
+            <UiTextarea
+              className="min-h-24 text-base md:text-sm"
               placeholder="Deskripsi yang akan tampil di halaman publik..."
               value={formData.description}
               onChange={(e) => updateField("description", e.target.value)}
@@ -1031,7 +1027,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Amenities */}
           <div className="admin-input-group">
-            <label className="admin-label">Fasilitas</label>
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Fasilitas</UiLabel>
             {Object.entries(amenitiesByCategory).map(([category, items]) => (
               <div key={category} style={{ marginBottom: 12 }}>
                 <div
@@ -1104,9 +1100,9 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
                   Tampilkan alamat lengkap di publik
                 </label>
                 <div className="admin-input-group">
-                  <label className="admin-label">Catatan internal (tidak terlihat publik)</label>
-                  <textarea
-                    className="admin-input admin-textarea"
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan internal (tidak terlihat publik)</UiLabel>
+                  <UiTextarea
+                    className="min-h-24 text-base md:text-sm"
                     placeholder="Catatan untuk tim internal..."
                     value={formData.internalNotes}
                     onChange={(e) => updateField("internalNotes", e.target.value)}
@@ -1131,20 +1127,20 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
             {commissionExpanded && (
               <div className="admin-collapse-content">
                 <div className="admin-input-group">
-                  <label className="admin-label">Harga minimum owner (Rp)</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Harga minimum owner (Rp)</UiLabel>
+                  <UiInput
                     type="text"
                     inputMode="numeric"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="7.800.000.000"
                     value={formatPriceDisplay(formData.minimumPrice)}
                     onChange={(e) => handlePriceChange("minimumPrice", e.target.value)}
                   />
                 </div>
                 <div className="admin-input-group">
-                  <label className="admin-label">Catatan komisi</label>
-                  <textarea
-                    className="admin-input admin-textarea"
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan komisi</UiLabel>
+                  <UiTextarea
+                    className="min-h-24 text-base md:text-sm"
                     placeholder="Catatan soal komisi perantara..."
                     value={formData.commissionNotes}
                     onChange={(e) => updateField("commissionNotes", e.target.value)}
@@ -1157,22 +1153,22 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
 
           {/* Navigation */}
           <div className="admin-form-actions" style={{ display: "flex", gap: 12, marginTop: 16 }}>
-            <button
+            <UiButton size="lg" variant="ghost"
               type="button"
-              className="admin-btn admin-btn-ghost admin-btn-lg"
+              className="h-10 px-4"
               onClick={goBack}
             >
               <ArrowLeft size={18} /> Kembali
-            </button>
-            <button
+            </UiButton>
+            <UiButton size="lg" variant="default"
               type="button"
-              className="admin-btn admin-btn-primary admin-btn-lg"
+              className="h-10 px-4"
               onClick={goNext}
               style={{ flex: 1, opacity: canGoNext() ? 1 : 0.4 }}
               disabled={!canGoNext()}
             >
               Lanjut ke review <ArrowRight size={18} />
-            </button>
+            </UiButton>
           </div>
         </div>
       )}
@@ -1183,7 +1179,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
       {currentStep === 3 && (
         <div className="animate-slide-up">
           {/* Summary Card */}
-          <div className="admin-card" style={{ marginBottom: 20 }}>
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 20 }}>
             <div
               style={{
                 display: "flex",
@@ -1260,7 +1256,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
               <span style={{ color: "var(--color-admin-text-muted)" }}>👤 Owner</span>
               <span>{formData.ownerName || "(belum diisi)"}</span>
             </div>
-          </div>
+          </UiCard>
 
           {/* Warnings */}
           {!formData.ownerName && (
@@ -1284,21 +1280,21 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
             }}
           >
             Status awal:{" "}
-            <span className="admin-badge admin-badge-draft">Draft</span>
+            <UiBadge className="bg-slate-500/10 text-slate-700 dark:text-slate-300 border-transparent bg-muted text-muted-foreground">Draft</UiBadge>
           </div>
 
           {/* Action Buttons */}
           <div className="admin-form-actions" style={{ display: "flex", gap: 12 }}>
-            <button
+            <UiButton size="lg" variant="ghost"
               type="button"
-              className="admin-btn admin-btn-ghost admin-btn-lg"
+              className="h-10 px-4"
               onClick={goBack}
             >
               <ArrowLeft size={18} /> Kembali
-            </button>
-            <button
+            </UiButton>
+            <UiButton size="lg" variant="default"
               type="button"
-              className="admin-btn admin-btn-primary admin-btn-lg"
+              className="h-10 px-4"
               onClick={handleSubmit}
               disabled={isSubmitting}
               style={{ flex: 1 }}
@@ -1310,7 +1306,7 @@ export default function PropertyForm({ amenitiesByCategory, kawasan = [] }: Prop
                   <Save size={18} /> Simpan sebagai draft
                 </>
               )}
-            </button>
+            </UiButton>
           </div>
         </div>
       )}

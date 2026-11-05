@@ -38,6 +38,9 @@ const verificationLabel: Record<string, string> = {
   SUSPENDED: "Ditangguhkan",
 };
 
+const selectClass =
+  "h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive";
+
 const permissionSummary: Record<string, string[]> = {
   MEMBER: ["Akses portal publik", "Simpan favorit dan kelola akun", "Dapat mengajukan diri menjadi broker"],
   SUPER_ADMIN: [
@@ -169,7 +172,15 @@ export default function UserWorksheet({
           eyebrow={isCreate ? "Buat akun baru" : "Akun user"}
           title={isCreate ? "Akun baru" : user!.name || "(tanpa nama)"}
           subtitle={isCreate ? "Identitas, role, dan akses awal" : `${roleLabel[user!.platformRole]} · ${user!.email}`}
-          backHref="/admin/users"
+          crumbs={
+            isCreate
+              ? undefined
+              : [
+                  { label: "Admin", href: "/admin" },
+                  { label: "Tim & Akses", href: "/admin/users" },
+                  { label: user!.name || "(tanpa nama)" },
+                ]
+          }
           status={isCreate ? undefined : <StatusBadge tone={statusTone[currentStatus]}>{statusLabel[currentStatus]}</StatusBadge>}
           actions={
             <div className={styles.desktopActions}>
@@ -191,10 +202,10 @@ export default function UserWorksheet({
               required
               hint={isCreate ? undefined : "Mengubah email mengubah kredensial login akun."}
             />
-            <label className="ui-field">
-              <span className="ui-field__label">Role platform</span>
+            <label className="grid gap-1.5">
+              <span className="text-xs font-semibold text-muted-foreground">Role platform</span>
               <select
-                className="ui-field__control"
+                className={selectClass}
                 name="platformRole"
                 value={effectiveRole}
                 onChange={(event) => setEffectiveRole(event.target.value as AccountUser["platformRole"])}
@@ -205,7 +216,7 @@ export default function UserWorksheet({
                   </option>
                 ))}
               </select>
-              <span className="ui-field__help">Menentukan izin akun — lihat ringkasan izin di bawah.</span>
+              <span className="text-xs text-muted-foreground">Menentukan izin akun — lihat ringkasan izin di bawah.</span>
             </label>
             <UnderlineField
               name="password"
@@ -259,10 +270,10 @@ export default function UserWorksheet({
         {!isCreate && user!.platformRole === "BROKER" && effectiveRole === "BROKER" && (
           <FormSection title="Profil broker" description="Verifikasi menentukan apakah broker dapat membuka workspace operasional.">
             <div className="ui-form-grid ui-form-grid--single">
-              <label className="ui-field">
-                <span className="ui-field__label">Status verifikasi</span>
+              <label className="grid gap-1.5">
+                <span className="text-xs font-semibold text-muted-foreground">Status verifikasi</span>
                 <select
-                  className="ui-field__control"
+                  className={selectClass}
                   name="verificationStatus"
                   defaultValue={user!.brokerProfile?.verificationStatus ?? "PROFILE_INCOMPLETE"}
                 >
@@ -270,7 +281,7 @@ export default function UserWorksheet({
                     <option value={value} key={value}>{label}</option>
                   ))}
                 </select>
-                <span className="ui-field__help">Hanya status Terverifikasi yang membuka akses workspace.</span>
+                <span className="text-xs text-muted-foreground">Hanya status Terverifikasi yang membuka akses workspace.</span>
               </label>
               <UnderlineField label="Jenis akun" value={user!.brokerProfile?.brokerType === "AGENCY_OWNER" ? "Pemilik kantor / agency" : user!.brokerProfile?.brokerType === "AGENCY_MEMBER" ? "Anggota kantor / agency" : user!.brokerProfile?.brokerType === "INDEPENDENT" ? "Broker independen" : "—"} disabled />
               <UnderlineField label="Nomor WhatsApp" value={user!.brokerProfile?.phone ?? "—"} disabled />

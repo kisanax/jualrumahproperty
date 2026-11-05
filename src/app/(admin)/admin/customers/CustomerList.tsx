@@ -2,8 +2,21 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Users, Phone, Mail, Clock, Search, MessageSquare, Plus, Edit2, Trash2, X, Save, AlertCircle } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { MessageSquare, Plus, Edit2, Trash2, Save, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
+import { DataTable, type DtColumn } from "@/components/admin-ui/DataTable";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
+import { ButtonLink } from "@/components/admin-ui/Button";
 
 export interface CustomerLeadItem {
   id: string;
@@ -75,8 +88,7 @@ export default function CustomerList({ initialCustomers }: CustomerListProps) {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
 
-  const filteredCustomers = customers.filter((c) => {
-    const q = search.toLowerCase();
+  const searchPredicate = (c: CustomerItem, q: string) => {
     const matchesGeneral =
       c.name.toLowerCase().includes(q) ||
       c.phone.toLowerCase().includes(q) ||
@@ -92,7 +104,7 @@ export default function CustomerList({ initialCustomers }: CustomerListProps) {
     );
 
     return matchesGeneral || matchesLeads;
-  });
+  };
 
   const openCreateModal = () => {
     setEditingCustomer(null);
@@ -200,342 +212,208 @@ export default function CustomerList({ initialCustomers }: CustomerListProps) {
     }
   };
 
+  const customerColumns: DtColumn<CustomerItem>[] = [
+    {
+      key: "name",
+      header: "Nama Customer",
+      sortValue: (c) => c.name,
+      render: (c) => (
+        <div>
+          <div style={{ fontWeight: 600 }}>{c.name}</div>
+          <div className="admin-dt-muted" style={{ fontSize: 12, marginTop: 2 }}>
+            Sejak {formatDate(c.createdAt)}
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "contact",
+      header: "Kontak",
+      render: (c) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 13 }}>
+          <span style={{ fontWeight: 500 }}>{c.phone}</span>
+          {c.email && <span className="admin-dt-muted">{c.email}</span>}
+        </div>
+      ),
+    },
+    {
+      key: "leads",
+      header: "Inquiry",
+      align: "center",
+      sortValue: (c) => c.leads?.length || 0,
+      render: (c) => {
+        const leads = c.leads || [];
+        if (leads.length === 0) return <span className="admin-dt-muted">Belum ada inquiry</span>;
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "flex-start" }}>
+            {leads.slice(0, 2).map((lead) => {
+              const stageBadge = getStageBadge(lead.currentStage);
+              return (
+                <span key={lead.id} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  <Link
+                    href={`/admin/properties/${lead.listing.property.code}`}
+                    className="admin-dt-link"
+                    style={{ fontSize: 12, fontWeight: 600 }}
+                  >
+                    {lead.listing.property.code}
+                  </Link>
+                  <span className={`admin-badge ${stageBadge.cls}`} style={{ fontSize: 10, minHeight: 18, padding: "1px 7px" }}>
+                    {stageBadge.label}
+                  </span>
+                </span>
+              );
+            })}
+            {leads.length > 2 && (
+              <span className="admin-dt-muted" style={{ fontSize: 11 }}>
+                +{leads.length - 2} inquiry lainnya
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: "notes",
+      header: "Catatan",
+      render: (c) =>
+        c.notes ? (
+          <span title={c.notes} style={{ display: "inline-block", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "middle", fontStyle: "italic" }}>
+            {c.notes}
+          </span>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (c) => {
+        const cleanPhone = c.phone.replace(/\D/g, "").replace(/^0/, "62");
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+            <ButtonLink variant="quiet"
+              href={`https://wa.me/${cleanPhone}`}
+              target="_blank"
+              rel="noreferrer"
+              className="h-10 px-4"
+              style={{ padding: "6px 10px", fontSize: 12, display: "inline-flex", alignItems: "center", gap: 4 }}
+              title="Chat WhatsApp"
+            >
+              <MessageSquare size={13} /> WA
+            </ButtonLink>
+            <UiButton variant="ghost"
+              type="button"
+              onClick={() => openEditModal(c)}
+              className="h-10 px-4"
+              style={{ padding: "6px 10px", fontSize: 12 }}
+              title="Edit Customer"
+            >
+              <Edit2 size={14} /> Edit
+            </UiButton>
+            <UiButton variant="ghost"
+              type="button"
+              onClick={() => openDeleteModal(c)}
+              className="h-10 px-4"
+              style={{
+                padding: "6px 10px",
+                fontSize: 12,
+                color: c.leads && c.leads.length > 0 ? "var(--workspace-text-muted)" : "var(--workspace-danger)",
+              }}
+              title={
+                c.leads && c.leads.length > 0
+                  ? "Customer memiliki inquiry terkait"
+                  : "Hapus Customer"
+              }
+            >
+              <Trash2 size={14} />
+            </UiButton>
+          </div>
+        );
+      },
+    },
+  ];
+
   return (
     <div className="animate-fade-in">
-      <Toaster position="top-right" richColors />
 
       {/* Page Header */}
       <div className="admin-page-header">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Database Customer (Calon Pembeli)</h1>
-          <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
+          <h1>Database Customer (Calon Pembeli)</h1>
+          <p>
             {customers.length} calon pembeli unik terdata lintas seluruh listing & CRM leads
           </p>
         </div>
-        <button onClick={openCreateModal} className="admin-btn admin-btn-primary">
+        <UiButton variant="default" onClick={openCreateModal} className="h-10 px-4">
           <Plus size={16} /> Tambah Customer
-        </button>
+        </UiButton>
       </div>
 
-      {/* Search Toolbar */}
-      <div className="admin-card" style={{ padding: "12px 18px", marginBottom: 20 }}>
-        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-          <div style={{ position: "relative", flex: 1, maxWidth: 420 }}>
-            <Search
-              size={16}
-              style={{
-                position: "absolute",
-                left: 12,
-                top: "50%",
-                transform: "translateY(-50%)",
-                color: "var(--color-admin-text-muted)",
-              }}
-            />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Cari nama, no. HP, email, atau kode properti..."
-              className="admin-input"
-              style={{ paddingLeft: 36 }}
-            />
-          </div>
-          {search && (
-            <button onClick={() => setSearch("")} className="admin-btn admin-btn-ghost">
-              Reset
-            </button>
-          )}
-          <span style={{ fontSize: 13, color: "var(--color-admin-text-muted)", marginLeft: "auto" }}>
-            Menampilkan {filteredCustomers.length} dari {customers.length} customer
-          </span>
-        </div>
-      </div>
-
-      {/* Grid Customers */}
-      {filteredCustomers.length === 0 ? (
-        <div className="admin-card">
-          <div className="admin-empty">
-            <Users size={48} className="admin-empty-icon" />
-            <div className="admin-empty-title">
-              {search ? "Customer tidak ditemukan" : "Belum ada customer"}
-            </div>
-            <div className="admin-empty-text">
-              {search
-                ? `Tidak ada hasil pencarian untuk "${search}". Coba kata kunci lain.`
-                : "Customer tercatat otomatis saat lead masuk, atau bisa ditambahkan manual."}
-            </div>
-            {!search && (
-              <button
-                onClick={openCreateModal}
-                className="admin-btn admin-btn-primary"
-                style={{ marginTop: 14 }}
-              >
-                <Plus size={16} /> Tambah Customer Pertama
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="admin-card-grid">
-          {filteredCustomers.map((c) => {
-            const cleanPhone = c.phone.replace(/\D/g, "").replace(/^0/, "62");
-
-            return (
-              <div
-                key={c.id}
-                className="admin-card"
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <div>
-                  {/* Card Header with Name & Actions */}
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      marginBottom: 8,
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontSize: 17, fontWeight: 700 }}>{c.name}</div>
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "var(--color-admin-text-muted)",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                          marginTop: 2,
-                        }}
-                      >
-                        <Clock size={12} /> Sejak {formatDate(c.createdAt)}
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <a
-                        href={`https://wa.me/${cleanPhone}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="admin-btn admin-btn-ghost"
-                        style={{
-                          padding: "4px 8px",
-                          fontSize: 12,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                          color: "var(--color-admin-accent)",
-                        }}
-                        title="Chat WhatsApp"
-                      >
-                        <MessageSquare size={13} />
-                        WA
-                      </a>
-                      <button
-                        onClick={() => openEditModal(c)}
-                        className="admin-btn admin-btn-ghost"
-                        style={{ padding: "4px 8px" }}
-                        title="Edit Customer"
-                      >
-                        <Edit2 size={14} />
-                      </button>
-                      <button
-                        onClick={() => openDeleteModal(c)}
-                        className="admin-btn admin-btn-ghost"
-                        style={{
-                          padding: "4px 8px",
-                          color:
-                            c.leads && c.leads.length > 0
-                              ? "var(--color-admin-text-muted)"
-                              : "var(--color-admin-danger)",
-                        }}
-                        title={
-                          c.leads && c.leads.length > 0
-                            ? "Customer memiliki inquiry terkait"
-                            : "Hapus Customer"
-                        }
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Contact info */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 10 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        fontSize: 13,
-                        color: "var(--color-admin-text-secondary)",
-                      }}
-                    >
-                      <Phone size={14} style={{ color: "var(--color-admin-text-muted)" }} />
-                      <span style={{ fontWeight: 500 }}>{c.phone}</span>
-                    </div>
-                    {c.email && (
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                          fontSize: 13,
-                          color: "var(--color-admin-text-secondary)",
-                        }}
-                      >
-                        <Mail size={14} style={{ color: "var(--color-admin-text-muted)" }} />
-                        <span>{c.email}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Notes / Preferences */}
-                  {c.notes && (
-                    <div
-                      style={{
-                        fontSize: 12,
-                        color: "var(--color-admin-text-secondary)",
-                        backgroundColor: "var(--color-admin-bg)",
-                        padding: "8px 12px",
-                        borderRadius: 8,
-                        marginTop: 12,
-                        borderLeft: "3px solid var(--color-admin-accent)",
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      {c.notes}
-                    </div>
-                  )}
-                </div>
-
-                {/* Inquiries / Leads Timeline */}
-                <div
-                  style={{
-                    marginTop: 14,
-                    paddingTop: 12,
-                    borderTop: "1px solid var(--color-admin-border)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "var(--color-admin-text-muted)",
-                      textTransform: "uppercase",
-                      marginBottom: 8,
-                      display: "flex",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <span>Listing Yang Ditanyakan</span>
-                    <span>{c.leads?.length || 0} Inquiry</span>
-                  </div>
-
-                  {!c.leads || c.leads.length === 0 ? (
-                    <div style={{ fontSize: 12, color: "var(--color-admin-text-muted)", fontStyle: "italic" }}>
-                      Belum ada tiket inquiry aktif
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      {c.leads.map((lead) => {
-                        const stageBadge = getStageBadge(lead.currentStage);
-
-                        return (
-                          <div
-                            key={lead.id}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "space-between",
-                              fontSize: 12,
-                              padding: "6px 8px",
-                              backgroundColor: "var(--color-admin-bg)",
-                              borderRadius: 6,
-                            }}
-                          >
-                            <Link
-                              href={`/admin/properties/${lead.listing.property.code}`}
-                              style={{
-                                color: "var(--color-admin-accent)",
-                                textDecoration: "none",
-                                fontWeight: 600,
-                              }}
-                            >
-                              {lead.listing.property.code} —{" "}
-                              {lead.listing.property.kawasan?.name || lead.listing.property.area.name}
-                            </Link>
-
-                            <span className={`admin-badge ${stageBadge.cls}`} style={{ fontSize: 10 }}>
-                              {stageBadge.label}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      {/* Tabel Customer */}
+      <DataTable<CustomerItem>
+        rows={customers}
+        rowKey={(c) => c.id}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari nama, no. HP, email, atau kode properti..."
+        searchPredicate={searchPredicate}
+        initialSort={{ key: "name", dir: "asc" }}
+        pageSize={10}
+        emptyTitle={search ? "Customer tidak ditemukan" : "Belum ada customer"}
+        emptyText={
+          search
+            ? `Tidak ada hasil pencarian untuk "${search}". Coba kata kunci lain.`
+            : "Customer tercatat otomatis saat lead masuk, atau bisa ditambahkan manual."
+        }
+        emptyAction={
+          !search ? (
+            <UiButton variant="default" onClick={openCreateModal} className="h-10 px-4">
+              <Plus size={16} /> Tambah Customer Pertama
+            </UiButton>
+          ) : undefined
+        }
+        columns={customerColumns}
+      />
 
       {/* MODAL TAMBAH / EDIT CUSTOMER */}
-      {modalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
-          <div
-            className="admin-modal-container"
-            style={{ maxWidth: 520 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="admin-modal-header">
-              <h2 style={{ fontSize: 18, fontWeight: 700 }}>
-                {editingCustomer ? "Edit Data Customer" : "Tambah Customer Baru"}
-              </h2>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="admin-btn admin-btn-ghost"
-                style={{ padding: 4 }}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingCustomer ? "Edit Data Customer" : "Tambah Customer Baru"}
+            </DialogTitle>
+          </DialogHeader>
 
-            {/* Form Body */}
-            <form onSubmit={handleSubmit} id="customer-form">
-              <div className="admin-modal-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <form onSubmit={handleSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <div>
-                  <label className="admin-label">
+                  <UiLabel htmlFor="cust-name" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
                     Nama Lengkap Customer <span style={{ color: "var(--color-admin-danger)" }}>*</span>
-                  </label>
-                  <input
+                  </UiLabel>
+                  <UiInput
+                    id="cust-name"
                     type="text"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Contoh: Hendra Wijaya"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="admin-label">
+                  <UiLabel htmlFor="cust-phone" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
                     Nomor Telepon / WhatsApp <span style={{ color: "var(--color-admin-danger)" }}>*</span>
-                  </label>
-                  <input
+                  </UiLabel>
+                  <UiInput
+                    id="cust-phone"
                     type="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Contoh: 08123456789"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                   />
                   <span style={{ fontSize: 11, color: "var(--color-admin-text-muted)", marginTop: 4, display: "block" }}>
                     Nomor HP digunakan sebagai ID unik CRM (kunci dedupe calon pembeli).
@@ -543,124 +421,114 @@ export default function CustomerList({ initialCustomers }: CustomerListProps) {
                 </div>
 
                 <div>
-                  <label className="admin-label">Email (Opsional)</label>
-                  <input
+                  <UiLabel htmlFor="cust-email" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Email (Opsional)</UiLabel>
+                  <UiInput
+                    id="cust-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="hendra@example.com"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="admin-label">Catatan Preferensi / Kebutuhan</label>
-                  <textarea
+                  <UiLabel htmlFor="cust-notes" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan Preferensi / Kebutuhan</UiLabel>
+                  <UiTextarea
+                    id="cust-notes"
                     rows={3}
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Contoh: Cari rumah 2 lantai di Kebayoran Baru, budget max 15 Milyar..."
-                    className="admin-input"
+                    className="min-h-24 text-base md:text-sm"
                     style={{ resize: "vertical" }}
                   />
                 </div>
-              </div>
-
-              {/* Footer */}
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="admin-btn admin-btn-secondary"
-                  disabled={isSubmitting}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  form="customer-form"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isSubmitting}
-                >
-                  <Save size={16} />
-                  {isSubmitting ? "Menyimpan..." : editingCustomer ? "Simpan Perubahan" : "Simpan Customer"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL KONFIRMASI HAPUS */}
-      {deleteModalOpen && deletingCustomer && (
-        <div className="admin-modal-overlay" onClick={() => setDeleteModalOpen(false)}>
-          <div
-            className="admin-modal-container"
-            style={{ maxWidth: 440 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="admin-modal-header">
-              <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--color-admin-danger)" }}>
-                Hapus Data Customer
-              </h2>
-              <button
-                onClick={() => setDeleteModalOpen(false)}
-                className="admin-btn admin-btn-ghost"
-                style={{ padding: 4 }}
-              >
-                <X size={18} />
-              </button>
             </div>
 
-            <div className="admin-modal-body">
-              <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", lineHeight: 1.5 }}>
-                Apakah Anda yakin ingin menghapus data customer{" "}
-                <strong>{deletingCustomer.name}</strong> ({deletingCustomer.phone})?
-              </p>
-
-              {deletingCustomer.leads && deletingCustomer.leads.length > 0 && (
-                <div
-                  style={{
-                    display: "flex",
-                    gap: 10,
-                    alignItems: "flex-start",
-                    marginTop: 14,
-                    padding: 12,
-                    backgroundColor: "rgba(239, 68, 68, 0.08)",
-                    borderRadius: 8,
-                    border: "1px solid rgba(239, 68, 68, 0.2)",
-                  }}
-                >
-                  <AlertCircle size={18} style={{ color: "var(--color-admin-danger)", flexShrink: 0, marginTop: 2 }} />
-                  <div style={{ fontSize: 13, color: "var(--color-admin-danger)" }}>
-                    Customer ini terhubung ke <strong>{deletingCustomer.leads.length} tiket inquiry (leads)</strong>.
-                    Customer tidak dapat dihapus sebelum seluruh inquiry terkait diselesaikan atau dihapus dari CRM.
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="admin-modal-footer">
-              <button
+            <DialogFooter>
+              <UiButton
+                variant="outline"
                 type="button"
-                onClick={() => setDeleteModalOpen(false)}
-                className="admin-btn admin-btn-secondary"
+                onClick={() => setModalOpen(false)}
+                className="h-10 px-4"
                 disabled={isSubmitting}
               >
                 Batal
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                className="admin-btn admin-btn-danger"
-                disabled={isSubmitting || (deletingCustomer.leads && deletingCustomer.leads.length > 0)}
+              </UiButton>
+              <UiButton
+                variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isSubmitting}
               >
-                {isSubmitting ? "Menghapus..." : "Hapus Permanen"}
-              </button>
-            </div>
+                <Save size={16} />
+                {isSubmitting ? "Menyimpan..." : editingCustomer ? "Simpan Perubahan" : "Simpan Customer"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODAL KONFIRMASI HAPUS */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle style={{ color: "var(--color-admin-danger)" }}>
+              Hapus Data Customer
+            </DialogTitle>
+          </DialogHeader>
+
+          <div>
+            <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", lineHeight: 1.5 }}>
+              Apakah Anda yakin ingin menghapus data customer{" "}
+              <strong>{deletingCustomer?.name}</strong> ({deletingCustomer?.phone})?
+            </p>
+
+            {deletingCustomer?.leads && deletingCustomer.leads.length > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  alignItems: "flex-start",
+                  marginTop: 14,
+                  padding: 12,
+                  backgroundColor: "rgba(239, 68, 68, 0.08)",
+                  borderRadius: 8,
+                  border: "1px solid rgba(239, 68, 68, 0.2)",
+                }}
+              >
+                <AlertCircle size={18} style={{ color: "var(--color-admin-danger)", flexShrink: 0, marginTop: 2 }} />
+                <div style={{ fontSize: 13, color: "var(--color-admin-danger)" }}>
+                  Customer ini terhubung ke <strong>{deletingCustomer.leads.length} tiket inquiry (leads)</strong>.
+                  Customer tidak dapat dihapus sebelum seluruh inquiry terkait diselesaikan atau dihapus dari CRM.
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
+
+          <DialogFooter>
+            <UiButton
+              variant="outline"
+              type="button"
+              onClick={() => setDeleteModalOpen(false)}
+              className="h-10 px-4"
+              disabled={isSubmitting}
+            >
+              Batal
+            </UiButton>
+            <UiButton
+              variant="destructive"
+              type="button"
+              onClick={handleDelete}
+              className="h-10 px-4"
+              disabled={isSubmitting || (deletingCustomer?.leads?.length ?? 0) > 0}
+            >
+              {isSubmitting ? "Menghapus..." : "Hapus Permanen"}
+            </UiButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

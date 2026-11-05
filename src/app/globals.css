@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @theme {
   --font-serif: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif;
@@ -38,6 +39,91 @@
   box-sizing: border-box;
 }
 
+/* ======================================================================= */
+/* shadcn/ui design tokens — dihubungkan ke palet brand portal (29 Okt 2026)
+   Warna slot d: ink #222 · muted #717171 · line #ebebeb · action #C52004  */
+/* ======================================================================= */
+
+@custom-variant dark (&:is(.dark *), &:is([data-theme="dark"] *));
+
+:root,
+.admin :root {
+  --background: #ffffff;
+  --foreground: #222222;
+  --card: #ffffff;
+  --card-foreground: #222222;
+  --popover: #ffffff;
+  --popover-foreground: #222222;
+  --primary: #c52004;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f7f7;
+  --secondary-foreground: #222222;
+  --muted: #f7f7f7;
+  --muted-foreground: #717171;
+  --accent: #fdece7;
+  --accent-foreground: #7a1302;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #ebebeb;
+  --input: #ebebeb;
+  --ring: rgba(197, 32, 4, 0.55);
+  --radius: 0.75rem;
+}
+
+/* Tema gelap opsional: aktif via class .dark ATAU atribut data-theme="dark"
+   (mekanisme legacy admin di ThemeToggle.tsx/admin layout init script).
+   Tanpa penimpaan khusus admin — panel admin mengikuti token brand :root. */
+.dark,
+[data-theme="dark"],
+.dark .admin-layout,
+.admin-layout[data-theme="dark"] {
+  --background: #101014;
+  --foreground: #f3f3f5;
+  --card: #17171d;
+  --card-foreground: #f3f3f5;
+  --popover: #1b1b22;
+  --popover-foreground: #f3f3f5;
+  --primary: #c52004;
+  --primary-foreground: #ffffff;
+  --secondary: #1e1e26;
+  --secondary-foreground: #e7e7ec;
+  --muted: #1a1a21;
+  --muted-foreground: #9a9aa5;
+  --accent: #2a151c;
+  --accent-foreground: #ff8f7a;
+  --destructive: #e5484d;
+  --destructive-foreground: #ffffff;
+  --border: #26262e;
+  --input: #2b2b34;
+  --ring: rgba(255, 90, 60, 0.45);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
 html {
   scroll-behavior: smooth;
   font-family: var(--font-jakarta), "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -64,13 +150,13 @@ body:not(:has(.admin-layout)) h3,
 body:not(:has(.admin-layout)) h4,
 body:not(:has(.admin-layout)) h5,
 body:not(:has(.admin-layout)) h6,
-.raveis-heading-title,
-.raveis-info-title,
-.raveis-group-heading,
+.pd-heading-title,
+.pd-info-title,
+.pd-group-heading,
 .listing-header h2,
 .hero h1,
-.raveis-price-main,
-.raveis-lightbox-heading strong {
+.pd-price-main,
+.pd-lightbox-heading strong {
   font-family: var(--font-jakarta), "Plus Jakarta Sans", system-ui, sans-serif !important;
 }
 
@@ -80,14 +166,18 @@ body:not(:has(.admin-layout)) h3 *,
 body:not(:has(.admin-layout)) h4 *,
 body:not(:has(.admin-layout)) h5 *,
 body:not(:has(.admin-layout)) h6 *,
-.raveis-heading-title *,
-.raveis-info-title *,
-.raveis-group-heading *,
+.pd-heading-title *,
+.pd-info-title *,
+.pd-group-heading *,
 .hero h1 * {
   font-family: inherit;
 }
 
-a {
+/* Reset link portal — WAJIB di-scope agar tidak menimpa utility Tailwind
+   (mis. text-primary-foreground pada ButtonLink admin yang render <a>).
+   Rule unlayered mengalahkan @layer utilities, jadi tanpa scope ini teks
+   tombol primary admin jadi hitam-di-atas-hitam. */
+body:not(:has(.admin-layout)) a {
   color: inherit;
   text-decoration: none;
 }
@@ -107,29 +197,29 @@ body:not(:has(.admin-layout)) label,
 body:not(:has(.admin-layout)) li,
 body:not(:has(.admin-layout)) td,
 body:not(:has(.admin-layout)) th,
-.raveis-page-root,
-.raveis-breadcrumb,
-.raveis-pill,
+.pd-page-root,
+.pd-breadcrumb,
+.pd-pill,
 .pill-status,
-.raveis-spec-top,
-.raveis-spec-bottom,
-.raveis-copy-section p,
-.raveis-accordion-header,
-.raveis-kv-key,
-.raveis-kv-val,
-.raveis-card-sidebar,
-.raveis-share-row,
-.raveis-share-label,
-.raveis-price-sub,
-.raveis-location-line,
-.raveis-id-line,
-.raveis-action-btn,
-.raveis-agent-strip,
-.raveis-agent-desc,
+.pd-spec-top,
+.pd-spec-bottom,
+.pd-copy-section p,
+.pd-accordion-header,
+.pd-kv-key,
+.pd-kv-val,
+.pd-card-sidebar,
+.pd-share-row,
+.pd-share-label,
+.pd-price-sub,
+.pd-location-line,
+.pd-id-line,
+.pd-action-btn,
+.pd-agent-strip,
+.pd-agent-desc,
 .gallery-counter-tag,
 .gallery-view-all-btn,
-.raveis-more-overlay,
-.raveis-lightbox-heading span,
+.pd-more-overlay,
+.pd-lightbox-heading span,
 .property-card,
 .property-card-title,
 .property-card-location,
@@ -270,23 +360,23 @@ main:has(.portal-footer){padding-bottom:0!important}
 /* ======================================================================= */
 /* DETAIL PAGE — Plus Jakarta Sans (Headings & Body/UI)             */
 /* ======================================================================= */
-.raveis-page-root{background:var(--paper);min-height:100vh;color:var(--ink);font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-page-root{background:var(--paper);min-height:100vh;color:var(--ink);font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
 
-.raveis-breadcrumb{width:min(1420px,calc(100% - 56px));margin:12px auto 16px;display:flex;align-items:center;gap:8px;font-size:14px;color:#717171;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-breadcrumb a{color:var(--nav-blue);transition:color .2s}
-.raveis-breadcrumb a:hover{text-decoration:underline}
-.raveis-breadcrumb .sep{color:#cbd5e1}
-.raveis-breadcrumb .current{color:#475569;font-weight:600}
+.pd-breadcrumb{width:min(1420px,calc(100% - 56px));margin:12px auto 16px;display:flex;align-items:center;gap:8px;font-size:14px;color:#717171;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-breadcrumb a{color:var(--nav-blue);transition:color .2s}
+.pd-breadcrumb a:hover{text-decoration:underline}
+.pd-breadcrumb .sep{color:#cbd5e1}
+.pd-breadcrumb .current{color:#475569;font-weight:600}
 
-/* --- William Raveis Photo Gallery (1 Main Hero + 2x2 Grid) --- */
-.raveis-gallery-wrapper{width:min(1420px,calc(100% - 56px));margin:0 auto 34px;display:grid;grid-template-columns:1.2fr 1fr;gap:8px;height:470px;border-radius:4px;overflow:hidden}
+/* --- JRP Photo Gallery (1 Main Hero + 2x2 Grid) --- */
+.pd-gallery-wrapper{width:min(1420px,calc(100% - 56px));margin:0 auto 34px;display:grid;grid-template-columns:1.2fr 1fr;gap:8px;height:470px;border-radius:4px;overflow:hidden}
 
-.raveis-gallery-main{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;background:#e5e9ec;cursor:pointer}
-.raveis-gallery-main img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .4s ease;display:block}
-.raveis-gallery-main:hover img{transform:scale(1.02)}
+.pd-gallery-main{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;background:#e5e9ec;cursor:pointer}
+.pd-gallery-main img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .4s ease;display:block}
+.pd-gallery-main:hover img{transform:scale(1.02)}
 
 .gallery-hover-arrows{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:center;padding:0 14px;pointer-events:none;opacity:0;transition:opacity .2s;z-index:4}
-.raveis-gallery-main:hover .gallery-hover-arrows{opacity:1}
+.pd-gallery-main:hover .gallery-hover-arrows{opacity:1}
 .gallery-arrow-btn{pointer-events:auto;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);color:#1e293b;border:0;display:grid;place-items:center;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.15);transition:background .2s,transform .15s}
 .gallery-arrow-btn:hover{background:#fff;transform:scale(1.06)}
 .gallery-arrow-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2}
@@ -299,132 +389,132 @@ main:has(.portal-footer){padding-bottom:0!important}
 .gallery-view-all-btn svg{width:14px;height:14px;fill:currentColor}
 
 /* The 2x2 Grid — Strictly Equal Rows and Columns */
-.raveis-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px;height:100%;min-height:0}
-.raveis-gallery-thumb{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;background:#e5e9ec;cursor:pointer}
-.raveis-gallery-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .4s ease;display:block}
-.raveis-gallery-thumb:hover img{transform:scale(1.05)}
-.raveis-gallery-thumb.active-thumb{outline:3px solid var(--nav-blue);outline-offset:-3px}
+.pd-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:8px;height:100%;min-height:0}
+.pd-gallery-thumb{position:relative;width:100%;height:100%;min-width:0;min-height:0;overflow:hidden;background:#e5e9ec;cursor:pointer}
+.pd-gallery-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .4s ease;display:block}
+.pd-gallery-thumb:hover img{transform:scale(1.05)}
+.pd-gallery-thumb.active-thumb{outline:3px solid var(--nav-blue);outline-offset:-3px}
 
-.raveis-more-overlay{position:absolute;inset:0;background:rgba(15,23,42,.62);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;gap:5px;color:#fff;font-size:15px;font-weight:700;transition:background .2s;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-gallery-thumb:hover .raveis-more-overlay{background:rgba(15,23,42,.72)}
-.raveis-more-overlay svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
+.pd-more-overlay{position:absolute;inset:0;background:rgba(15,23,42,.62);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;gap:5px;color:#fff;font-size:15px;font-weight:700;transition:background .2s;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-gallery-thumb:hover .pd-more-overlay{background:rgba(15,23,42,.72)}
+.pd-more-overlay svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2}
 
-.raveis-thumb-chevron{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);color:#1e293b;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.18);transition:transform .2s}
-.raveis-gallery-thumb:hover .raveis-thumb-chevron{transform:translateY(-50%) scale(1.08)}
-.raveis-thumb-chevron svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
+.pd-thumb-chevron{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.9);color:#1e293b;display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.18);transition:transform .2s}
+.pd-gallery-thumb:hover .pd-thumb-chevron{transform:translateY(-50%) scale(1.08)}
+.pd-thumb-chevron svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2}
 
-.raveis-gallery-empty-wrap{width:min(1420px,calc(100% - 56px));margin:0 auto 34px}
-.raveis-gallery-empty{width:100%;height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#94a3b8;background:#f1f5f9;border-radius:6px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-gallery-empty svg{width:52px;height:52px;fill:none;stroke:currentColor;stroke-width:1.2}
-.raveis-gallery-empty span{font-size:15px;font-weight:600}
+.pd-gallery-empty-wrap{width:min(1420px,calc(100% - 56px));margin:0 auto 34px}
+.pd-gallery-empty{width:100%;height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:#94a3b8;background:#f1f5f9;border-radius:6px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-gallery-empty svg{width:52px;height:52px;fill:none;stroke:currentColor;stroke-width:1.2}
+.pd-gallery-empty span{font-size:15px;font-weight:600}
 
 /* --- Fullscreen Lightbox Modal --- */
-.raveis-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(11,15,25,.96);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-lightbox-container{width:min(1280px,100%);height:95vh;display:flex;flex-direction:column;justify-content:space-between}
-.raveis-lightbox-header{display:flex;align-items:center;justify-content:space-between;color:#fff;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.14)}
-.raveis-lightbox-heading{display:flex;flex-direction:column;gap:2px}
-.raveis-lightbox-heading strong{font-size:18px;font-weight:600;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-lightbox-heading span{font-size:14px;color:#94a3b8;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-lightbox-exit{background:transparent;border:0;color:#fff;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:background .2s}
-.raveis-lightbox-exit:hover{background:rgba(255,255,255,.15)}
-.raveis-lightbox-exit svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2}
+.pd-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(11,15,25,.96);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:20px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-lightbox-container{width:min(1280px,100%);height:95vh;display:flex;flex-direction:column;justify-content:space-between}
+.pd-lightbox-header{display:flex;align-items:center;justify-content:space-between;color:#fff;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.14)}
+.pd-lightbox-heading{display:flex;flex-direction:column;gap:2px}
+.pd-lightbox-heading strong{font-size:18px;font-weight:600;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-lightbox-heading span{font-size:14px;color:#94a3b8;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-lightbox-exit{background:transparent;border:0;color:#fff;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;transition:background .2s}
+.pd-lightbox-exit:hover{background:rgba(255,255,255,.15)}
+.pd-lightbox-exit svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2}
 
-.raveis-lightbox-stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:16px 0}
-.raveis-lightbox-photo-box{max-height:100%;max-width:100%;display:flex;align-items:center;justify-content:center}
-.raveis-lightbox-photo-box img{max-height:calc(76vh - 90px);max-width:100%;object-fit:contain;border-radius:4px}
+.pd-lightbox-stage{position:relative;flex:1;display:flex;align-items:center;justify-content:center;min-height:0;padding:16px 0}
+.pd-lightbox-photo-box{max-height:100%;max-width:100%;display:flex;align-items:center;justify-content:center}
+.pd-lightbox-photo-box img{max-height:calc(76vh - 90px);max-width:100%;object-fit:contain;border-radius:4px}
 
-.raveis-lightbox-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:0;display:grid;place-items:center;cursor:pointer;transition:background .2s}
-.raveis-lightbox-arrow:hover{background:rgba(255,255,255,.32)}
-.raveis-lightbox-arrow svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2}
+.pd-lightbox-arrow{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:0;display:grid;place-items:center;cursor:pointer;transition:background .2s}
+.pd-lightbox-arrow:hover{background:rgba(255,255,255,.32)}
+.pd-lightbox-arrow svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2}
 .arrow-left{left:10px}
 .arrow-right{right:10px}
 
-.raveis-lightbox-strip{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;justify-content:center}
-.raveis-strip-thumb{width:68px;height:48px;flex:0 0 68px;border-radius:3px;overflow:hidden;opacity:.5;border:2px solid transparent;cursor:pointer;background:transparent;padding:0;transition:opacity .2s,border-color .2s}
-.raveis-strip-thumb img{width:100%;height:100%;object-fit:cover}
-.raveis-strip-thumb.active{opacity:1;border-color:var(--nav-blue)}
+.pd-lightbox-strip{display:flex;gap:8px;overflow-x:auto;padding:10px 0 4px;justify-content:center}
+.pd-strip-thumb{width:68px;height:48px;flex:0 0 68px;border-radius:3px;overflow:hidden;opacity:.5;border:2px solid transparent;cursor:pointer;background:transparent;padding:0;transition:opacity .2s,border-color .2s}
+.pd-strip-thumb img{width:100%;height:100%;object-fit:cover}
+.pd-strip-thumb.active{opacity:1;border-color:var(--nav-blue)}
 
 /* --- Main Layout Grid --- */
-.raveis-layout{width:min(1420px,calc(100% - 56px));margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:50px;padding-bottom:96px}
-.raveis-content-left{min-width:0}
+.pd-layout{width:min(1420px,calc(100% - 56px));margin:0 auto;display:grid;grid-template-columns:1fr 360px;gap:50px;padding-bottom:96px}
+.pd-content-left{min-width:0}
 
 /* Title & Badges — Blueprint: The Seasons 600, 36px/40px, #222222 */
-.raveis-heading-title{font:600 36px/40px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:-.015em;color:#222222;margin:0 0 14px}
+.pd-heading-title{font:600 36px/40px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:-.015em;color:#222222;margin:0 0 14px}
 
-.raveis-badge-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
-.raveis-pill{display:inline-flex;align-items:center;padding:4px 10px;border:1px solid #d1d5db;border-radius:3px;font:700 12px/14px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;background:#fff}
+.pd-badge-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}
+.pd-pill{display:inline-flex;align-items:center;padding:4px 10px;border:1px solid #d1d5db;border-radius:3px;font:700 12px/14px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#4b5563;background:#fff}
 .pill-status{border-color:#86efac;color:#166534;background:#f0fdf4}
 
 /* --- 4-Column Specs Grid — Blueprint: EB Garamond 600, 16px/24px --- */
-.raveis-spec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 20px;padding:22px 0 26px;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;margin-bottom:28px}
-.raveis-spec-cell{display:flex;flex-direction:column;gap:3px}
-.raveis-spec-top{display:flex;align-items:center;gap:6px;font:600 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#222222;letter-spacing:-.01em}
-.raveis-spec-top svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:#222222;stroke-width:1.6}
-.raveis-spec-bottom{font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#717171;margin-left:22px}
+.pd-spec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px 20px;padding:22px 0 26px;border-top:1px solid #e5e7eb;border-bottom:1px solid #e5e7eb;margin-bottom:28px}
+.pd-spec-cell{display:flex;flex-direction:column;gap:3px}
+.pd-spec-top{display:flex;align-items:center;gap:6px;font:600 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#222222;letter-spacing:-.01em}
+.pd-spec-top svg{width:16px;height:16px;flex:0 0 16px;fill:none;stroke:#222222;stroke-width:1.6}
+.pd-spec-bottom{font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#717171;margin-left:22px}
 
 /* Description — Blueprint: EB Garamond 400, 22px/31px, #222222 */
-.raveis-copy-section{margin-bottom:34px}
-.raveis-copy-section p{font:400 22px/31px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#222222;margin:0;white-space:pre-line;max-width:760px}
+.pd-copy-section{margin-bottom:34px}
+.pd-copy-section p{font:400 22px/31px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#222222;margin:0;white-space:pre-line;max-width:760px}
 
 /* --- Property Information & Accordion — Blueprint: The Seasons 600 --- */
-.raveis-info-section{margin-top:32px}
-.raveis-info-title{font:600 22px/25px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:-.015em;color:#222222;margin:0 0 16px}
+.pd-info-section{margin-top:32px}
+.pd-info-title{font:600 22px/25px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:-.015em;color:#222222;margin:0 0 16px}
 
-.raveis-details-accordion{border-top:1px solid #e5e7eb}
-.raveis-accordion-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 0;background:transparent;border:0;border-bottom:1px solid #e5e7eb;cursor:pointer;font:600 16px/16px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#222222;transition:color .2s}
-.raveis-accordion-header:hover{color:var(--nav-blue)}
-.raveis-chevron{width:18px;height:18px;fill:none;stroke:#4b5563;stroke-width:2;transition:transform .25s ease}
-.raveis-chevron.open{transform:rotate(180deg)}
+.pd-details-accordion{border-top:1px solid #e5e7eb}
+.pd-accordion-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px 0;background:transparent;border:0;border-bottom:1px solid #e5e7eb;cursor:pointer;font:600 16px/16px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#222222;transition:color .2s}
+.pd-accordion-header:hover{color:var(--nav-blue)}
+.pd-chevron{width:18px;height:18px;fill:none;stroke:#4b5563;stroke-width:2;transition:transform .25s ease}
+.pd-chevron.open{transform:rotate(180deg)}
 
-.raveis-accordion-panel{padding:20px 0 10px}
-.raveis-panel-group{margin-bottom:24px}
-.raveis-panel-group:last-child{margin-bottom:0}
-.raveis-group-heading{font:600 16px/16px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#222222;margin:0 0 14px}
+.pd-accordion-panel{padding:20px 0 10px}
+.pd-panel-group{margin-bottom:24px}
+.pd-panel-group:last-child{margin-bottom:0}
+.pd-group-heading{font:600 16px/16px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;color:#222222;margin:0 0 14px}
 
-.raveis-kv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 48px}
-.raveis-kv-item{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid #f3f4f6;font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-kv-key{color:#717171;font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-kv-val{color:#717171;font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;text-align:right}
+.pd-kv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 48px}
+.pd-kv-item{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px solid #f3f4f6;font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-kv-key{color:#717171;font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-kv-val{color:#717171;font:400 16px/24px var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;text-align:right}
 
 /* --- Right Column (Sidebar — NO MAP) --- */
-.raveis-content-right{position:sticky;top:24px;align-self:start}
-.raveis-card-sidebar{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:24px 22px;box-shadow:0 4px 16px rgba(0,0,0,.04);font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-content-right{position:sticky;top:24px;align-self:start}
+.pd-card-sidebar{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:24px 22px;box-shadow:0 4px 16px rgba(0,0,0,.04);font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
 
 /* Share property inline */
-.raveis-share-row{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f3f4f6;position:relative;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-share-label{font-size:15px;color:#4b5563;font-weight:500;margin-right:4px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-share-inline-icons{display:flex;align-items:center;gap:10px}
-.raveis-share-icon{display:inline-flex;align-items:center;justify-content:center;color:#4b5563;background:transparent;border:0;cursor:pointer;padding:2px;transition:color .2s,transform .15s}
-.raveis-share-icon:hover{color:#1e40af;transform:translateY(-1px)}
-.raveis-share-icon svg{width:17px;height:17px;fill:currentColor}
-.raveis-copied-toast{position:absolute;right:0;top:32px;background:#111827;color:#fff;font-size:12px;font-weight:600;padding:4px 8px;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.2);font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-share-row{display:flex;align-items:center;justify-content:flex-start;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid #f3f4f6;position:relative;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-share-label{font-size:15px;color:#4b5563;font-weight:500;margin-right:4px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-share-inline-icons{display:flex;align-items:center;gap:10px}
+.pd-share-icon{display:inline-flex;align-items:center;justify-content:center;color:#4b5563;background:transparent;border:0;cursor:pointer;padding:2px;transition:color .2s,transform .15s}
+.pd-share-icon:hover{color:#1e40af;transform:translateY(-1px)}
+.pd-share-icon svg{width:17px;height:17px;fill:currentColor}
+.pd-copied-toast{position:absolute;right:0;top:32px;background:#111827;color:#fff;font-size:12px;font-weight:600;padding:4px 8px;border-radius:3px;box-shadow:0 2px 6px rgba(0,0,0,.2);font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
 
 /* Price */
-.raveis-pricing-group{margin-bottom:8px}
-.raveis-price-main{font:400 clamp(32px,3.4vw,38px)/1.15 var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#111827;letter-spacing:-.02em}
-.raveis-price-sub{font-size:15px;color:#717171;font-weight:500;margin-top:3px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-pricing-group{margin-bottom:8px}
+.pd-price-main{font:400 clamp(32px,3.4vw,38px)/1.15 var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif;color:#111827;letter-spacing:-.02em}
+.pd-price-sub{font-size:15px;color:#717171;font-weight:500;margin-top:3px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
 
 /* Address & Listing ID */
-.raveis-address-group{margin:12px 0 20px;padding-bottom:16px;border-bottom:1px solid #f3f4f6}
-.raveis-location-line{font-size:15px;color:#4b5563;line-height:1.4;margin-bottom:3px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-id-line{font-size:14px;color:#717171;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-address-group{margin:12px 0 20px;padding-bottom:16px;border-bottom:1px solid #f3f4f6}
+.pd-location-line{font-size:15px;color:#4b5563;line-height:1.4;margin-bottom:3px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-id-line{font-size:14px;color:#717171;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
 
 /* Action Buttons */
-.raveis-cta-group{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
-.raveis-action-btn{display:flex;align-items:center;justify-content:center;width:100%;height:44px;border-radius:4px;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:all .2s;text-decoration:none;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-cta-group{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.pd-action-btn{display:flex;align-items:center;justify-content:center;width:100%;height:44px;border-radius:4px;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer;transition:all .2s;text-decoration:none;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
 .btn-showing{background:var(--portal-action);color:#fff;border:0}
 .btn-showing:hover{background:var(--portal-action-hover);transform:translateY(-1px);color:#fff}
 .btn-info{background:#fff;color:var(--portal-action-deep);border:1.5px solid var(--portal-action)}
 .btn-info:hover{background:var(--portal-action-soft);transform:translateY(-1px)}
 
 /* Advisor Assistance */
-.raveis-agent-strip{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-radius:4px;border:1px solid #f1f5f9;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-agent-desc{display:flex;flex-direction:column;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-agent-desc span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-agent-desc strong{font-size:15px;color:#1e293b;font-weight:600;margin-top:1px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
-.raveis-agent-call-btn{width:32px;height:32px;border-radius:50%;background:#e2e8f0;color:#334155;display:grid;place-items:center;transition:background .2s}
-.raveis-agent-call-btn:hover{background:var(--portal-action);color:#fff}
-.raveis-agent-call-btn svg{width:14px;height:14px;fill:currentColor}
+.pd-agent-strip{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#f8fafc;border-radius:4px;border:1px solid #f1f5f9;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-agent-desc{display:flex;flex-direction:column;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-agent-desc span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-agent-desc strong{font-size:15px;color:#1e293b;font-weight:600;margin-top:1px;font-family:var(--font-jakarta),"Plus Jakarta Sans",system-ui,sans-serif}
+.pd-agent-call-btn{width:32px;height:32px;border-radius:50%;background:#e2e8f0;color:#334155;display:grid;place-items:center;transition:background .2s}
+.pd-agent-call-btn:hover{background:var(--portal-action);color:#fff}
+.pd-agent-call-btn svg{width:14px;height:14px;fill:currentColor}
 
 /* ======================================================================= */
 /* RESPONSIVENESS                                                          */
@@ -435,12 +525,12 @@ main:has(.portal-footer){padding-bottom:0!important}
   .site-header{height:66px;width:100%;padding:0 16px;gap:0}.desktop-nav{display:none}.brand{position:absolute;left:50%;transform:translateX(-50%);width:205px;height:64px}.mobile-call{display:flex;margin-left:auto}.hero{width:calc(100% - 24px);height:calc(100svh - 92px);min-height:610px}.hero-content{padding:30px 22px}.hero h1{font-size:clamp(45px,10vw,68px);margin-bottom:84px}.property-search{width:min(560px,100%)}.search-fields{height:auto;grid-template-columns:1fr 62px}.search-fields label{display:none}.search-fields label:first-child{display:flex;height:68px}.listing-section{padding:32px 0 48px}.listing-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 12px}
 
   /* Detail responsive */
-  .raveis-gallery-wrapper{grid-template-columns:1fr;height:auto;aspect-ratio:16/10}
-  .raveis-gallery-grid{display:none}
-  .raveis-layout{grid-template-columns:1fr;gap:32px}
-  .raveis-spec-grid{grid-template-columns:repeat(2,1fr)}
-  .raveis-kv-grid{grid-template-columns:1fr}
-  .raveis-content-right{position:static}
+  .pd-gallery-wrapper{grid-template-columns:1fr;height:auto;aspect-ratio:16/10}
+  .pd-gallery-grid{display:none}
+  .pd-layout{grid-template-columns:1fr;gap:32px}
+  .pd-spec-grid{grid-template-columns:repeat(2,1fr)}
+  .pd-kv-grid{grid-template-columns:1fr}
+  .pd-content-right{position:static}
 
   .floating-cta{min-width:auto;width:60px;height:60px;border-radius:50%;padding:0;justify-content:center}.floating-cta>svg{width:28px}.cta-copy,.cta-arrow{display:none}.pulse{top:5px;left:40px}
 }
@@ -597,12 +687,12 @@ main:has(.portal-footer){padding-bottom:0!important}
 
   .floating-cta{right:16px;bottom:calc(80px + env(safe-area-inset-bottom));width:52px;height:52px}
 
-  .raveis-breadcrumb,.raveis-gallery-wrapper,.raveis-layout{width:calc(100% - 32px)}
-  .raveis-heading-title{font-size:24px}
-  .raveis-spec-grid{grid-template-columns:repeat(2,1fr);gap:16px 10px}
-  .raveis-spec-bottom{margin-left:0}
+  .pd-breadcrumb,.pd-gallery-wrapper,.pd-layout{width:calc(100% - 32px)}
+  .pd-heading-title{font-size:24px}
+  .pd-spec-grid{grid-template-columns:repeat(2,1fr);gap:16px 10px}
+  .pd-spec-bottom{margin-left:0}
 }
-@media(prefers-reduced-motion:reduce){.hero-video{display:none}.floating-cta,.site-header nav a:after,.property-card,.property-card-image img,.raveis-gallery-main img,.raveis-gallery-thumb img{transition:none}}
+@media(prefers-reduced-motion:reduce){.hero-video{display:none}.floating-cta,.site-header nav a:after,.property-card,.property-card-image img,.pd-gallery-main img,.pd-gallery-thumb img{transition:none}}
 
 /* Public portal palette compatibility for legacy header and hero selectors. */
 .hero{background:#6f6258}

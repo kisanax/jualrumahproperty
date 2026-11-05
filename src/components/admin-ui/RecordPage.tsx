@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
+import { Breadcrumb, type Crumb } from "./Breadcrumb";
 
 export function RecordPage({ children }: { children: ReactNode }) {
   return <div className="ui-record-page">{children}</div>;
@@ -11,6 +12,7 @@ export function RecordHeader({
   title,
   subtitle,
   backHref,
+  crumbs,
   status,
   actions,
 }: {
@@ -18,13 +20,16 @@ export function RecordHeader({
   title: string;
   subtitle?: string;
   backHref?: string;
+  /** Breadcrumb trail ala Cloudflare — bila ada, menggantikan back-arrow. */
+  crumbs?: Crumb[];
   status?: ReactNode;
   actions?: ReactNode;
 }) {
   return (
     <header className="ui-record-header">
+      {crumbs && crumbs.length > 0 && <Breadcrumb items={crumbs} />}
       <div className="ui-record-header__main">
-        {backHref && (
+        {backHref && !crumbs && (
           <Link className="ui-record-header__back" href={backHref} aria-label="Kembali">
             <ArrowLeft size={20} />
           </Link>

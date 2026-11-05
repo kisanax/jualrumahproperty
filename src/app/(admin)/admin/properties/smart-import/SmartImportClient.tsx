@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -17,9 +16,15 @@ import {
   X,
   Star,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { DuplicateMatch } from "@/lib/duplicate-checker";
 import { AreaPicker } from "@/components/admin-ui";
+import { Card as UiCard } from "@/components/ui/card";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Label as UiLabel } from "@/components/ui/label";
+import { ButtonLink } from "@/components/admin-ui/Button";
 
 interface KawasanOption {
   id: string;
@@ -350,19 +355,18 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
 
   return (
     <div className="animate-fade-in" style={{ paddingBottom: 60 }}>
-      <Toaster position="top-right" richColors />
 
       {/* Header */}
       <div className="admin-page-header">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-            <Link
+            <ButtonLink variant="secondary"
               href="/admin/properties"
-              className="admin-btn admin-btn-secondary"
+              className="h-10 px-4"
               style={{ padding: "6px 12px", fontSize: 13 }}
             >
               <ArrowLeft size={14} /> Kembali
-            </Link>
+            </ButtonLink>
             <span
               style={{
                 display: "inline-flex",
@@ -389,7 +393,7 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
       </div>
 
       {/* Step 1: Text Input Box */}
-      <div className="admin-card" style={{ padding: 20, marginBottom: 24 }}>
+      <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20, marginBottom: 24 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <label style={{ fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 6 }}>
             <span>📋 Paste Teks Listing WhatsApp</span>
@@ -410,9 +414,9 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
           </button>
         </div>
 
-        <textarea
+        <UiTextarea
           rows={7}
-          className="admin-input"
+          className="min-h-24 text-base md:text-sm"
           placeholder="Tempel teks broadcast dari WhatsApp di sini (misal: 'DIJUAL RUMAH 1 LANTAI CIPETE SELATAN, LT 454 LB 350, SHM, 12.5M...')"
           value={rawText}
           onChange={(e) => setRawText(e.target.value)}
@@ -423,11 +427,11 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
           <div style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>
             Format apapun diterima • Didukung Google Gemini AI & Heuristic Parser Lokal
           </div>
-          <button
+          <UiButton variant="default"
             type="button"
             onClick={handleExtract}
             disabled={isExtracting || !rawText.trim()}
-            className="admin-btn admin-btn-primary"
+            className="h-10 px-4"
             style={{ padding: "10px 20px", display: "flex", alignItems: "center", gap: 8 }}
           >
             {isExtracting ? (
@@ -441,9 +445,9 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                 Ekstrak & Cek Duplikat
               </>
             )}
-          </button>
+          </UiButton>
         </div>
-      </div>
+      </UiCard>
 
       {/* Duplicate Warning Banner */}
       {duplicates.length > 0 && !dismissDuplicate && (
@@ -528,14 +532,14 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                     </div>
 
                     <div style={{ display: "flex", gap: 8 }}>
-                      <Link
+                      <ButtonLink variant="secondary"
                         href={`/admin/properties/${dup.id}`}
                         target="_blank"
-                        className="admin-btn admin-btn-secondary"
+                        className="h-10 px-4"
                         style={{ padding: "6px 12px", fontSize: 12 }}
                       >
                         <ExternalLink size={14} /> Buka Detail Unit
-                      </Link>
+                      </ButtonLink>
                     </div>
                   </div>
                 ))}
@@ -551,7 +555,7 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
           {/* Kolom Kiri: Spesifikasi & Lokasi */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Kartu Dasar & Lokasi */}
-            <div className="admin-card" style={{ padding: 20 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 700 }}>🏠 Identitas & Lokasi</h2>
                 {parserEngine && (
@@ -563,17 +567,17 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                 <div>
-                  <label className="admin-label">Kode Properti</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kode Properti</UiLabel>
+                  <UiInput
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     style={{ fontWeight: 600, color: "var(--color-admin-primary)" }}
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Tipe Properti</label>
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Tipe Properti</UiLabel>
                   <select
                     className="admin-input"
                     value={type}
@@ -588,10 +592,10 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
               </div>
 
               <div style={{ marginBottom: 14 }}>
-                <label className="admin-label">Judul Listing Publik</label>
-                <input
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Judul Listing Publik</UiLabel>
+                <UiInput
                   type="text"
-                  className="admin-input"
+                  className="min-h-10 px-3 text-base md:text-sm"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Rumah Mewah 1 Lantai Full Marmer di Cipete Selatan"
@@ -611,7 +615,7 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                   }}
                 />
                 <div>
-                  <label className="admin-label">Kawasan Populer</label>
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kawasan Populer</UiLabel>
                   <select
                     className="admin-input"
                     value={kawasanId}
@@ -628,37 +632,37 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
               </div>
 
               <div>
-                <label className="admin-label">Alamat / Patokan Lokasi</label>
-                <input
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Alamat / Patokan Lokasi</UiLabel>
+                <UiInput
                   type="text"
-                  className="admin-input"
+                  className="min-h-10 px-3 text-base md:text-sm"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="e.g. Cipete Selatan, Cilandak, Jakarta Selatan"
                 />
               </div>
-            </div>
+            </UiCard>
 
             {/* Kartu Spesifikasi Fisik */}
-            <div className="admin-card" style={{ padding: 20 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>📐 Spesifikasi Fisik</h2>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
                 <div>
-                  <label className="admin-label">Luas Tanah (m²)</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Luas Tanah (m²)</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={landArea}
                     onChange={(e) => setLandArea(e.target.value)}
                     placeholder="454"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Luas Bangunan (m²)</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Luas Bangunan (m²)</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={buildingArea}
                     onChange={(e) => setBuildingArea(e.target.value)}
                     placeholder="350"
@@ -668,30 +672,30 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
                 <div>
-                  <label className="admin-label">Kamar Tidur</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kamar Tidur</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={bedrooms}
                     onChange={(e) => setBedrooms(e.target.value)}
                     placeholder="3"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Kamar Mandi</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kamar Mandi</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={bathrooms}
                     onChange={(e) => setBathrooms(e.target.value)}
                     placeholder="2"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Jumlah Lantai</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Jumlah Lantai</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={floors}
                     onChange={(e) => setFloors(e.target.value)}
                     placeholder="1"
@@ -701,27 +705,27 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14, marginBottom: 14 }}>
                 <div>
-                  <label className="admin-label">Garasi Mobil</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Garasi Mobil</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={garages}
                     onChange={(e) => setGarages(e.target.value)}
                     placeholder="4"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Carport</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Carport</UiLabel>
+                  <UiInput
                     type="number"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={carports}
                     onChange={(e) => setCarports(e.target.value)}
                     placeholder="0"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">Sertifikat</label>
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Sertifikat</UiLabel>
                   <select
                     className="admin-input"
                     value={certificateType}
@@ -740,9 +744,9 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
 
               {/* Fasilitas / Amenities Checkboxes */}
               <div>
-                <label className="admin-label" style={{ marginBottom: 8, display: "block" }}>
+                <UiLabel style={{ marginBottom: 8, display: "block" }}>
                   Fasilitas Terdeteksi
-                </label>
+                </UiLabel>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                   {amenities.map((am) => {
                     const isChecked = selectedAmenityIds.includes(am.id);
@@ -771,20 +775,20 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                   })}
                 </div>
               </div>
-            </div>
+            </UiCard>
           </div>
 
           {/* Kolom Kanan: Harga, Foto, Pihak Terkait & Simpan */}
           <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
             {/* Kartu Harga & Listing */}
-            <div className="admin-card" style={{ padding: 20 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16 }}>💰 Harga & Status Listing</h2>
 
               <div style={{ marginBottom: 14 }}>
-                <label className="admin-label">Harga Penawaran (Rp)</label>
-                <input
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Harga Penawaran (Rp)</UiLabel>
+                <UiInput
                   type="number"
-                  className="admin-input"
+                  className="min-h-10 px-3 text-base md:text-sm"
                   value={askingPrice}
                   onChange={(e) => setAskingPrice(e.target.value)}
                   placeholder="12500000000"
@@ -798,7 +802,7 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
               </div>
 
               <div style={{ marginBottom: 14 }}>
-                <label className="admin-label">Status Listing Awal</label>
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Status Listing Awal</UiLabel>
                 <select
                   className="admin-input"
                   value={listingStatus}
@@ -810,19 +814,19 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
               </div>
 
               <div>
-                <label className="admin-label">Deskripsi Publik</label>
-                <textarea
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Deskripsi Publik</UiLabel>
+                <UiTextarea
                   rows={4}
-                  className="admin-input"
+                  className="min-h-24 text-base md:text-sm"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   style={{ fontSize: 13, lineHeight: 1.5 }}
                 />
               </div>
-            </div>
+            </UiCard>
 
             {/* Kartu Video Tour (YouTube / Reels / TikTok) */}
-            <div className="admin-card" style={{ padding: 20 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
                   <Video size={18} style={{ color: "#ef4444" }} /> Video Tour Properti
@@ -842,7 +846,7 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
               </div>
 
               <div style={{ marginBottom: 12 }}>
-                <label className="admin-label">Link Video Tour (URL)</label>
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Link Video Tour (URL)</UiLabel>
                 <div style={{ display: "flex", gap: 8 }}>
                   <select
                     className="admin-input"
@@ -855,9 +859,9 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                     <option value="TIKTOK">TikTok</option>
                     <option value="OTHER">Lainnya</option>
                   </select>
-                  <input
+                  <UiInput
                     type="url"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="https://www.youtube.com/watch?v=... atau https://instagram.com/reel/..."
                     value={videoUrl}
                     onChange={(e) => {
@@ -899,10 +903,10 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                   </a>
                 </div>
               )}
-            </div>
+            </UiCard>
 
             {/* Kartu Upload Foto & Video Walkthrough (WhatsApp Media) */}
-            <div className="admin-card" style={{ padding: 20 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>
                 📸 Media Foto & Walkthrough (Drop dari WA Web / Laptop)
               </h2>
@@ -1063,27 +1067,27 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                   ))}
                 </div>
               )}
-            </div>
+            </UiCard>
 
             {/* Kartu Pihak Terkait (Opsional) */}
-            <div className="admin-card" style={{ padding: 20 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ padding: 20 }}>
               <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 14 }}>👤 Pihak Terkait (Opsional)</h2>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 12 }}>
                 <div>
-                  <label className="admin-label">Nama Owner</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nama Owner</UiLabel>
+                  <UiInput
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
                     placeholder="Nama pemilik sah"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">No. WA Owner</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">No. WA Owner</UiLabel>
+                  <UiInput
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={ownerPhone}
                     onChange={(e) => setOwnerPhone(e.target.value)}
                     placeholder="0812..."
@@ -1093,34 +1097,34 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                 <div>
-                  <label className="admin-label">Nama Broker / Perantara</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nama Broker / Perantara</UiLabel>
+                  <UiInput
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={intermediaryName}
                     onChange={(e) => setIntermediaryName(e.target.value)}
                     placeholder="Nama pengirim listing"
                   />
                 </div>
                 <div>
-                  <label className="admin-label">No. WA Broker</label>
-                  <input
+                  <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">No. WA Broker</UiLabel>
+                  <UiInput
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     value={intermediaryPhone}
                     onChange={(e) => setIntermediaryPhone(e.target.value)}
                     placeholder="0812..."
                   />
                 </div>
               </div>
-            </div>
+            </UiCard>
 
             {/* Tombol Simpan Final */}
-            <button
+            <UiButton variant="default"
               type="button"
               onClick={handleSaveProperty}
               disabled={isSaving}
-              className="admin-btn admin-btn-primary"
+              className="h-10 px-4"
               style={{
                 width: "100%",
                 padding: "14px 20px",
@@ -1143,7 +1147,7 @@ Serius berminat? Silakan hubungi untuk info & jadwal survey.`;
                   Simpan Properti & Foto Sekarang
                 </>
               )}
-            </button>
+            </UiButton>
           </div>
         </div>
       )}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
 import {
   ImageIcon,
   Camera,
@@ -15,6 +14,10 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { getMediaUrl } from "@/lib/media-url";
+import { Card as UiCard } from "@/components/ui/card";
+import { Button as UiButton } from "@/components/ui/button";
+import { ButtonLink } from "@/components/admin-ui/Button";
+
 
 interface MediaItem {
   id: string;
@@ -110,22 +113,22 @@ export default function PropertyPhotoGallery({
   };
 
   return (
-    <div className="admin-card">
+    <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
       {/* Header */}
-      <div
-        className="admin-card-header"
+      <UiCard
+        className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]"
         style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}
       >
-        <div className="admin-card-title" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <ImageIcon size={16} /> Foto Properti ({media.length})
-        </div>
+        </UiCard>
 
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           {videoUrl && (
-            <button
+            <UiButton size="sm" variant="outline"
               type="button"
               onClick={() => setShowVideoModal(true)}
-              className="admin-btn admin-btn-secondary admin-btn-sm"
+              className="h-10 px-4"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -139,18 +142,18 @@ export default function PropertyPhotoGallery({
               }}
             >
               <PlayCircle size={14} /> Video Tour
-            </button>
+            </UiButton>
           )}
 
-          <Link
+          <ButtonLink variant="secondary"
             href={`/admin/properties/${propertyId}/edit`}
-            className="admin-btn admin-btn-secondary admin-btn-sm"
+            className="h-10 px-4"
             style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, padding: "5px 10px" }}
           >
             <Camera size={14} /> Kelola / Upload Foto
-          </Link>
+          </ButtonLink>
         </div>
-      </div>
+      </UiCard>
 
       {/* Grid or Empty */}
       {media.length === 0 ? (
@@ -162,13 +165,13 @@ export default function PropertyPhotoGallery({
           <p style={{ fontSize: 12, color: "var(--color-admin-text-secondary)", marginTop: 4, marginBottom: 14 }}>
             Unggah foto tampak depan, interior, dan lingkungan untuk memikat calon pembeli.
           </p>
-          <Link
+          <ButtonLink variant="primary"
             href={`/admin/properties/${propertyId}/edit`}
-            className="admin-btn admin-btn-primary admin-btn-sm"
+            className="h-10 px-4"
             style={{ display: "inline-flex", alignItems: "center", gap: 6, margin: "0 auto" }}
           >
             <Plus size={14} /> Upload Foto Sekarang
-          </Link>
+          </ButtonLink>
         </div>
       ) : (
         <div className="admin-photo-grid">
@@ -608,20 +611,20 @@ export default function PropertyPhotoGallery({
               >
                 <PlayCircle size={48} style={{ color: "#ef4444" }} />
                 <div style={{ fontSize: 16, fontWeight: 600 }}>Tonton Video di {videoPlatform || "Platform Eksternal"}</div>
-                <a
+                <ButtonLink variant="primary"
                   href={videoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="admin-btn admin-btn-primary"
+                  className="h-10 px-4"
                   style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
                 >
                   <ExternalLink size={16} /> Buka Tautan Video
-                </a>
+                </ButtonLink>
               </div>
             )}
           </div>
         </div>
       )}
-    </div>
+    </UiCard>
   );
 }

@@ -1,4 +1,15 @@
 import { prisma } from "@/lib/prisma";
+import { Badge } from "@/components/ui/badge";
+import { DashboardStatCard } from "@/components/admin-ui/DashboardStatCard";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Building2,
   ListChecks,
@@ -139,23 +150,23 @@ function formatRupiah(amount: number | bigint | { toNumber?: () => number }): st
 }
 
 // =============================================================================
-// Helper: Status badge class
+// Helper: Listing status badge tone
 // =============================================================================
 
-function getStatusBadgeClass(status: string): string {
-  const map: Record<string, string> = {
-    DRAFT: "admin-badge-draft",
-    PENDING_VERIFICATION: "admin-badge-pending",
-    READY_TO_PUBLISH: "admin-badge-ready",
-    ACTIVE: "admin-badge-active",
-    IN_NEGOTIATION: "admin-badge-negotiation",
-    SOLD: "admin-badge-sold",
-    SUSPENDED: "admin-badge-suspended",
-    WITHDRAWN: "admin-badge-withdrawn",
-    EXPIRED: "admin-badge-expired",
-    ARCHIVED: "admin-badge-archived",
-  };
-  return map[status] || "admin-badge-draft";
+function getStatusBadgeTone(status: string) {
+  const tones = {
+    DRAFT: "bg-slate-500/10 text-slate-700 dark:text-slate-300",
+    PENDING_VERIFICATION: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+    READY_TO_PUBLISH: "bg-blue-500/10 text-blue-700 dark:text-blue-300",
+    ACTIVE: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+    IN_NEGOTIATION: "bg-violet-500/10 text-violet-700 dark:text-violet-300",
+    SOLD: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300",
+    SUSPENDED: "bg-red-500/10 text-red-700 dark:text-red-300",
+    WITHDRAWN: "bg-orange-500/10 text-orange-700 dark:text-orange-300",
+    EXPIRED: "bg-slate-500/10 text-slate-700 dark:text-slate-300",
+    ARCHIVED: "bg-slate-500/10 text-slate-700 dark:text-slate-300",
+  } as const;
+  return tones[status as keyof typeof tones] ?? tones.DRAFT;
 }
 
 function getStatusLabel(status: string): string {
@@ -217,268 +228,140 @@ export default async function AdminDashboard() {
   return (
     <div className="animate-fade-in">
       {/* Header */}
-      <div style={{ marginBottom: 24 }}>
-        <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.02em" }}>
-          Dashboard
-        </h1>
-        <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
-          Ringkasan aktivitas jualrumahproperty.com
-        </p>
-      </div>
+      <header className="mb-6 space-y-1">
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="text-sm text-muted-foreground">Ringkasan aktivitas jualrumahproperty.com</p>
+      </header>
 
       {/* Expired Auction Alert */}
       {staff && data.expiredAuctions > 0 && (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            padding: "14px 18px",
-            borderRadius: "10px",
-            backgroundColor: "rgba(239, 68, 68, 0.1)",
-            border: "1px solid rgba(239, 68, 68, 0.3)",
-            color: "var(--color-admin-text)",
-            marginBottom: 20,
-            flexWrap: "wrap",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <AlertCircle size={20} style={{ color: "#ef4444", flexShrink: 0 }} />
-            <div>
-              <strong style={{ color: "#ef4444" }}>{data.expiredAuctions} catatan sitaan & lelang kedaluwarsa</strong>
-              <span style={{ fontSize: 13, color: "var(--color-admin-text-secondary)", marginLeft: 6 }}>
-                Masa aktif telah terlewati berdasarkan waktu Jakarta. Perlu peninjauan & input hasil lelang manual.
-              </span>
+        <Card className="mb-5 border-destructive/25 bg-destructive/5 shadow-none">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <div className="flex min-w-0 items-start gap-3">
+              <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" aria-hidden="true" />
+              <div className="space-y-1">
+                <p className="font-semibold text-destructive">{data.expiredAuctions} catatan sitaan & lelang kedaluwarsa</p>
+                <p className="text-sm text-muted-foreground">Masa aktif telah terlewati berdasarkan waktu Jakarta. Perlu peninjauan & input hasil lelang manual.</p>
+              </div>
             </div>
-          </div>
-          <Link
-            href="/admin/auctions"
-            className="admin-btn admin-btn-sm"
-            style={{ backgroundColor: "#ef4444", color: "#fff", flexShrink: 0 }}
-          >
-            Tinjau Lelang <ArrowRight size={14} />
-          </Link>
-        </div>
+            <Button variant="destructive" render={<Link href="/admin/auctions" />}>
+              Tinjau Lelang <ArrowRight aria-hidden="true" />
+            </Button>
+          </CardContent>
+        </Card>
       )}
 
       {/* Stats Grid */}
-      <div className="admin-stats-grid">
-        <div className="admin-stat-card">
-          <div
-            className="admin-stat-icon"
-            style={{ backgroundColor: "rgba(59, 130, 246, 0.12)", color: "#60a5fa" }}
-          >
-            <Building2 size={22} />
-          </div>
-          <div>
-            <div className="admin-stat-value">{data.totalProperties}</div>
-            <div className="admin-stat-label">Total Properti</div>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div
-            className="admin-stat-icon"
-            style={{ backgroundColor: "rgba(16, 185, 129, 0.12)", color: "#34d399" }}
-          >
-            <ListChecks size={22} />
-          </div>
-          <div>
-            <div className="admin-stat-value">{data.totalActiveListings}</div>
-            <div className="admin-stat-label">Listing Aktif</div>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div
-            className="admin-stat-icon"
-            style={{ backgroundColor: "rgba(245, 158, 11, 0.12)", color: "#f59e0b" }}
-          >
-            <MessageSquare size={22} />
-          </div>
-          <div>
-            <div className="admin-stat-value">{data.newLeads}</div>
-            <div className="admin-stat-label">Leads Baru</div>
-          </div>
-        </div>
-
-        <div className="admin-stat-card">
-          <div
-            className="admin-stat-icon"
-            style={{ backgroundColor: "rgba(139, 92, 246, 0.12)", color: "#a78bfa" }}
-          >
-            <TrendingUp size={22} />
-          </div>
-          <div>
-            <div className="admin-stat-value">{data.totalDraftListings}</div>
-            <div className="admin-stat-label">Draft Listing</div>
-          </div>
-        </div>
-
-        {staff && <Link href="/admin/auctions" className="admin-stat-card" style={{ textDecoration: "none", color: "inherit" }}>
-          <div
-            className="admin-stat-icon"
-            style={{ backgroundColor: "rgba(236, 72, 153, 0.12)", color: "#f472b6" }}
-          >
-            <Gavel size={22} />
-          </div>
-          <div>
-            <div className="admin-stat-value">{data.totalAuctions}</div>
-            <div className="admin-stat-label">
-              Sitaan & Lelang ({data.activeAuctions} Aktif)
-            </div>
-          </div>
-        </Link>}
-
-      </div>
+      <section aria-label="Ringkasan operasional" className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <DashboardStatCard icon={Building2} label="Total Properti" value={data.totalProperties} tone="blue" />
+        <DashboardStatCard icon={ListChecks} label="Listing Aktif" value={data.totalActiveListings} tone="green" />
+        <DashboardStatCard icon={MessageSquare} label="Leads Baru" value={data.newLeads} tone="amber" />
+        <DashboardStatCard icon={TrendingUp} label="Draft Listing" value={data.totalDraftListings} tone="violet" />
+        {staff && (
+          <Link href="/admin/auctions" className="block rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+            <DashboardStatCard icon={Gavel} label={`Sitaan & Lelang · ${data.activeAuctions} aktif`} value={data.totalAuctions} tone="rose" />
+          </Link>
+        )}
+      </section>
 
       {/* Two Column: Recent Listings + Recent Leads */}
-      <div className="admin-grid-2" style={{ gap: 20 }}>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
         {/* Recent Listings */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div>
-              <div className="admin-card-title">Listing Terbaru</div>
-              <div className="admin-card-subtitle">5 listing terakhir dibuat</div>
+        <Card className="gap-0 rounded-xl border-border/80 bg-card shadow-sm transition-shadow hover:shadow-md">
+          <CardHeader className="grid-cols-[1fr_auto] items-center border-b border-border/70 pb-4">
+            <div className="space-y-1">
+              <CardTitle>Listing Terbaru</CardTitle>
+              <CardDescription>5 listing terakhir dibuat</CardDescription>
             </div>
-            <Link href="/admin/listings" className="admin-btn admin-btn-ghost admin-btn-sm">
-              Lihat semua <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          {data.recentListings.length === 0 ? (
-            <div className="admin-empty">
-              <div className="admin-empty-title">Belum ada listing</div>
-              <div className="admin-empty-text">Buat properti dan listing pertama</div>
-              <Link
-                href="/admin/properties/new"
-                className="admin-btn admin-btn-primary admin-btn-sm"
-                style={{ marginTop: 16 }}
-              >
-                <Plus size={16} /> Tambah Properti
-              </Link>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <CardAction>
+              <Button variant="ghost" size="sm" render={<Link href="/admin/listings" />}>
+                Lihat semua <ArrowRight aria-hidden="true" />
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="pt-3">
+            {data.recentListings.length === 0 ? (
+              <div className="grid justify-items-center gap-2 py-10 text-center">
+                <div className="font-medium">Belum ada listing</div>
+                <div className="text-sm text-muted-foreground">Buat properti dan listing pertama</div>
+                <Button className="mt-2" render={<Link href="/admin/properties/new" />}>
+                  <Plus aria-hidden="true" /> Tambah Properti
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-1">
               {data.recentListings.map((listing) => (
                 <Link
                   key={listing.id}
                   href={`/admin/listings/${listing.id}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    textDecoration: "none",
-                    color: "inherit",
-                    transition: "background-color 0.1s",
-                  }}
-                  className="admin-nav-item"
+                  className="group flex min-w-0 items-center gap-3 rounded-lg px-3 py-3 text-foreground transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="min-w-0 flex-1">
                     <div
-                      className="admin-dashboard-listing-title"
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: "var(--color-admin-text)",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                      }}
+                      className="truncate text-sm font-medium group-hover:text-primary"
                     >
                       {listing.title || `${getPropertyTypeLabel(listing.property.type)} di ${listing.property.area.name}`}
                     </div>
                     <div
-                      style={{
-                        fontSize: 12,
-                        color: "var(--color-admin-text-muted)",
-                        marginTop: 2,
-                      }}
+                      className="mt-1 truncate text-xs text-muted-foreground"
                     >
                       {listing.property.code} • {listing.property.area.name}
                       {!listing.priceOnRequest &&
                         ` • ${formatRupiah(listing.askingPrice)}`}
                     </div>
                   </div>
-                  <span className={`admin-badge ${getStatusBadgeClass(listing.status)}`}>
+                  <Badge variant="outline" className={`shrink-0 border-transparent px-2.5 py-1 font-semibold ${getStatusBadgeTone(listing.status)}`}>
                     {getStatusLabel(listing.status)}
-                  </span>
+                  </Badge>
                 </Link>
               ))}
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Recent Leads */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div>
-              <div className="admin-card-title">Leads Terbaru</div>
-              <div className="admin-card-subtitle">Inquiry yang perlu follow-up</div>
+        <Card className="gap-0 rounded-xl border-border/80 bg-card shadow-sm transition-shadow hover:shadow-md">
+          <CardHeader className="grid-cols-[1fr_auto] items-center border-b border-border/70 pb-4">
+            <div className="space-y-1">
+              <CardTitle>Leads Terbaru</CardTitle>
+              <CardDescription>Inquiry yang perlu follow-up</CardDescription>
             </div>
-            <Link href="/admin/leads" className="admin-btn admin-btn-ghost admin-btn-sm">
-              Lihat semua <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          {data.recentLeads.length === 0 ? (
-            <div className="admin-empty">
-              <div className="admin-empty-title">Belum ada leads</div>
-              <div className="admin-empty-text">
-                Leads akan masuk saat listing dipublikasikan
+            <CardAction>
+              <Button variant="ghost" size="sm" render={<Link href="/admin/leads" />}>
+                Lihat semua <ArrowRight aria-hidden="true" />
+              </Button>
+            </CardAction>
+          </CardHeader>
+          <CardContent className="pt-3">
+            {data.recentLeads.length === 0 ? (
+              <div className="grid justify-items-center gap-2 py-10 text-center">
+                <div className="font-medium">Belum ada leads</div>
+                <div className="text-sm text-muted-foreground">Leads akan masuk saat listing dipublikasikan</div>
               </div>
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            ) : (
+              <div className="grid gap-1">
               {data.recentLeads.map((lead) => (
                 <Link
                   key={lead.id}
                   href={`/admin/leads?id=${lead.id}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "10px 12px",
-                    borderRadius: 8,
-                    textDecoration: "none",
-                    color: "inherit",
-                  }}
-                  className="admin-nav-item"
+                  className="group flex min-w-0 items-center gap-3 rounded-lg px-3 py-3 text-foreground transition-colors hover:bg-muted/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="min-w-0 flex-1">
                     <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: "var(--color-admin-text)",
-                      }}
+                      className="text-sm font-medium group-hover:text-primary"
                     >
                       {lead.customer.name}
                     </div>
                     <div
-                      style={{
-                        fontSize: 12,
-                        color: "var(--color-admin-text-muted)",
-                        marginTop: 2,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
+                      className="mt-1 truncate text-xs text-muted-foreground"
                     >
                       {lead.message || lead.customer.phone}
                     </div>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <Clock size={12} style={{ color: "var(--color-admin-text-muted)" }} />
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color: "var(--color-admin-text-muted)",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                  <div className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock size={12} aria-hidden="true" />
+                    <span>
                       {getLeadStageLabel(lead.currentStage)}
                     </span>
                   </div>
@@ -486,29 +369,28 @@ export default async function AdminDashboard() {
               ))}
             </div>
           )}
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick Actions */}
-      <div className="admin-card" style={{ marginTop: 20 }}>
-        <div className="admin-card-title" style={{ marginBottom: 16 }}>
-          Aksi Cepat
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-          <Link href="/admin/properties/new" className="admin-btn admin-btn-primary">
-            <Plus size={18} /> Tambah Properti
-          </Link>
-          <Link href="/admin/listings" className="admin-btn admin-btn-secondary">
-            <ListChecks size={18} /> Kelola Listing
-          </Link>
-          <Link href="/admin/leads" className="admin-btn admin-btn-secondary">
-            <MessageSquare size={18} /> Cek Leads
-          </Link>
-          {staff && <Link href="/admin/auctions/new" className="admin-btn admin-btn-secondary">
-            <Gavel size={18} /> Catat Sitaan & Lelang
-          </Link>}
-        </div>
-      </div>
+      <Card className="mt-5 gap-0 rounded-xl border-border/80 bg-card shadow-sm">
+        <CardHeader className="pb-3"><CardTitle>Aksi Cepat</CardTitle></CardHeader>
+        <CardContent className="flex flex-wrap gap-2.5">
+          <Button render={<Link href="/admin/properties/new" />}>
+            <Plus aria-hidden="true" /> Tambah Properti
+          </Button>
+          <Button variant="outline" render={<Link href="/admin/listings" />}>
+            <ListChecks aria-hidden="true" /> Kelola Listing
+          </Button>
+          <Button variant="outline" render={<Link href="/admin/leads" />}>
+            <MessageSquare aria-hidden="true" /> Cek Leads
+          </Button>
+          {staff && <Button variant="outline" render={<Link href="/admin/auctions/new" />}>
+            <Gavel aria-hidden="true" /> Catat Sitaan & Lelang
+          </Button>}
+        </CardContent>
+      </Card>
     </div>
   );
 }

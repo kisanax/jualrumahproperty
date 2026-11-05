@@ -2,8 +2,20 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Users, Phone, Mail, FileText, MapPin, Plus, Edit2, Trash2, X, Save, Search, Home } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { Plus, Edit2, Trash2, Save } from "lucide-react";
+import { toast } from "sonner";
+import { DataTable, type DtColumn } from "@/components/admin-ui/DataTable";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
 
 export interface OwnerItem {
   id: string;
@@ -47,15 +59,11 @@ export default function OwnerList({ initialOwners }: OwnerListProps) {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
 
-  const filteredOwners = owners.filter((o) => {
-    const q = search.toLowerCase();
-    return (
-      o.name.toLowerCase().includes(q) ||
-      (o.phone && o.phone.toLowerCase().includes(q)) ||
-      (o.email && o.email.toLowerCase().includes(q)) ||
-      (o.notes && o.notes.toLowerCase().includes(q))
-    );
-  });
+  const searchPredicate = (o: OwnerItem, q: string) =>
+    [o.name, o.phone || "", o.email || "", o.notes || "", o.idNumber || ""]
+      .join(" ")
+      .toLowerCase()
+      .includes(q);
 
   const openCreateModal = () => {
     setEditingOwner(null);
@@ -167,308 +175,192 @@ export default function OwnerList({ initialOwners }: OwnerListProps) {
     }
   };
 
+  const ownerColumns: DtColumn<OwnerItem>[] = [
+    {
+      key: "name",
+      header: "Nama Owner",
+      sortValue: (o) => o.name,
+      render: (o) => (
+        <div>
+          <div style={{ fontWeight: 600 }}>{o.name}</div>
+          {o.idNumber && (
+            <div className="admin-dt-muted" style={{ fontSize: 12, marginTop: 2 }}>
+              KTP: {o.idNumber}
+            </div>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "contact",
+      header: "Kontak",
+      render: (o) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, fontSize: 13 }}>
+          {o.phone && (
+            <a href={`tel:${o.phone}`} className="admin-dt-link" style={{ fontWeight: 500 }}>
+              {o.phone}
+            </a>
+          )}
+          {o.email && <span className="admin-dt-muted">{o.email}</span>}
+          {!o.phone && !o.email && <span className="admin-dt-muted">—</span>}
+        </div>
+      ),
+    },
+    {
+      key: "address",
+      header: "Alamat",
+      render: (o) =>
+        o.address ? (
+          <span title={o.address} style={{ display: "inline-block", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "middle" }}>
+            {o.address}
+          </span>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "properties",
+      header: "Properti Terdaftar",
+      align: "center",
+      sortValue: (o) => o.propertyOwners.length,
+      render: (o) =>
+        o.propertyOwners.length > 0 ? (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 4, justifyContent: "center" }}>
+            {o.propertyOwners.map((po) => (
+              <Link
+                key={po.id}
+                href={`/admin/properties/${po.property.id}`}
+                className="admin-dt-link"
+                style={{
+                  fontSize: 12,
+                  padding: "2px 8px",
+                  borderRadius: 4,
+                  background: "var(--workspace-surface-soft)",
+                  border: "1px solid var(--workspace-border)",
+                  textDecoration: "none",
+                }}
+                title={`${po.property.code} — ${po.property.area.name}`}
+              >
+                {po.property.code}
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "notes",
+      header: "Catatan",
+      render: (o) =>
+        o.notes ? (
+          <span title={o.notes} style={{ display: "inline-block", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", verticalAlign: "middle", fontStyle: "italic" }}>
+            {o.notes}
+          </span>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (o) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+          <UiButton variant="ghost"
+            type="button"
+            onClick={() => openEditModal(o)}
+            className="h-10 px-4"
+            style={{ padding: "6px 10px", fontSize: 12 }}
+            title="Edit Owner"
+          >
+            <Edit2 size={14} /> Edit
+          </UiButton>
+          <UiButton variant="ghost"
+            type="button"
+            onClick={() => handleDelete(o)}
+            className="h-10 px-4"
+            style={{
+              padding: "6px 10px",
+              fontSize: 12,
+              color: o.propertyOwners.length > 0 ? "var(--workspace-text-muted)" : "var(--workspace-danger)",
+            }}
+            title={
+              o.propertyOwners.length > 0
+                ? "Tidak bisa dihapus (terikat properti)"
+                : "Hapus Owner"
+            }
+          >
+            <Trash2 size={14} />
+          </UiButton>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
-      <Toaster position="top-right" richColors />
 
       {/* Header with Title and Add Button */}
       <div className="admin-page-header">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Owner Properti</h1>
-          <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
+          <h1>Owner Properti</h1>
+          <p>
             Kelola data pemilik properti, nomor kontak, dokumen kepemilikan, dan catatan internal.
           </p>
         </div>
-        <button
+        <UiButton variant="default"
           onClick={openCreateModal}
-          className="admin-btn admin-btn-primary"
+          className="h-10 px-4"
           style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
         >
           <Plus size={18} /> Tambah Owner
-        </button>
+        </UiButton>
       </div>
 
-      {/* Search Bar */}
-      <div style={{ position: "relative", marginBottom: 20 }}>
-        <Search
-          size={16}
-          style={{
-            position: "absolute",
-            left: 14,
-            top: "50%",
-            transform: "translateY(-50%)",
-            color: "var(--color-admin-text-muted)",
-          }}
-        />
-        <input
-          type="text"
-          className="admin-input"
-          placeholder="Cari owner berdasarkan nama, telepon, email, atau catatan..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ paddingLeft: 40, maxWidth: 460 }}
-        />
-      </div>
-
-      {/* Grid or Empty */}
-      {filteredOwners.length === 0 ? (
-        <div className="admin-card">
-          <div className="admin-empty">
-            <Users size={48} className="admin-empty-icon" />
-            <div className="admin-empty-title">
-              {search ? "Owner tidak ditemukan" : "Belum ada owner terdaftar"}
-            </div>
-            <div className="admin-empty-text">
-              {search
-                ? `Tidak ada owner yang cocok dengan pencarian "${search}".`
-                : "Klik tombol Tambah Owner untuk mendaftarkan pemilik properti baru."}
-            </div>
-            {!search && (
-              <button
-                onClick={openCreateModal}
-                className="admin-btn admin-btn-primary"
-                style={{ marginTop: 16 }}
-              >
-                <Plus size={16} /> Tambah Owner Pertama
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="admin-card-grid">
-          {filteredOwners.map((owner) => (
-            <div
-              key={owner.id}
-              className="admin-card"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-              }}
-            >
-              <div>
-                {/* Header card with name and action buttons */}
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "flex-start",
-                    marginBottom: 12,
-                  }}
-                >
-                  <div>
-                    <h3 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>
-                      {owner.name}
-                    </h3>
-                    {owner.idNumber && (
-                      <div
-                        style={{
-                          fontSize: 12,
-                          color: "var(--color-admin-text-muted)",
-                          marginTop: 2,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 4,
-                        }}
-                      >
-                        <FileText size={12} /> KTP: {owner.idNumber}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ display: "flex", gap: 6 }}>
-                    <button
-                      onClick={() => openEditModal(owner)}
-                      className="admin-btn admin-btn-secondary"
-                      title="Edit Owner"
-                      style={{ padding: "6px 8px" }}
-                    >
-                      <Edit2 size={14} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(owner)}
-                      className="admin-btn admin-btn-secondary"
-                      title={
-                        owner.propertyOwners.length > 0
-                          ? "Tidak bisa dihapus (terikat properti)"
-                          : "Hapus Owner"
-                      }
-                      style={{
-                        padding: "6px 8px",
-                        color:
-                          owner.propertyOwners.length > 0
-                            ? "var(--color-admin-text-muted)"
-                            : "#ef4444",
-                      }}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Contact info */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, fontSize: 13 }}>
-                  {owner.phone && (
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        color: "var(--color-admin-text-secondary)",
-                      }}
-                    >
-                      <Phone size={14} style={{ color: "var(--color-admin-accent)" }} />
-                      <a
-                        href={`tel:${owner.phone}`}
-                        style={{
-                          color: "inherit",
-                          textDecoration: "none",
-                        }}
-                      >
-                        {owner.phone}
-                      </a>
-                    </div>
-                  )}
-                  {owner.email && (
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 8,
-                        color: "var(--color-admin-text-secondary)",
-                      }}
-                    >
-                      <Mail size={14} style={{ color: "var(--color-admin-accent)" }} />
-                      <a
-                        href={`mailto:${owner.email}`}
-                        style={{
-                          color: "inherit",
-                          textDecoration: "none",
-                        }}
-                      >
-                        {owner.email}
-                      </a>
-                    </div>
-                  )}
-                  {owner.address && (
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "flex-start",
-                        gap: 8,
-                        color: "var(--color-admin-text-secondary)",
-                      }}
-                    >
-                      <MapPin
-                        size={14}
-                        style={{
-                          color: "var(--color-admin-text-muted)",
-                          marginTop: 2,
-                          flexShrink: 0,
-                        }}
-                      />
-                      <span>{owner.address}</span>
-                    </div>
-                  )}
-                  {owner.notes && (
-                    <div
-                      style={{
-                        marginTop: 6,
-                        padding: "8px 10px",
-                        borderRadius: 6,
-                        background: "var(--color-admin-bg)",
-                        fontSize: 12,
-                        color: "var(--color-admin-text-secondary)",
-                        borderLeft: "3px solid var(--color-admin-accent)",
-                      }}
-                    >
-                      {owner.notes}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Associated Properties */}
-              {owner.propertyOwners.length > 0 && (
-                <div
-                  style={{
-                    marginTop: 14,
-                    paddingTop: 12,
-                    borderTop: "1px solid var(--color-admin-border)",
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "var(--color-admin-text-muted)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                      marginBottom: 8,
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 4,
-                    }}
-                  >
-                    <Home size={12} /> Properti Terdaftar ({owner.propertyOwners.length})
-                  </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                    {owner.propertyOwners.map((po) => (
-                      <Link
-                        key={po.id}
-                        href={`/admin/properties/${po.property.id}`}
-                        style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 4,
-                          fontSize: 12,
-                          padding: "4px 8px",
-                          borderRadius: 4,
-                          background: "var(--color-admin-bg)",
-                          border: "1px solid var(--color-admin-border)",
-                          color: "var(--color-admin-accent)",
-                          textDecoration: "none",
-                          fontWeight: 500,
-                        }}
-                      >
-                        <span>{po.property.code}</span>
-                        <span style={{ color: "var(--color-admin-text-muted)" }}>•</span>
-                        <span style={{ color: "var(--color-admin-text-secondary)" }}>
-                          {po.property.area.name}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Tabel Owner */}
+      <DataTable<OwnerItem>
+        rows={owners}
+        rowKey={(o) => o.id}
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Cari owner berdasarkan nama, telepon, email, atau catatan..."
+        searchPredicate={searchPredicate}
+        initialSort={{ key: "name", dir: "asc" }}
+        pageSize={10}
+        emptyTitle={search ? "Owner tidak ditemukan" : "Belum ada owner terdaftar"}
+        emptyText={
+          search
+            ? `Tidak ada owner yang cocok dengan pencarian "${search}".`
+            : "Klik tombol Tambah Owner untuk mendaftarkan pemilik properti baru."
+        }
+        emptyAction={
+          !search ? (
+            <UiButton variant="default" onClick={openCreateModal} className="h-10 px-4">
+              <Plus size={16} /> Tambah Owner Pertama
+            </UiButton>
+          ) : undefined
+        }
+        columns={ownerColumns}
+      />
 
       {/* Modal Add / Edit */}
-      {modalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="admin-modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h2>{editingOwner ? "Edit Data Owner" : "Tambah Owner Baru"}</h2>
-              <button
-                type="button"
-                className="admin-modal-close-btn"
-                onClick={() => setModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingOwner ? "Edit Data Owner" : "Tambah Owner Baru"}</DialogTitle>
+          </DialogHeader>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
+          <form onSubmit={handleSubmit}>
+            <div>
                 <div>
-                  <label className="admin-label">
+                  <UiLabel htmlFor="owner-name" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
                     Nama Lengkap Owner <span style={{ color: "#ef4444" }}>*</span>
-                  </label>
-                  <input
+                  </UiLabel>
+                  <UiInput
+                    id="owner-name"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="Contoh: Bpk. H. Rahmat Hidayat"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -478,20 +370,22 @@ export default function OwnerList({ initialOwners }: OwnerListProps) {
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
                   <div>
-                    <label className="admin-label">Nomor Telepon / WA</label>
-                    <input
+                    <UiLabel htmlFor="owner-phone" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nomor Telepon / WA</UiLabel>
+                    <UiInput
+                      id="owner-phone"
                       type="text"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="0812xxxx"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
                   <div>
-                    <label className="admin-label">Email</label>
-                    <input
+                    <UiLabel htmlFor="owner-email" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Email</UiLabel>
+                    <UiInput
+                      id="owner-email"
                       type="email"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       placeholder="owner@gmail.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
@@ -500,10 +394,11 @@ export default function OwnerList({ initialOwners }: OwnerListProps) {
                 </div>
 
                 <div>
-                  <label className="admin-label">Nomor KTP / NIK</label>
-                  <input
+                  <UiLabel htmlFor="owner-idnumber" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nomor KTP / NIK</UiLabel>
+                  <UiInput
+                    id="owner-idnumber"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="3174xxxx (Opsional)"
                     value={idNumber}
                     onChange={(e) => setIdNumber(e.target.value)}
@@ -511,9 +406,10 @@ export default function OwnerList({ initialOwners }: OwnerListProps) {
                 </div>
 
                 <div>
-                  <label className="admin-label">Alamat Domisili</label>
-                  <textarea
-                    className="admin-input"
+                  <UiLabel htmlFor="owner-address" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Alamat Domisili</UiLabel>
+                  <UiTextarea
+                    id="owner-address"
+                    className="min-h-24 text-base md:text-sm"
                     rows={2}
                     placeholder="Alamat tempat tinggal owner..."
                     value={address}
@@ -522,40 +418,42 @@ export default function OwnerList({ initialOwners }: OwnerListProps) {
                 </div>
 
                 <div>
-                  <label className="admin-label">Catatan Internal</label>
-                  <textarea
-                    className="admin-input"
+                  <UiLabel htmlFor="owner-notes" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan Internal</UiLabel>
+                  <UiTextarea
+                    id="owner-notes"
+                    className="min-h-24 text-base md:text-sm"
                     rows={3}
                     placeholder="Preferensi komunikasi, waktu respon, atau info penting lainnya..."
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                   />
                 </div>
-              </div>
+            </div>
 
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setModalOpen(false)}
-                  disabled={isSubmitting}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isSubmitting}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-                >
-                  <Save size={16} />
-                  {isSubmitting ? "Menyimpan..." : editingOwner ? "Simpan Perubahan" : "Tambah Owner"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton
+                variant="outline"
+                type="button"
+                className="h-10 px-4"
+                onClick={() => setModalOpen(false)}
+                disabled={isSubmitting}
+              >
+                Batal
+              </UiButton>
+              <UiButton
+                variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isSubmitting}
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                <Save size={16} />
+                {isSubmitting ? "Menyimpan..." : editingOwner ? "Simpan Perubahan" : "Tambah Owner"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

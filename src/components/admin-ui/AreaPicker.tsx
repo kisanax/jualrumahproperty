@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+const fieldLabelClass = "text-xs font-semibold text-muted-foreground";
+const selectClass =
+  "h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm text-foreground outline-none transition-colors focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50";
+const textInputClass =
+  "h-9 w-full min-w-0 rounded-lg border border-input bg-background px-2.5 py-1 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50";
+
 export type AreaPickerArea = {
   id: number;
   name: string;
@@ -191,33 +197,33 @@ export function AreaPicker({
   return (
     <div className="ui-area-picker" aria-busy={loading}>
       <div className="ui-area-picker__grid">
-        <label className="ui-field" htmlFor={`${idPrefix}-province`}>
-          <span className="ui-field__label">Provinsi {required ? "*" : ""}</span>
-          <select id={`${idPrefix}-province`} className="admin-input" value={provinceId} onChange={(event) => clearAfterProvince(event.target.value)} disabled={disabled} required={required}>
+        <label className="grid gap-1.5" htmlFor={`${idPrefix}-province`}>
+          <span className={fieldLabelClass}>Provinsi {required ? "*" : ""}</span>
+          <select id={`${idPrefix}-province`} className={selectClass} value={provinceId} onChange={(event) => clearAfterProvince(event.target.value)} disabled={disabled} required={required}>
             <option value="">Pilih provinsi</option>
             {provinces.map((area) => <option key={area.id} value={area.id}>{area.name}</option>)}
           </select>
         </label>
-        <label className="ui-field" htmlFor={`${idPrefix}-city`}>
-          <span className="ui-field__label">Kabupaten / Kota {required ? "*" : ""}</span>
-          <select id={`${idPrefix}-city`} className="admin-input" value={cityId} onChange={(event) => clearAfterCity(event.target.value)} disabled={disabled || !provinceId} required={required}>
+        <label className="grid gap-1.5" htmlFor={`${idPrefix}-city`}>
+          <span className={fieldLabelClass}>Kabupaten / Kota {required ? "*" : ""}</span>
+          <select id={`${idPrefix}-city`} className={selectClass} value={cityId} onChange={(event) => clearAfterCity(event.target.value)} disabled={disabled || !provinceId} required={required}>
             <option value="">Pilih kabupaten/kota</option>
             {cities.map((area) => <option key={area.id} value={area.id}>{area.name}</option>)}
           </select>
         </label>
-        <label className="ui-field" htmlFor={`${idPrefix}-district`}>
-          <span className="ui-field__label">Kecamatan {required ? "*" : ""}</span>
-          <select id={`${idPrefix}-district`} className="admin-input" value={districtId} onChange={(event) => selectDistrict(event.target.value)} disabled={disabled || !cityId} required={required}>
+        <label className="grid gap-1.5" htmlFor={`${idPrefix}-district`}>
+          <span className={fieldLabelClass}>Kecamatan {required ? "*" : ""}</span>
+          <select id={`${idPrefix}-district`} className={selectClass} value={districtId} onChange={(event) => selectDistrict(event.target.value)} disabled={disabled || !cityId} required={required}>
             <option value="">Pilih kecamatan</option>
             {districts.map((area) => <option key={area.id} value={area.id}>{area.name}</option>)}
           </select>
         </label>
         {maxLevel === 4 && (
-          <div className="ui-field ui-area-picker__autocomplete">
-            <label className="ui-field__label" htmlFor={`${idPrefix}-village`}>Kelurahan / Desa (opsional)</label>
+          <div className="ui-area-picker__autocomplete">
+            <label className={fieldLabelClass} htmlFor={`${idPrefix}-village`}>Kelurahan / Desa (opsional)</label>
             <input
               id={`${idPrefix}-village`}
-              className="admin-input"
+              className={textInputClass}
               value={villageQuery}
               placeholder={districtId ? "Cari kelurahan/desa" : "Pilih kecamatan dahulu"}
               disabled={disabled || !districtId}
@@ -234,11 +240,11 @@ export function AreaPicker({
               }}
             />
             {villageOpen && districts.length > 0 && (
-              <div className="ui-area-picker__options">
+              <div className="absolute inset-x-0 top-full z-40 mt-1 max-h-56 w-full overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10">
                 {villages.length === 0 ? (
-                  <div className="ui-area-picker__empty">Kelurahan/desa tidak ditemukan</div>
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">Kelurahan/desa tidak ditemukan</div>
                 ) : villages.map((area) => (
-                  <button key={area.id} type="button" className="ui-area-picker__option" onMouseDown={(event) => { event.preventDefault(); selectVillage(area); }}>
+                  <button key={area.id} type="button" className="flex w-full cursor-default items-center rounded-md px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground" onMouseDown={(event) => { event.preventDefault(); selectVillage(area); }}>
                     {area.name}
                   </button>
                 ))}
@@ -247,7 +253,7 @@ export function AreaPicker({
           </div>
         )}
       </div>
-      {error && <div className="ui-field__help ui-area-picker__error">{error}</div>}
+      {error && <div className="mt-2 text-xs text-destructive">{error}</div>}
     </div>
   );
 }

@@ -4,10 +4,10 @@ import Link from "next/link";
 import PropertyDetailActions from "./PropertyDetailActions";
 import PropertyPhotoGallery from "./PropertyPhotoGallery";
 import PropertyPublicPreviewModal from "./PropertyPublicPreviewModal";
+import { DetailHeader } from "@/components/admin-ui/DetailHeader";
 
 export const dynamic = "force-dynamic";
 import {
-  ArrowLeft,
   MapPin,
   Ruler,
   BedDouble,
@@ -19,9 +19,7 @@ import {
   Compass,
   FileText,
   Plus,
-  ImageIcon,
   Users,
-  Camera,
   Gavel,
 } from "lucide-react";
 import { categories, auctionStatuses, effectiveStatus } from "@/lib/auctions";
@@ -30,6 +28,10 @@ import {
   combinePropertyFilters,
   listingAccessFilter,
 } from "@/lib/services/property-listing-access";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { Card as UiCard } from "@/components/ui/card";
+import { ButtonLink } from "@/components/admin-ui/Button";
+
 
 // =============================================================================
 // Helpers
@@ -149,31 +151,29 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="animate-fade-in">
-      {/* Back + Header */}
-      <div style={{ marginBottom: 24 }}>
-        <Link href="/admin/properties" style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--color-admin-text-secondary)", textDecoration: "none", marginBottom: 12 }}>
-          <ArrowLeft size={16} /> Kembali ke daftar properti
-        </Link>
-        <div className="admin-detail-header-wrap">
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 32, lineHeight: 1 }}>
-              {{ HOUSE: "🏠", APARTMENT: "🏢", LAND: "📐", SHOPHOUSE: "🏪" }[property.type] || "🏠"}
+      <DetailHeader
+        crumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Properti", href: "/admin/properties" },
+          { label: property.code },
+        ]}
+        title={property.code}
+        badge={
+          latestListing ? (
+            <span className={`admin-badge ${getStatusBadgeClass(latestListing.status)}`}>
+              {getStatusLabel(latestListing.status)}
             </span>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", margin: 0 }}>{property.code}</h1>
-                {latestListing && (
-                  <span className={`admin-badge ${getStatusBadgeClass(latestListing.status)}`}>
-                    {getStatusLabel(latestListing.status)}
-                  </span>
-                )}
-              </div>
-              <p style={{ fontSize: 13, color: "var(--color-admin-text-secondary)", marginTop: 3, marginBottom: 0 }}>
-                {getPropertyTypeLabel(property.type)} • {property.village ? `${property.village.name}, ` : ""}{property.area.parent ? `${property.area.name}, ${property.area.parent.name}` : property.area.name}
-              </p>
-            </div>
-          </div>
-          <div className="admin-detail-actions">
+          ) : undefined
+        }
+        description={`${getPropertyTypeLabel(property.type)} • ${property.village ? `${property.village.name}, ` : ""}${property.area.parent ? `${property.area.name}, ${property.area.parent.name}` : property.area.name}`}
+        meta={
+          <>
+            <span>Dibuat {formatDate(property.createdAt)}</span>
+            <span>Diubah {formatDate(property.updatedAt)}</span>
+          </>
+        }
+        actions={
+          <>
             <PropertyPublicPreviewModal
               property={publicPreviewData.property}
               areaName={publicPreviewData.areaName}
@@ -183,9 +183,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
               buttonClassName="admin-detail-preview-btn admin-btn admin-btn-secondary"
             />
             <PropertyDetailActions propertyId={property.id} propertyCode={property.code} />
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       <div className="admin-detail-layout">
         {/* Left Column */}
@@ -199,8 +199,8 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
           />
 
           {/* Specs */}
-          <div className="admin-card">
-            <div className="admin-card-title" style={{ marginBottom: 16 }}>Spesifikasi</div>
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 16 }}>Spesifikasi</UiCard>
             <div className="admin-specs-grid">
               {property.landArea && (
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -289,28 +289,28 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 </div>
               </div>
             )}
-          </div>
+          </UiCard>
 
           {/* Alamat & Lokasi */}
-          <div className="admin-card">
-            <div className="admin-card-title" style={{ marginBottom: 12 }}>
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 12 }}>
               <MapPin size={16} style={{ display: "inline", marginRight: 6 }} />Lokasi (Internal)
-            </div>
+            </UiCard>
             <div style={{ fontSize: 15, color: "var(--color-admin-text)" }}>{property.address}</div>
             {property.certificateType && (
               <div style={{ fontSize: 13, color: "var(--color-admin-text-secondary)", marginTop: 8 }}>
                 Sertifikat: {property.certificateType}{property.certificateNo ? ` — ${property.certificateNo}` : ""}
               </div>
             )}
-          </div>
+          </UiCard>
         </div>
 
         {/* Right Column — Sidebar */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Latest Listing */}
           {latestListing ? (
-            <div className="admin-card">
-              <div className="admin-card-title" style={{ marginBottom: 12 }}>Listing Terkini</div>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 12 }}>Listing Terkini</UiCard>
               <div style={{ fontSize: 22, fontWeight: 700, color: "var(--color-admin-accent)" }}>
                 {latestListing.priceOnRequest ? "Harga on request" : formatRupiah(latestListing.askingPrice)}
               </div>
@@ -340,24 +340,24 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                   ))}
                 </div>
               )}
-            </div>
+            </UiCard>
           ) : (
-            <div className="admin-card">
-              <div className="admin-card-title" style={{ marginBottom: 12 }}>Listing</div>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 12 }}>Listing</UiCard>
               <div className="admin-empty" style={{ padding: "16px 0" }}>
                 <div className="admin-empty-text">Belum ada listing</div>
               </div>
-              <Link href={`/admin/listings/new?propertyId=${property.id}`} className="admin-btn admin-btn-primary admin-btn-sm admin-btn-full" style={{ marginTop: 8 }}>
+              <ButtonLink variant="primary" href={`/admin/listings/new?propertyId=${property.id}`} className="w-full h-10 px-4" style={{ marginTop: 8 }}>
                 <Plus size={16} /> Buat Listing
-              </Link>
-            </div>
+              </ButtonLink>
+            </UiCard>
           )}
 
           {/* Owners */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title"><Users size={16} style={{ display: "inline", marginRight: 6 }} />Owner</div>
-            </div>
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]"><Users size={16} style={{ display: "inline", marginRight: 6 }} />Owner</UiCard>
+            </UiCard>
             {property.propertyOwners.length === 0 ? (
               <div style={{ fontSize: 13, color: "var(--color-admin-text-muted)", fontStyle: "italic" }}>Belum diisi</div>
             ) : (
@@ -367,58 +367,58 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                     <div style={{ fontSize: 14, fontWeight: 500 }}>{po.owner.name}</div>
                     {po.owner.phone && <div style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>{po.owner.phone}</div>}
                   </div>
-                  {po.isPrimary && <span className="admin-badge admin-badge-active" style={{ fontSize: 10 }}>Utama</span>}
+                  {po.isPrimary && <UiBadge className="bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-transparent bg-muted text-muted-foreground" style={{ fontSize: 10 }}>Utama</UiBadge>}
                 </div>
               ))
             )}
-          </div>
+          </UiCard>
 
           {/* Internal Notes */}
           {property.internalNotes && (
-            <div className="admin-card">
-              <div className="admin-card-title" style={{ marginBottom: 8 }}>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 8 }}>
                 <FileText size={16} style={{ display: "inline", marginRight: 6 }} />Catatan Internal
-              </div>
+              </UiCard>
               <div style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", whiteSpace: "pre-wrap" }}>
                 {property.internalNotes}
               </div>
-            </div>
+            </UiCard>
           )}
 
           {/* Listing History */}
           {property.listings.length > 1 && (
-            <div className="admin-card">
-              <div className="admin-card-title" style={{ marginBottom: 12 }}>Riwayat Listing ({property.listings.length})</div>
+            <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ marginBottom: 12 }}>Riwayat Listing ({property.listings.length})</UiCard>
               {property.listings.map((listing) => (
                 <div key={listing.id} style={{ padding: "8px 0", borderBottom: "1px solid var(--color-admin-border)", fontSize: 13 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <span className={`admin-badge ${getStatusBadgeClass(listing.status)}`} style={{ fontSize: 10 }}>
+                    <UiBadge className={` ${getStatusBadgeClass(listing.status)} border-transparent bg-muted text-muted-foreground`} style={{ fontSize: 10 }}>
                       {getStatusLabel(listing.status)}
-                    </span>
+                    </UiBadge>
                     <span style={{ color: "var(--color-admin-text-muted)" }}>
                       {formatDate(listing.createdAt)}
                     </span>
                   </div>
                 </div>
               ))}
-            </div>
+            </UiCard>
           )}
 
           {/* Sitaan & Lelang */}
-          <div className="admin-card">
-            <div className="admin-card-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div className="admin-card-title">
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
                 <Gavel size={16} style={{ display: "inline", marginRight: 6 }} />
                 Sitaan & Lelang ({property.auctionRecords.length})
-              </div>
-              <Link
+              </UiCard>
+              <ButtonLink variant="quiet"
                 href={`/admin/auctions/new?propertyId=${property.id}`}
-                className="admin-btn admin-btn-ghost admin-btn-sm"
+                className="h-10 px-4"
                 style={{ fontSize: 12, padding: "4px 8px" }}
               >
                 <Plus size={14} /> Catat Baru
-              </Link>
-            </div>
+              </ButtonLink>
+            </UiCard>
             {property.auctionRecords.length === 0 ? (
               <div className="admin-empty" style={{ padding: "12px 0" }}>
                 <div className="admin-empty-text" style={{ fontSize: 13 }}>Belum ada catatan sitaan / lelang</div>
@@ -445,12 +445,12 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                       }}
                     >
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                        <span className="admin-badge admin-badge-pending" style={{ fontSize: 10 }}>
+                        <UiBadge className="bg-amber-500/10 text-amber-700 dark:text-amber-300 border-transparent bg-muted text-muted-foreground" style={{ fontSize: 10 }}>
                           {categories[ar.category as keyof typeof categories] || ar.category}
-                        </span>
-                        <span className="admin-badge" style={{ fontSize: 10 }}>
+                        </UiBadge>
+                        <UiBadge className="border-transparent bg-muted text-muted-foreground" style={{ fontSize: 10 }}>
                           {effStatus === "SCHEDULED" ? "Terjadwal" : auctionStatuses[effStatus as keyof typeof auctionStatuses] || effStatus}
-                        </span>
+                        </UiBadge>
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-admin-text)", marginBottom: 2 }}>
                         {ar.title}
@@ -470,18 +470,9 @@ export default async function PropertyDetailPage({ params }: { params: Promise<{
                 })}
               </div>
             )}
-          </div>
+          </UiCard>
         </div>
       </div>
     </div>
-  );
-}
-
-// For photo star icon
-function Star({ size, className }: { size: number; className?: string }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="currentColor" className={className}>
-      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-    </svg>
   );
 }

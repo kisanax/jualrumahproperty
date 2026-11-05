@@ -7,13 +7,25 @@ import {
   ArrowRight,
   Filter,
   Eye,
-  X,
   History,
   GripVertical,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import Link from "next/link";
 import { LeadStage } from "@prisma/client";
+import { Card as UiCard } from "@/components/ui/card";
+import { Button as UiButton } from "@/components/ui/button";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
 
 interface Customer {
   id: string;
@@ -207,20 +219,10 @@ export default function KanbanBoard({ initialLeads, listings }: KanbanBoardProps
 
   return (
     <div>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            background: "var(--color-admin-surface)",
-            border: "1px solid var(--color-admin-border)",
-            color: "var(--color-admin-text)",
-          },
-        }}
-      />
 
       {/* Filter & Toolbar */}
-      <div
-        className="admin-card admin-kanban-toolbar"
+      <UiCard
+        className="admin-kanban-toolbar gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]"
         style={{
           display: "flex",
           alignItems: "center",
@@ -252,7 +254,7 @@ export default function KanbanBoard({ initialLeads, listings }: KanbanBoardProps
         <div style={{ fontSize: 13, color: "var(--color-admin-text-secondary)" }}>
           Menampilkan <strong style={{ color: "var(--color-admin-text)" }}>{filteredLeads.length}</strong> calon pembeli
         </div>
-      </div>
+      </UiCard>
 
       <div className="admin-kanban-stage-tabs" role="tablist" aria-label="Tahap lead">
         {COLUMNS.map((col) => {
@@ -618,102 +620,80 @@ export default function KanbanBoard({ initialLeads, listings }: KanbanBoardProps
       </div>
 
       {/* Modal Pindah Stage dengan Catatan Aktivitas (Section 15.4) */}
-      {movingLead && (
-        <div className="admin-modal-overlay" onClick={() => setMovingLead(null)}>
-          <div
-            className="admin-modal-container"
-            style={{ maxWidth: 480 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="admin-modal-header">
-              <h3 style={{ fontSize: 18, fontWeight: 700 }}>Pindahkan Stage Lead</h3>
-              <button
-                type="button"
-                onClick={() => setMovingLead(null)}
-                className="admin-btn admin-btn-ghost"
-                style={{ padding: 4 }}
-              >
-                <X size={18} />
-              </button>
-            </div>
+      <Dialog open={!!movingLead} onOpenChange={(o) => { if (!o) setMovingLead(null); }}>
+        <DialogContent className="sm:max-w-md">
+          {movingLead && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Pindahkan Stage Lead</DialogTitle>
+              </DialogHeader>
 
-            <form onSubmit={handleStageMoveSubmit}>
-              <div className="admin-modal-body" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-                <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)" }}>
-                  Pindahkan lead <strong>{movingLead.lead.customer.name}</strong> dari{" "}
-                  <span className="admin-badge admin-badge-draft">{movingLead.lead.currentStage}</span>{" "}
-                  menuju{" "}
-                  <span className="admin-badge admin-badge-ready">{movingLead.targetStage}</span>
-                </p>
+              <form onSubmit={handleStageMoveSubmit}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                  <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)" }}>
+                    Pindahkan lead <strong>{movingLead.lead.customer.name}</strong> dari{" "}
+                    <UiBadge className="bg-slate-500/10 text-slate-700 dark:text-slate-300 border-transparent bg-muted text-muted-foreground">{movingLead.lead.currentStage}</UiBadge>{" "}
+                    menuju{" "}
+                    <UiBadge className="bg-blue-500/10 text-blue-700 dark:text-blue-300 border-transparent bg-muted text-muted-foreground">{movingLead.targetStage}</UiBadge>
+                  </p>
 
-                <div className="admin-input-group">
-                  <label className="admin-label">Catatan Aktivitas / Alasan (Opsional)</label>
-                  <textarea
-                    className="admin-input admin-textarea"
-                    placeholder="Contoh: Pembeli sudah dikontak, tertarik viewing hari Sabtu..."
-                    value={transitionNote}
-                    onChange={(e) => setTransitionNote(e.target.value)}
-                    rows={3}
-                  />
-                  <div className="admin-input-hint" style={{ fontSize: 11, marginTop: 4 }}>
-                    Catatan ini akan otomatis masuk ke timeline riwayat LeadActivity
+                  <div className="admin-input-group">
+                    <UiLabel htmlFor="lead-transition-note" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan Aktivitas / Alasan (Opsional)</UiLabel>
+                    <UiTextarea
+                      id="lead-transition-note"
+                      className="min-h-24 text-base md:text-sm"
+                      placeholder="Contoh: Pembeli sudah dikontak, tertarik viewing hari Sabtu..."
+                      value={transitionNote}
+                      onChange={(e) => setTransitionNote(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="admin-input-hint" style={{ fontSize: 11, marginTop: 4 }}>
+                      Catatan ini akan otomatis masuk ke timeline riwayat LeadActivity
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setMovingLead(null)}
-                  className="admin-btn admin-btn-secondary"
-                  disabled={isSubmittingMove}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmittingMove}
-                  className="admin-btn admin-btn-primary"
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <ArrowRight size={16} />
-                  {isSubmittingMove ? "Menyimpan..." : "Konfirmasi Pindah"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+                <DialogFooter>
+                  <UiButton
+                    variant="outline"
+                    type="button"
+                    onClick={() => setMovingLead(null)}
+                    className="h-10 px-4"
+                    disabled={isSubmittingMove}
+                  >
+                    Batal
+                  </UiButton>
+                  <UiButton
+                    variant="default"
+                    type="submit"
+                    disabled={isSubmittingMove}
+                    className="h-10 px-4"
+                    style={{ display: "flex", alignItems: "center", gap: 6 }}
+                  >
+                    <ArrowRight size={16} />
+                    {isSubmittingMove ? "Menyimpan..." : "Konfirmasi Pindah"}
+                  </UiButton>
+                </DialogFooter>
+              </form>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal Detail & Timeline Aktivitas */}
-      {activeLeadModal && (
-        <div className="admin-modal-overlay" onClick={() => setActiveLeadModal(null)}>
-          <div
-            className="admin-modal-container"
-            style={{ maxWidth: 580 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="admin-modal-header">
-              <div>
-                <h3 style={{ fontSize: 18, fontWeight: 700 }}>
-                  {activeLeadModal.customer.name}
-                </h3>
-                <div style={{ fontSize: 13, color: "var(--color-admin-text-secondary)", marginTop: 2 }}>
+      <Dialog open={!!activeLeadModal} onOpenChange={(o) => { if (!o) setActiveLeadModal(null); }}>
+        <DialogContent className="sm:max-w-xl">
+          {activeLeadModal && (
+            <>
+              <DialogHeader>
+                <DialogTitle>{activeLeadModal.customer.name}</DialogTitle>
+                <DialogDescription>
                   {activeLeadModal.customer.phone}{" "}
                   {activeLeadModal.customer.email ? `• ${activeLeadModal.customer.email}` : ""}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveLeadModal(null)}
-                className="admin-btn admin-btn-ghost"
-                style={{ padding: 4 }}
-              >
-                <X size={18} />
-              </button>
-            </div>
+                </DialogDescription>
+              </DialogHeader>
 
-            <div className="admin-modal-body" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {/* Info Listing */}
               <div
                 style={{
@@ -829,18 +809,20 @@ export default function KanbanBoard({ initialLeads, listings }: KanbanBoardProps
               </div>
             </div>
 
-            <div className="admin-modal-footer">
-              <button
+            <DialogFooter>
+              <UiButton
+                variant="outline"
                 type="button"
                 onClick={() => setActiveLeadModal(null)}
-                className="admin-btn admin-btn-secondary"
+                className="h-10 px-4"
               >
                 Tutup
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </UiButton>
+            </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

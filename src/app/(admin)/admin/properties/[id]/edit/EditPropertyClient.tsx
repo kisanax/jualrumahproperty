@@ -19,10 +19,16 @@ import {
   ChevronRight,
   Users,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import PropertyPublicPreviewModal from "../PropertyPublicPreviewModal";
 import { AreaPicker } from "@/components/admin-ui";
 import { getMediaUrl } from "@/lib/media-url";
+import { Card as UiCard } from "@/components/ui/card";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import { Input as UiInput } from "@/components/ui/input";
+import { Button as UiButton } from "@/components/ui/button";
+import { Label as UiLabel } from "@/components/ui/label";
+import { ButtonLink } from "@/components/admin-ui/Button";
 
 interface KawasanOption {
   id: string;
@@ -339,7 +345,6 @@ export default function EditPropertyClient({
 
   return (
     <div className="animate-fade-in" style={{ paddingBottom: 60 }}>
-      <Toaster position="top-right" richColors />
 
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
@@ -407,18 +412,18 @@ export default function EditPropertyClient({
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Card 1: Identitas & Lokasi */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div className="admin-card-title">
+        <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+          <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
               <MapPin size={16} style={{ display: "inline", marginRight: 6 }} />
               Identitas & Lokasi Properti
-            </div>
-          </div>
+            </UiCard>
+          </UiCard>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {/* Property Type Buttons */}
             <div>
-              <label className="admin-label">Tipe Properti</label>
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Tipe Properti</UiLabel>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
                 {[
                   { key: "HOUSE", label: "Rumah", icon: "🏠" },
@@ -454,7 +459,7 @@ export default function EditPropertyClient({
             {/* Kawasan & administrative area */}
             <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: 16 }}>
               <div>
-                <label className="admin-label">Kawasan Populer / Branded</label>
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kawasan Populer / Branded</UiLabel>
                 <select
                   className="admin-input"
                   value={kawasanId}
@@ -489,11 +494,9 @@ export default function EditPropertyClient({
 
             {/* Address */}
             <div>
-              <label className="admin-label">
-                Alamat Lengkap (Internal Only) <span style={{ color: "#ef4444" }}>*</span>
-              </label>
-              <textarea
-                className="admin-input"
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Alamat Lengkap (Internal Only) <span style={{ color: "#ef4444" }}>*</span></UiLabel>
+              <UiTextarea
+                className="min-h-24 text-base md:text-sm"
                 rows={3}
                 placeholder="Jl. Raya Kemang No. 12, RT 01/RW 02..."
                 value={address}
@@ -505,35 +508,35 @@ export default function EditPropertyClient({
               </div>
             </div>
           </div>
-        </div>
+        </UiCard>
 
         {/* Owner boleh dilengkapi saat draft, tetapi wajib sebelum listing dipublikasikan. */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div className="admin-card-title">
+        <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+          <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
               <Users size={16} style={{ display: "inline", marginRight: 6 }} />
               Owner properti
-            </div>
-            <div className="admin-card-subtitle">
+            </UiCard>
+            <UiCard className="-subtitle gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
               Boleh dikosongkan saat draft, tetapi wajib dilengkapi sebelum status Siap Publish.
-            </div>
-          </div>
+            </UiCard>
+          </UiCard>
           <div className="admin-grid-2">
             <div className="admin-input-group">
-              <label className="admin-label">Nama owner</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nama owner</UiLabel>
+              <UiInput
                 type="text"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Nama pemilik properti"
                 value={ownerName}
                 onChange={(event) => setOwnerName(event.target.value)}
               />
             </div>
             <div className="admin-input-group">
-              <label className="admin-label">Nomor WhatsApp owner</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Nomor WhatsApp owner</UiLabel>
+              <UiInput
                 type="tel"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 inputMode="tel"
                 placeholder="08xxx"
                 value={ownerPhone}
@@ -544,16 +547,16 @@ export default function EditPropertyClient({
           <div style={{ fontSize: 11, color: "var(--color-admin-text-muted)", marginTop: 4 }}>
             Informasi ini bersifat internal dan tidak ditampilkan pada portal publik.
           </div>
-        </div>
+        </UiCard>
 
         {/* Card 2: Foto & Media Properti (NEW) */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div className="admin-card-title">
+        <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+          <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
               <ImageIcon size={16} style={{ display: "inline", marginRight: 6 }} />
               Foto & Media Properti ({mediaList.length + newPhotos.length})
-            </div>
-          </div>
+            </UiCard>
+          </UiCard>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {/* Foto yang Sudah Ada */}
@@ -848,43 +851,43 @@ export default function EditPropertyClient({
               />
             </label>
           </div>
-        </div>
+        </UiCard>
 
         {/* Card 3: Dimensi & Spesifikasi Bangunan */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div className="admin-card-title">
+        <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+          <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
               <Ruler size={16} style={{ display: "inline", marginRight: 6 }} />
               Dimensi & Spesifikasi Bangunan
-            </div>
-          </div>
+            </UiCard>
+          </UiCard>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
             <div>
-              <label className="admin-label">Luas Tanah (m²)</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Luas Tanah (m²)</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Contoh: 350"
                 value={landArea}
                 onChange={(e) => setLandArea(e.target.value)}
               />
             </div>
             <div>
-              <label className="admin-label">Luas Bangunan (m²)</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Luas Bangunan (m²)</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Contoh: 450"
                 value={buildingArea}
                 onChange={(e) => setBuildingArea(e.target.value)}
               />
             </div>
             <div>
-              <label className="admin-label">Jumlah Lantai</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Jumlah Lantai</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Contoh: 2"
                 value={floors}
                 onChange={(e) => setFloors(e.target.value)}
@@ -894,20 +897,20 @@ export default function EditPropertyClient({
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginTop: 14 }}>
             <div>
-              <label className="admin-label">Kamar Tidur Utama</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kamar Tidur Utama</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Contoh: 4"
                 value={bedrooms}
                 onChange={(e) => setBedrooms(e.target.value)}
               />
             </div>
             <div>
-              <label className="admin-label">Kamar Mandi Utama</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Kamar Mandi Utama</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Contoh: 3"
                 value={bathrooms}
                 onChange={(e) => setBathrooms(e.target.value)}
@@ -917,7 +920,7 @@ export default function EditPropertyClient({
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginTop: 14 }}>
             <div>
-              <label className="admin-label">Sertifikat</label>
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Sertifikat</UiLabel>
               <select
                 className="admin-input"
                 value={certificateType}
@@ -933,30 +936,30 @@ export default function EditPropertyClient({
               </select>
             </div>
             <div>
-              <label className="admin-label">Tahun Bangun</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Tahun Bangun</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Contoh: 2018"
                 value={yearBuilt}
                 onChange={(e) => setYearBuilt(e.target.value)}
               />
             </div>
             <div>
-              <label className="admin-label">Arah Hadap</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Arah Hadap</UiLabel>
+              <UiInput
                 type="text"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="Utara, Selatan..."
                 value={facing}
                 onChange={(e) => setFacing(e.target.value)}
               />
             </div>
             <div>
-              <label className="admin-label">Daya Listrik (Watt)</label>
-              <input
+              <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Daya Listrik (Watt)</UiLabel>
+              <UiInput
                 type="number"
-                className="admin-input"
+                className="min-h-10 px-3 text-base md:text-sm"
                 placeholder="4400, 7700..."
                 value={electricity}
                 onChange={(e) => setElectricity(e.target.value)}
@@ -965,35 +968,35 @@ export default function EditPropertyClient({
           </div>
 
           <div style={{ marginTop: 14 }}>
-            <label className="admin-label">Sumber Air</label>
-            <input
+            <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Sumber Air</UiLabel>
+            <UiInput
               type="text"
-              className="admin-input"
+              className="min-h-10 px-3 text-base md:text-sm"
               placeholder="PAM, Sumur Bor Jetpump..."
               value={waterSource}
               onChange={(e) => setWaterSource(e.target.value)}
             />
           </div>
-        </div>
+        </UiCard>
 
         {/* Card 4: Catatan Internal */}
-        <div className="admin-card">
-          <div className="admin-card-header">
-            <div className="admin-card-title">
+        <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+          <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
               <FileText size={16} style={{ display: "inline", marginRight: 6 }} />
               Catatan Internal Properti
-            </div>
-          </div>
+            </UiCard>
+          </UiCard>
           <div>
-            <textarea
-              className="admin-input"
+            <UiTextarea
+              className="min-h-24 text-base md:text-sm"
               rows={3}
               placeholder="Catatan akses jalan, kondisi fisik, historis kepemilikan, atau hal yang perlu diperhatikan tim..."
               value={internalNotes}
               onChange={(e) => setInternalNotes(e.target.value)}
             />
           </div>
-        </div>
+        </UiCard>
 
         {/* Action Buttons */}
         <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -1026,21 +1029,21 @@ export default function EditPropertyClient({
             amenities={amenities}
             buttonText="Lihat Preview Listing (HP)"
           />
-          <Link
+          <ButtonLink variant="secondary"
             href={`/admin/properties/${property.id}`}
-            className="admin-btn admin-btn-secondary"
+            className="h-10 px-4"
           >
             Batal
-          </Link>
-          <button
+          </ButtonLink>
+          <UiButton variant="default"
             type="submit"
-            className="admin-btn admin-btn-primary"
+            className="h-10 px-4"
             disabled={isSubmitting}
             style={{ display: "inline-flex", alignItems: "center", gap: 8, padding: "10px 20px" }}
           >
             <Save size={16} />
             {isSubmitting ? "Menyimpan..." : "Simpan Perubahan Properti"}
-          </button>
+          </UiButton>
         </div>
       </form>
 

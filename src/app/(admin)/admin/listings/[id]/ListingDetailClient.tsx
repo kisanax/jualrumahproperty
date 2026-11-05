@@ -3,22 +3,34 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Building2,
   Tag,
   TrendingUp,
   History,
   Edit2,
   CheckCircle,
-  X,
   Save,
   DollarSign,
   Eye,
   EyeOff,
   UserCheck,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media-url";
+import { DetailHeader } from "@/components/admin-ui/DetailHeader";
+import { Badge as UiBadge } from "@/components/ui/badge";
+import { Button as UiButton } from "@/components/ui/button";
+import { Card as UiCard } from "@/components/ui/card";
+import { Textarea as UiTextarea } from "@/components/ui/textarea";
+import { Input as UiInput } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
 
 interface ListingDetailProps {
   listing: {
@@ -330,62 +342,44 @@ export default function ListingDetailClient({
 
   return (
     <div className="animate-fade-in">
-      <Toaster position="top-right" richColors />
-
-      {/* Top navigation */}
-      <div style={{ marginBottom: 20 }}>
-        <Link
-          href="/admin/listings"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 6,
-            fontSize: 13,
-            color: "var(--color-admin-text-secondary)",
-            textDecoration: "none",
-            marginBottom: 12,
-          }}
-        >
-          <ArrowLeft size={16} /> Kembali ke daftar listing
-        </Link>
-
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            flexWrap: "wrap",
-            gap: 16,
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-              <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>
-                {listing.title || `Listing ${listing.property.code}`}
-              </h1>
-              <span className={`admin-badge ${getStatusBadgeClass(listing.status)}`}>
-                {getStatusLabel(listing.status)}
-              </span>
-            </div>
-            <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", margin: 0 }}>
-              Kode Properti:{" "}
-              <Link
-                href={`/admin/properties/${listing.property.id}`}
-                style={{
-                  color: "var(--color-admin-accent)",
-                  fontWeight: 600,
-                  textDecoration: "none",
-                }}
-              >
-                {listing.property.code} ↗
-              </Link>{" "}
-              • {listing.property.area.name}
-            </p>
-          </div>
-
-          {/* Quick Action Buttons */}
+      <DetailHeader
+        crumbs={[
+          { label: "Admin", href: "/admin" },
+          { label: "Listing", href: "/admin/listings" },
+          { label: listing.title || `Listing ${listing.property.code}` },
+        ]}
+        title={listing.title || `Listing ${listing.property.code}`}
+        badge={
+          <span className={`admin-badge ${getStatusBadgeClass(listing.status)}`}>
+            {getStatusLabel(listing.status)}
+          </span>
+        }
+        description={
+          <>
+            Kode Properti:{" "}
+            <Link
+              href={`/admin/properties/${listing.property.id}`}
+              style={{
+                color: "var(--workspace-primary)",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              {listing.property.code} ↗
+            </Link>{" "}
+            • {listing.property.area.name}
+          </>
+        }
+        meta={
+          <>
+            <span>Dibuat {formatDate(listing.createdAt)}</span>
+            <span>Diubah {formatDate(listing.updatedAt)}</span>
+            {listing.publishedAt && <span>Dipublikasikan {formatDate(listing.publishedAt)}</span>}
+          </>
+        }
+        actions={
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-            <button
+            <UiButton variant="outline"
               onClick={() => {
                 setTitle(listing.title || "");
                 setDescription(listing.description || "");
@@ -394,12 +388,12 @@ export default function ListingDetailClient({
                 setShowFullAddress(listing.showFullAddress);
                 setDetailModalOpen(true);
               }}
-              className="admin-btn admin-btn-secondary"
+              className="h-10 px-4"
               style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
             >
               <Edit2 size={14} /> Edit Detail
-            </button>
-            <button
+            </UiButton>
+            <UiButton variant="outline"
               onClick={() => {
                 setNewAskingPrice(listing.askingPrice.toString());
                 setNewMinimumPrice(
@@ -408,18 +402,18 @@ export default function ListingDetailClient({
                 setPriceReason("");
                 setPriceModalOpen(true);
               }}
-              className="admin-btn admin-btn-secondary"
+              className="h-10 px-4"
               style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
             >
               <DollarSign size={14} /> Ubah Harga
-            </button>
+            </UiButton>
           </div>
-        </div>
-      </div>
+        }
+      />
 
       {/* Workflow Status Action Bar */}
-      <div
-        className="admin-card"
+      <UiCard
+        className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]"
         style={{
           background: "var(--color-admin-bg)",
           borderColor: "var(--color-admin-border)",
@@ -452,16 +446,16 @@ export default function ListingDetailClient({
               </span>
             ) : (
               validTransitions.map((next) => (
-                <button
+                <UiButton variant="outline"
                   key={next}
                   onClick={() => handleOpenStatusModal(next)}
-                  className={`admin-btn ${
-                    next === "ACTIVE"
-                      ? "admin-btn-primary"
-                      : next === "SOLD"
-                      ? "admin-btn-primary"
-                      : "admin-btn-secondary"
-                  }`}
+                  className={` ${
+ next === "ACTIVE"
+ ? " "
+ : next === "SOLD"
+ ? " "
+ : " "
+ } h-10 px-4`}
                   style={{
                     fontSize: 13,
                     padding: "6px 14px",
@@ -471,25 +465,25 @@ export default function ListingDetailClient({
                   }}
                 >
                   <CheckCircle size={14} /> Pindah ke: {getStatusLabel(next)}
-                </button>
+                </UiButton>
               ))
             )}
           </div>
         </div>
-      </div>
+      </UiCard>
 
       {/* Main 2-column Grid */}
       <div className="admin-detail-layout">
         {/* Left Column: Details & Histories */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Pricing & Privacy Card */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title">
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
                 <Tag size={16} style={{ display: "inline", marginRight: 6 }} />
                 Informasi Harga & Privasi
-              </div>
-            </div>
+              </UiCard>
+            </UiCard>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div>
                 <div style={{ fontSize: 12, color: "var(--color-admin-text-muted)" }}>Harga Penawaran (Asking Price)</div>
@@ -543,13 +537,13 @@ export default function ListingDetailClient({
                 </span>
               </div>
             </div>
-          </div>
+          </UiCard>
 
           {/* Description & Internal Notes */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title">Deskripsi & Catatan Listing</div>
-            </div>
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">Deskripsi & Catatan Listing</UiCard>
+            </UiCard>
             <div style={{ fontSize: 14, lineHeight: 1.6, color: "var(--color-admin-text)", whiteSpace: "pre-wrap" }}>
               {listing.description || "Belum ada deskripsi pemasaran publik."}
             </div>
@@ -573,16 +567,16 @@ export default function ListingDetailClient({
                 </div>
               </div>
             )}
-          </div>
+          </UiCard>
 
           {/* Price Change History */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title">
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
                 <TrendingUp size={16} style={{ display: "inline", marginRight: 6 }} />
                 Riwayat Perubahan Harga ({listing.priceHistory.length})
-              </div>
-            </div>
+              </UiCard>
+            </UiCard>
             {listing.priceHistory.length === 0 ? (
               <div style={{ fontSize: 13, color: "var(--color-admin-text-muted)", padding: "12px 0" }}>
                 Belum ada penyesuaian harga sejak listing dibuat.
@@ -637,16 +631,16 @@ export default function ListingDetailClient({
                 })}
               </div>
             )}
-          </div>
+          </UiCard>
 
           {/* Status Change History */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title">
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
                 <History size={16} style={{ display: "inline", marginRight: 6 }} />
                 Riwayat Transisi Status ({listing.statusHistory.length})
-              </div>
-            </div>
+              </UiCard>
+            </UiCard>
             {listing.statusHistory.length === 0 ? (
               <div style={{ fontSize: 13, color: "var(--color-admin-text-muted)", padding: "12px 0" }}>
                 Belum ada perubahan status tercatat.
@@ -668,13 +662,13 @@ export default function ListingDetailClient({
                   >
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600 }}>
-                        <span className={`admin-badge ${getStatusBadgeClass(sh.fromStatus || "DRAFT")}`} style={{ padding: "2px 6px", fontSize: 11 }}>
+                        <UiBadge className={` ${getStatusBadgeClass(sh.fromStatus || "DRAFT")} border-transparent bg-muted text-muted-foreground`} style={{ padding: "2px 6px", fontSize: 11 }}>
                           {sh.fromStatus ? getStatusLabel(sh.fromStatus) : "Awal (Pembuatan)"}
-                        </span>
+                        </UiBadge>
                         {" → "}
-                        <span className={`admin-badge ${getStatusBadgeClass(sh.toStatus)}`} style={{ padding: "2px 6px", fontSize: 11 }}>
+                        <UiBadge className={` ${getStatusBadgeClass(sh.toStatus)} border-transparent bg-muted text-muted-foreground`} style={{ padding: "2px 6px", fontSize: 11 }}>
                           {getStatusLabel(sh.toStatus)}
-                        </span>
+                        </UiBadge>
                       </div>
                       {sh.reason && (
                         <div style={{ fontSize: 12, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
@@ -690,19 +684,19 @@ export default function ListingDetailClient({
                 ))}
               </div>
             )}
-          </div>
+          </UiCard>
         </div>
 
         {/* Right Column: Property & Intermediaries */}
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {/* Quick Property Summary */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title">
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
                 <Building2 size={16} style={{ display: "inline", marginRight: 6 }} />
                 Spesifikasi Properti
-              </div>
-            </div>
+              </UiCard>
+            </UiCard>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, fontSize: 13 }}>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
                 <span style={{ color: "var(--color-admin-text-muted)" }}>Kode</span>
@@ -778,16 +772,16 @@ export default function ListingDetailClient({
                 </div>
               </div>
             )}
-          </div>
+          </UiCard>
 
           {/* Intermediaries Chain */}
-          <div className="admin-card">
-            <div className="admin-card-header">
-              <div className="admin-card-title">
+          <UiCard className="gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+            <UiCard className="-header gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
+              <UiCard className="-title gap-0 border border-border bg-card text-card-foreground shadow-sm p-4 sm:p-[18px]">
                 <UserCheck size={16} style={{ display: "inline", marginRight: 6 }} />
                 Rantai Perantara ({listing.listingIntermediaries.length})
-              </div>
-            </div>
+              </UiCard>
+            </UiCard>
             {listing.listingIntermediaries.length === 0 ? (
               <div style={{ fontSize: 13, color: "var(--color-admin-text-muted)" }}>
                 Listing langsung (Direct Owner, tanpa mediator).
@@ -808,9 +802,9 @@ export default function ListingDetailClient({
                       <div style={{ fontWeight: 600, fontSize: 14 }}>
                         {item.chainPosition}. {item.intermediary.name}
                       </div>
-                      <span className="admin-badge admin-badge-draft" style={{ fontSize: 11 }}>
+                      <UiBadge className="bg-slate-500/10 text-slate-700 dark:text-slate-300 border-transparent bg-muted text-muted-foreground" style={{ fontSize: 11 }}>
                         {item.intermediary.trustLevel}
-                      </span>
+                      </UiBadge>
                     </div>
                     {item.intermediary.company && (
                       <div style={{ fontSize: 12, color: "var(--color-admin-text-secondary)", marginTop: 2 }}>
@@ -826,256 +820,236 @@ export default function ListingDetailClient({
                 ))}
               </div>
             )}
-          </div>
+          </UiCard>
         </div>
       </div>
 
       {/* Modal Change Status */}
-      {statusModalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setStatusModalOpen(false)}>
-          <div className="admin-modal-container" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3>Ubah Status Listing</h3>
-              <button
-                type="button"
-                className="admin-modal-close-btn"
-                onClick={() => setStatusModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
+      <Dialog open={statusModalOpen} onOpenChange={setStatusModalOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Ubah Status Listing</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleStatusSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <UiLabel className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Status Baru</UiLabel>
+                <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-admin-accent)" }}>
+                  {getStatusLabel(selectedNewStatus)}
+                </div>
+              </div>
+
+              {statusErrors.length > 0 && (
+                <div
+                  role="alert"
+                  style={{
+                    border: "1px solid rgba(220, 38, 38, 0.28)",
+                    borderRadius: 8,
+                    background: "rgba(254, 226, 226, 0.58)",
+                    padding: "12px 14px",
+                    color: "#991b1b",
+                  }}
+                >
+                  <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
+                    Lengkapi data berikut sebelum dipublikasikan:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}>
+                    {statusErrors.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </div>
+              )}
+
+              <div>
+                <UiLabel htmlFor="status-reason" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan / Alasan Perubahan Status</UiLabel>
+                <UiTextarea
+                  id="status-reason"
+                  className="min-h-24 text-base md:text-sm"
+                  rows={3}
+                  placeholder="Misal: Sudah ditinjau dan dokumen lengkap, siap tayang..."
+                  value={statusReason}
+                  onChange={(e) => setStatusReason(e.target.value)}
+                />
+              </div>
             </div>
 
-            <form onSubmit={handleStatusSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
-                <div>
-                  <label className="admin-label">Status Baru</label>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: "var(--color-admin-accent)" }}>
-                    {getStatusLabel(selectedNewStatus)}
-                  </div>
-                </div>
-
-                {statusErrors.length > 0 && (
-                  <div
-                    role="alert"
-                    style={{
-                      border: "1px solid rgba(220, 38, 38, 0.28)",
-                      borderRadius: 8,
-                      background: "rgba(254, 226, 226, 0.58)",
-                      padding: "12px 14px",
-                      color: "#991b1b",
-                    }}
-                  >
-                    <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
-                      Lengkapi data berikut sebelum dipublikasikan:
-                    </div>
-                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.6 }}>
-                      {statusErrors.map((item) => <li key={item}>{item}</li>)}
-                    </ul>
-                  </div>
-                )}
-
-                <div>
-                  <label className="admin-label">Catatan / Alasan Perubahan Status</label>
-                  <textarea
-                    className="admin-input"
-                    rows={3}
-                    placeholder="Misal: Sudah ditinjau dan dokumen lengkap, siap tayang..."
-                    value={statusReason}
-                    onChange={(e) => setStatusReason(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setStatusModalOpen(false)}
-                  disabled={isUpdatingStatus}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isUpdatingStatus}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  <Save size={16} /> {isUpdatingStatus ? "Menyimpan..." : "Konfirmasi Ubah Status"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton variant="outline"
+                type="button"
+                className="h-10 px-4"
+                onClick={() => setStatusModalOpen(false)}
+                disabled={isUpdatingStatus}
+              >
+                Batal
+              </UiButton>
+              <UiButton variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isUpdatingStatus}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <Save size={16} /> {isUpdatingStatus ? "Menyimpan..." : "Konfirmasi Ubah Status"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal Change Price */}
-      {priceModalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setPriceModalOpen(false)}>
-          <div className="admin-modal-container" style={{ maxWidth: 480 }} onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3>Ubah Harga Listing</h3>
-              <button
-                type="button"
-                className="admin-modal-close-btn"
-                onClick={() => setPriceModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
+      <Dialog open={priceModalOpen} onOpenChange={setPriceModalOpen}>
+        <DialogContent className="sm:max-w-[480px]">
+          <DialogHeader>
+            <DialogTitle>Ubah Harga Listing</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handlePriceSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <UiLabel htmlFor="new-asking-price" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Harga Penawaran Baru (Rp) <span style={{ color: "#ef4444" }}>*</span></UiLabel>
+                <UiInput
+                  id="new-asking-price"
+                  type="number"
+                  className="min-h-10 px-3 text-base md:text-sm"
+                  value={newAskingPrice}
+                  onChange={(e) => setNewAskingPrice(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div>
+                <UiLabel htmlFor="new-minimum-price" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Batas Harga Minimum (Rp)</UiLabel>
+                <UiInput
+                  id="new-minimum-price"
+                  type="number"
+                  className="min-h-10 px-3 text-base md:text-sm"
+                  placeholder="Opsional (Hanya internal)"
+                  value={newMinimumPrice}
+                  onChange={(e) => setNewMinimumPrice(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <UiLabel htmlFor="price-reason" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Alasan Penyesuaian Harga</UiLabel>
+                <UiInput
+                  id="price-reason"
+                  type="text"
+                  className="min-h-10 px-3 text-base md:text-sm"
+                  placeholder="Misal: Negosiasi dari owner turun Rp 500 jt..."
+                  value={priceReason}
+                  onChange={(e) => setPriceReason(e.target.value)}
+                />
+              </div>
             </div>
 
-            <form onSubmit={handlePriceSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
-                <div>
-                  <label className="admin-label">Harga Penawaran Baru (Rp) <span style={{ color: "#ef4444" }}>*</span></label>
-                  <input
-                    type="number"
-                    className="admin-input"
-                    value={newAskingPrice}
-                    onChange={(e) => setNewAskingPrice(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="admin-label">Batas Harga Minimum (Rp)</label>
-                  <input
-                    type="number"
-                    className="admin-input"
-                    placeholder="Opsional (Hanya internal)"
-                    value={newMinimumPrice}
-                    onChange={(e) => setNewMinimumPrice(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="admin-label">Alasan Penyesuaian Harga</label>
-                  <input
-                    type="text"
-                    className="admin-input"
-                    placeholder="Misal: Negosiasi dari owner turun Rp 500 jt..."
-                    value={priceReason}
-                    onChange={(e) => setPriceReason(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setPriceModalOpen(false)}
-                  disabled={isUpdatingPrice}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isUpdatingPrice}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  <Save size={16} /> {isUpdatingPrice ? "Menyimpan..." : "Simpan Harga Baru"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton variant="outline"
+                type="button"
+                className="h-10 px-4"
+                onClick={() => setPriceModalOpen(false)}
+                disabled={isUpdatingPrice}
+              >
+                Batal
+              </UiButton>
+              <UiButton variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isUpdatingPrice}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <Save size={16} /> {isUpdatingPrice ? "Menyimpan..." : "Simpan Harga Baru"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* Modal Edit Details */}
-      {detailModalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setDetailModalOpen(false)}>
-          <div className="admin-modal-container" style={{ maxWidth: 540 }} onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3>Edit Detail & Pengaturan Listing</h3>
-              <button
-                type="button"
-                className="admin-modal-close-btn"
-                onClick={() => setDetailModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
+      <Dialog open={detailModalOpen} onOpenChange={setDetailModalOpen}>
+        <DialogContent className="sm:max-w-[540px]">
+          <DialogHeader>
+            <DialogTitle>Edit Detail & Pengaturan Listing</DialogTitle>
+          </DialogHeader>
+
+          <form onSubmit={handleDetailsSubmit}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+              <div>
+                <UiLabel htmlFor="listing-title" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Judul Listing</UiLabel>
+                <UiInput
+                  id="listing-title"
+                  type="text"
+                  className="min-h-10 px-3 text-base md:text-sm"
+                  placeholder="Judul menarik untuk pembeli..."
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <UiLabel htmlFor="listing-description" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Deskripsi Pemasaran</UiLabel>
+                <UiTextarea
+                  id="listing-description"
+                  className="min-h-24 text-base md:text-sm"
+                  rows={4}
+                  placeholder="Tulis selling points, lingkungan, akses jalan..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <UiLabel htmlFor="listing-internal-notes" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">Catatan Internal Admin</UiLabel>
+                <UiTextarea
+                  id="listing-internal-notes"
+                  className="min-h-24 text-base md:text-sm"
+                  rows={2}
+                  placeholder="Catatan rahasia tim..."
+                  value={internalNotes}
+                  onChange={(e) => setInternalNotes(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13 }}>
+                  <input
+                    type="checkbox"
+                    checked={priceOnRequest}
+                    onChange={(e) => setPriceOnRequest(e.target.checked)}
+                  />
+                  <span><strong>Price on Request:</strong> Sembunyikan harga nominal pada halaman publik.</span>
+                </label>
+
+                <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13 }}>
+                  <input
+                    type="checkbox"
+                    checked={showFullAddress}
+                    onChange={(e) => setShowFullAddress(e.target.checked)}
+                  />
+                  <span><strong>Tampilkan Alamat Lengkap:</strong> Munculkan jalan dan nomor rumah di portal publik.</span>
+                </label>
+              </div>
             </div>
 
-            <form onSubmit={handleDetailsSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
-                <div>
-                  <label className="admin-label">Judul Listing</label>
-                  <input
-                    type="text"
-                    className="admin-input"
-                    placeholder="Judul menarik untuk pembeli..."
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="admin-label">Deskripsi Pemasaran</label>
-                  <textarea
-                    className="admin-input"
-                    rows={4}
-                    placeholder="Tulis selling points, lingkungan, akses jalan..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
-                </div>
-
-                <div>
-                  <label className="admin-label">Catatan Internal Admin</label>
-                  <textarea
-                    className="admin-input"
-                    rows={2}
-                    placeholder="Catatan rahasia tim..."
-                    value={internalNotes}
-                    onChange={(e) => setInternalNotes(e.target.value)}
-                  />
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13 }}>
-                    <input
-                      type="checkbox"
-                      checked={priceOnRequest}
-                      onChange={(e) => setPriceOnRequest(e.target.checked)}
-                    />
-                    <span><strong>Price on Request:</strong> Sembunyikan harga nominal pada halaman publik.</span>
-                  </label>
-
-                  <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", fontSize: 13 }}>
-                    <input
-                      type="checkbox"
-                      checked={showFullAddress}
-                      onChange={(e) => setShowFullAddress(e.target.checked)}
-                    />
-                    <span><strong>Tampilkan Alamat Lengkap:</strong> Munculkan jalan dan nomor rumah di portal publik.</span>
-                  </label>
-                </div>
-              </div>
-
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  className="admin-btn admin-btn-secondary"
-                  onClick={() => setDetailModalOpen(false)}
-                  disabled={isUpdatingDetails}
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  className="admin-btn admin-btn-primary"
-                  disabled={isUpdatingDetails}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
-                >
-                  <Save size={16} /> {isUpdatingDetails ? "Menyimpan..." : "Simpan Perubahan"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton variant="outline"
+                type="button"
+                className="h-10 px-4"
+                onClick={() => setDetailModalOpen(false)}
+                disabled={isUpdatingDetails}
+              >
+                Batal
+              </UiButton>
+              <UiButton variant="default"
+                type="submit"
+                className="h-10 px-4"
+                disabled={isUpdatingDetails}
+                style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+              >
+                <Save size={16} /> {isUpdatingDetails ? "Menyimpan..." : "Simpan Perubahan"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

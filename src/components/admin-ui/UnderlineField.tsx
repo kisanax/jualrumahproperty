@@ -1,10 +1,34 @@
 import type { InputHTMLAttributes, TextareaHTMLAttributes } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 type SharedProps = {
   label: string;
   hint?: string;
   error?: string;
 };
+
+function FieldHelp({
+  error,
+  hint,
+  id,
+}: {
+  error?: string;
+  hint?: string;
+  id?: string;
+}) {
+  if (!error && !hint) return null;
+  return (
+    <p
+      id={id}
+      role={error ? "alert" : undefined}
+      className={cn("text-xs leading-4", error ? "text-destructive" : "text-muted-foreground")}
+    >
+      {error ?? hint}
+    </p>
+  );
+}
 
 export function UnderlineField({
   label,
@@ -17,21 +41,18 @@ export function UnderlineField({
   const helpId = id ? `${id}-help` : undefined;
 
   return (
-    <label className={["ui-field", error && "ui-field--error", className].filter(Boolean).join(" ")}>
-      <span className="ui-field__label">{label}</span>
-      <input
+    <div className={cn("grid gap-1.5", error && "aria-invalid", className)}>
+      <label htmlFor={id} className="text-xs font-semibold text-muted-foreground">
+        {label}
+      </label>
+      <Input
         {...props}
         id={id}
-        className="ui-field__control"
         aria-invalid={Boolean(error)}
         aria-describedby={hint || error ? helpId : undefined}
       />
-      {(error || hint) && (
-        <span className="ui-field__help" id={helpId}>
-          {error ?? hint}
-        </span>
-      )}
-    </label>
+      <FieldHelp error={error} hint={hint} id={helpId} />
+    </div>
   );
 }
 
@@ -46,20 +67,17 @@ export function UnderlineTextarea({
   const helpId = id ? `${id}-help` : undefined;
 
   return (
-    <label className={["ui-field", error && "ui-field--error", className].filter(Boolean).join(" ")}>
-      <span className="ui-field__label">{label}</span>
-      <textarea
+    <div className={cn("grid gap-1.5", error && "aria-invalid", className)}>
+      <label htmlFor={id} className="text-xs font-semibold text-muted-foreground">
+        {label}
+      </label>
+      <Textarea
         {...props}
         id={id}
-        className="ui-field__control ui-field__control--textarea"
         aria-invalid={Boolean(error)}
         aria-describedby={hint || error ? helpId : undefined}
       />
-      {(error || hint) && (
-        <span className="ui-field__help" id={helpId}>
-          {error ?? hint}
-        </span>
-      )}
-    </label>
+      <FieldHelp error={error} hint={hint} id={helpId} />
+    </div>
   );
 }

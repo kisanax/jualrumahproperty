@@ -1,8 +1,8 @@
-# Dokumen Progres Pengembangan — jakselproperti.com
+# Dokumen Progres Pengembangan — jualrumahproperty.com
 
 **Versi Acuan:** Blueprint v0.3  
-**Terakhir Diperbarui:** 16 September 2026  
-**Status Build:** ✅ Sukses (TypeScript 0 error, Next.js Build 0 error)  
+**Terakhir Diperbarui:** 3 November 2026  
+**Status Build:** ✅ Sukses (TypeScript 0 error, Lint 0 error, Next.js Build 0 error)  
 
 ---
 
@@ -266,6 +266,205 @@ memakai primitif bersama `.admin-input` / `.ui-field__control` /
 
 **Dokumentasi pattern:** `AGENTS.md` → section "UI Design System Admin —
 Modern SaaS Refined (Theme C)".
+
+## 4.x [28 Oktober 2026] Transisi shadcn/ui + beres-beres pasca audit
+
+- Migrasi admin ke primitif shadcn/ui (`@base-ui/react`): `src/components/ui/*`,
+  codemod `scripts/migrate-admin-shadcn.cjs` untuk seluruh halaman `(admin)/admin/**`.
+- Perbaikan pasca audit (sesi 28 Okt):
+  1. Hapus 11 import rusak `from "undefined"` (sisa bug codemod).
+  2. `ui/button.tsx`: `nativeButton={false}` saat Button dirender sebagai `<Link>`
+     (menghapus error Base UI "expected a native <button>").
+  3. `listings/page.tsx`: hoist `buildListingUrl` & `ListingSortButton` ke module
+     scope (7× "Cannot create components during render").
+  4. `AuctionForm.tsx` + `FavoritesGrid.tsx`: setState dalam effect dimundurkan ke
+     microtask / diturunkan ke derived value (aturan `set-state-in-effect`).
+  5. `PortalFooterNews.tsx`: `<a href="/#">` → `next/link`.
+  6. Bersih-bersih import tak terpakai (lucide/react/prisma, 10+ file).
+  7. `eslint.config.mjs`: ignore `.kilo/**`, `mockups/**`, `public/sw.js`, `scripts/**`
+     (hasil lint: 23 error/110 warning → **0 error/7 warning**; sisa = migrasi `<img>`
+     ke `next/image`, dievaluasi terpisah).
+  8. Perbaikan encoding UTF-8 file admin yang rusak (mojibake `â€¢` → `•`).
+- Migrasi domain email dev `@jakselproperti.com` → `@jualrumahproperty.com`
+  (seed, DB `users`, `docs/dev-accounts.md`, `AGENTS.md`, header schema/PROGRESS).
+  Nama database MySQL `jakselproperti` sengaja TIDAK diubah (risiko migrasi DB).
+- Audit transaksi lalu hapus akun dev `sarah@` & `member@` (0 transaksi di semua
+  tabel; hanya 1 baris `broker_profiles` masing-masing). Blok seed-nya dihapus.
+  Sisa users: admin, support, + 1 akun pribadi.
+- Beres-beres file (~763 MB dibebaskan):
+  - Hapus (regenerable): `web/.npm-cache/` (734 MB), `web/.kilo/` (26 MB),
+    `dev-server.log`/`dev-server.pid`, `tsconfig.tsbuildinfo`.
+  - Arsipkan ke `docs/archive/` (ada README penanda): `mockups/`, `scratch/`,
+    `screenshots/`, `check-css.mjs` + `find-colors.mjs` + `find-theme.mjs`
+    (via `git mv`). Semua `.md` arsip selamat, termasuk `mockups/KONSEP-D.md`.
+  - `tsconfig.json`: exclude `docs/archive` (skrip debug lama tak boleh ter-type-check);
+    `eslint.config.mjs`: ignore `docs/archive/**`, lepas `.kilo/**` (folder sudah dihapus);
+    `.gitignore`: tambah `/dev-server.log`, `/dev-server.pid`, `/mockups/`, `/screenshots/`.
+- Audit fungsional menyeluruh: 26 route admin, 16 endpoint API, round-trip
+  CRUD kawasan, 10 halaman kompleks (0 error console), alur publik — semua hijau.
+- `/agents` resmi di-HIDE via flag `NEXT_PUBLIC_AGENTS_ENABLED` (default mati):
+  rencana publish agent di tiap halaman properti listing **dibatalkan** — tidak
+  pernah terealisasi di kode (strip kontak di detail properti hanyalah "Advisor
+  Assistance" generik, bukan broker). Route + data broker tetap utuh; link
+  footer "Mode Agen" ikut hilang saat flag mati.
+- Tahap 1 migrasi shadcn (unifikasi Toaster): satu `<Toaster>` global di
+  `admin/layout.tsx` (position top-right, styling token admin
+  `--color-admin-surface/border/text` sehingga ikut tema gelap/terang);
+  11 mount `<Toaster>` per-halaman dihapus (9× top-right richColors,
+  3× top-center token). Wrapper `ui/sonner.tsx` (next-themes) sengaja belum
+  dipakai — tema admin pakai sistem `data-theme` sendiri, bukan next-themes.
+- Tahap 2 migrasi shadcn (pilot `KawasanList`): modal `.admin-modal-*` →
+  `Dialog` (DialogContent/Header/Title/Footer, controlled `open`/`onOpenChange`),
+  5× `.admin-label` → `Label` (dengan `htmlFor`/`id` aksesibilitas). Terverifikasi
+  visual light + dark (token `data-theme`), tutup via X/ESC/overlay bekerja.
+  Sekalian fix bug codemod: class `admin-card-grid` yang terpotong jadi `"-grid"`
+  (layout grid kartu kawasan hilang) dipulihkan, dan artefak `className={"  ..."}`
+  dibersihkan. Modul lain menyusul setelah review user.
+- Tahap 2 lanjutan (disetujui user, review menyusul): pola pilot diterapkan ke
+  `OwnerList`, `IntermediaryList`, `CustomerList` — modal → `Dialog`, label →
+  `Label` (+`htmlFor`/`id`). CustomerList punya 2 dialog (form + konfirmasi hapus;
+  tombol hapus guard `leads.length` tetap). Semua artefak codemod dibersihkan +
+  grid `admin-card-grid` dipulihkan di 3 file. Verifikasi: dialog terbuka di
+  3 halaman (0 error console), tsc/lint/test hijau.
+- Tahap 2 lanjutan #2: `AuctionList` + `AuctionForm` ternyata tanpa modal —
+  cukup bersih-bersih artefak; `KanbanBoard` 2 modal → `Dialog` (pindah stage
+  dengan form catatan; detail & timeline dengan `DialogDescription`), uji
+  visual modal detail lead OK. Select native `.admin-input` (kategori/status/
+  wilayah) sengaja BELUM dimigrasi ke `Select` shadcn — dampak visual besar,
+  jadi keputusan terpisah.
+- Bersih-bersih global artefak codemod `className={" X"}` → `className="X"`
+  (206 class di 14 file, mekanis murni). Verifikasi: tsc/lint/test hijau.
+- Tahap 2 finalisasi: `ListingDetailClient` 3 modal → `Dialog` (status/harga/
+  detail; lebar asli dipertahankan via `sm:max-w-[480px]`/`[540px]`), 8 label
+  → `Label` (+htmlFor/id), 2 checkbox card native dibiarkan. Codemod label
+  45× ternyata LUPA menambahkan import `UiLabel` di `PropertyForm` +
+  `SmartImportClient` (tsc merah) — diperbaiki; 3 label header section
+  (Owner/Perantara/Fasilitas Terdeteksi) dikonversi manual dengan style asli.
+  Scan `-LiteralPath` menemukan 2 file terlewat di folder `properties\[id]\`:
+  `EditPropertyClient` (15 label) + `PropertyDetailActions` (1 modal hapus
+  dengan guard ketik kode — diuji buka/tutup, TIDAK di-delete). Hasil akhir:
+  **0 `admin-modal` / 0 `admin-label` tersisa di seluruh `(admin)`**.
+  Catatan verifikasi: dialog tertutup sempat terlihat "macet" di test karena
+  animasi exit CSS di-pause saat tab browser background — bukan bug; state
+  `data-open` terlepas dengan benar. tsc/lint (0 error, 7 warning `<img>`
+  backlog)/test 116 hijau, 0 error console.
+- **Revisi palet admin → shadcn generik (neutral)** (permintaan user: palet
+  krem+merah brand dianggap kurang menarik). Nilai token `--workspace-*`
+  light+dark di `admin-ui.css` diganti skala neutral Tailwind (light: bg
+  `#f5f5f5`, teks `#171717`, tombol near-black; dark: bg `#0a0a0a`, surface
+  `#171717`, tombol terang `#e5e5e5` teks gelap — konvensi shadcn). Primitif
+  shadcn di-scope `body:has(.admin-layout)` supaya Dialog/Toaster yang
+  ter-mount di `document.body` ikut neutral (scope `.admin-layout` saja tidak
+  menjangkau portal). Shadow hangat dinetralkan; warna status badge
+  (draft/active/sold dll) dipertahankan karena semantik. Portal publik tidak
+  tersentuh (terverifikasi: bg putih + merah brand tetap). AGENTS.md bagian
+  palet diperbarui. Verifikasi probe: light+dark semua surface benar; catat
+  bahwa probe CSS di tab background bisa menipu karena transisi di-freeze.
+- **Bug tombol hitam-di-atas-hitam diperbaiki**: reset `a { color: inherit }`
+  unlayered di `globals.css` menimpa utility Tailwind ber-`@layer` (rule
+  unlayered selalu menang atas layered), sehingga semua `ButtonLink` (render
+  `<a>`, mis. "Buat Listing Baru") kehilangan `text-primary-foreground` —
+  teks `#171717` di atas bg `#171717`. Fix: di-scope
+  `body:not(:has(.admin-layout)) a` mengikuti pola rule portal tetangganya.
+  Terverifikasi light+dark; portal publik tidak berubah.
+- **Palet admin Opsi A — netral murni** (keputusan user via mockup
+  `docs/previews/admin-palette-mockup.html`): badge status 8-hue diganti
+  badge netral (bg `surface-soft`, teks `text-muted`) + dot status 6px
+  (`::before` memakai token `--color-status-*` yang sama dengan Kanban).
+  Selector `[class].admin-badge-*` (0,2,0) menimpa rule light-scoped
+  admin.css dan berlaku untuk UiBadge shadcn tanpa base class. Warna
+  semantik dark dikalemkan ke Tailwind-400 (danger `#f87171`, success
+  `#4ade80`, warning `#fbbf24`). Test 116 hijau, 0 error console.
+- **Sebar komposisi Card docs — modul Owner, Perantara, Customer** (pola pilot
+  KawasanList disetujui): kartu list diganti komposisi resmi
+  CardHeader/CardTitle/CardDescription/CardAction/CardContent(/CardFooter) —
+  className legacy `gap-0 border ... shadow-sm p-4 sm:p-[18px]` dihapus,
+  empty state dibungkus CardContent. Owner: aksi pindah ke CardAction, blok
+  "Properti Terdaftar" masuk CardContent. Perantara: badge trust ke
+  CardAction, aksi Edit/Hapus ke CardFooter `justify-end`. Customer: toolbar
+  search jadi kartu standar `mb-5 px-(--card-spacing)`, aksi WA/Edit/Hapus ke
+  CardAction, timeline inquiry masuk CardContent. AuctionList sengaja
+  ditunda — kartunya `<Link>` dengan cover image + CSS kustom
+  (auctions.css), butuh pendekatan stretched-link dan review visual
+  terpisah. tsc 0 error, test 116 hijau.
+- **Bahasa desain admin = Cloudflare dashboard — Fase 1 (lapisan token)**
+  (keputusan user via mockup `docs/previews/admin-cloudflare-mockup.html`,
+  opsi "Tabel semua"; men-supersede palet shadcn neutral + badge Opsi A):
+  token light diganti bg putih menyeluruh `#ffffff`, primary/tombol biru
+  `#0051c3` (hover `#0044a3`), hairline border `#e4e4e7`/`#d9d9de`,
+  radius 6px seragam (card 8px), danger `#b42318` · success `#197a3d` ·
+  warning `#b45309`; dark bg `#0f0f12` · surface `#17171b` · primary/link
+  `#7cb3f5` · tombol `#1c64d9`. Override shadcn `body:has(.admin-layout)`
+  ikut biru + radius eksplisit per level (`--radius-sm/md/lg/xl` — turunan
+  `:root` globals.css sudah ter-resolve). Nav aktif → pill abu
+  `#f1f1f2`/`#26262b` tanpa garis inset. Badge → CF soft pills (soft bg +
+  teks warna, 12px/600, tanpa dot/uppercase) light+dark per status.
+  Judul halaman 26px/800 + deskripsi 13.5px max-w 760px (rule lama
+  `25px !important` di line 252 admin-ui.css di-reconcile — duplikat
+  dihapus). Terverifikasi probe: layoutBg, tombol primary, nav pill, h1,
+  badge pill (`#e7f5e9`/`#197a3d`), dark bg + tombol; portal publik aman
+  (merah brand utuh); 0 error console. AGENTS.md bagian UI ditulis ulang
+  ke "Cloudflare-inspired". Fase 2 (pilot tabel KawasanList) menyusul.
+- **Bahasa desain admin = Cloudflare — Fase 2+3 (konversi "tabel semua")**
+  (3 November 2026): komponen reusable `DataTable` dibuat di
+  `src/components/admin-ui/DataTable.tsx` (client, generic `DtColumn<T>`):
+  toolbar search (internal uncontrolled atau terkontrol via
+  `searchValue/onSearchChange` + `searchPredicate`), slot `filters`
+  (pills/select milik modul), `toolbarEnd`, sort klik th
+  (asc→desc→none, `aria-sort`), pagination footer "Menampilkan x–y dari
+  z" + per-page select + pager «‹ 1 2 3 ›», empty state
+  (`emptyTitle/Text/Action`). CSS blok `.admin-dt-*` + `.admin-notice`
+  (banner kuning CF, varian dark rgba amber) di-append ke akhir
+  `admin-ui.css`. Konversi selesai: KawasanList (pilot; toggle Featured
+  pindah ke sel Nama), OwnerList, IntermediaryList (filter pills trust →
+  slot `filters`), CustomerList (inquiry = chip kode + badge stage,
+  caps 2 + "+n inquiry lainnya"), AuctionList (rewrite penuh: thumbnail
+  52×38 + link judul, filter kategori/status select, badge status via
+  map; `auctions.css` tetap di-import untuk `.auction-notice`), dan
+  halaman Properties (server component — tabel server-rendered memakai
+  class `.admin-dt-*` yang sama; pagination & filter GET tetap
+  server-side, link pagination kini mempertahankan param
+  search/type/area). Listings & UserDirectory sudah berbentuk
+  tabel/CSS-grid → ikut token CF otomatis, tidak dikonversi. Kolom aksi
+  = tombol ghost Edit/Hapus; warna hapus `--workspace-danger` bila
+  bebas relasi, muted bila terikat data. Verifikasi: tsc 0 error,
+  lint 0 error, `npm test` 116 hijau, probe browser 6 halaman
+  (kawasan/owners/intermediaries/customers/auctions/properties) —
+  tabel, search, sort, pagination, filter GET (`?search=317406` →
+  1 baris), h1 26px/800, dark mode token benar; 0 error console.
+- **Arsitektur UX admin = Cloudflare — Fase 4 (navigasi & header detail)**
+  (5 November 2026): tiga pola UX CF diadopsi (pilihan user; Ctrl+K
+  command palette sengaja TIDAK dipilih, masuk backlog).
+  1. **Breadcrumb otomatis** — komponen server-safe `Breadcrumb.tsx`
+     (`Crumb[]`, `aria-label="Breadcrumb"`, segmen terakhir
+     `aria-current="page"`) + `AdminShell` kini merender trail otomatis
+     dari `pathname` (dictionary `CRUMB_LABELS` per segmen URL; dashboard
+     tanpa crumb; halaman detail dengan segmen UUID disembunyikan
+     otomatis karena dirender sendiri oleh halamannya). Contoh:
+     "Admin / Properti / Import CSV", "Admin / Pengaturan / Konfigurasi
+     Akses".
+  2. **Sidebar collapsible + filter** — kotak "Filter menu…" di atas nav
+     (shortcut keyboard `/`, label kbd ala CF docs); menyaring item
+     lintas section, section kosong disembunyikan, semua section
+     diperlakukan terbuka saat memfilter. Judul section jadi tombol
+     collapse (ChevronDown, `aria-expanded`), state persist di
+     localStorage `admin-nav-collapsed`. Rule `react-hooks/
+     set-state-in-effect` di-exception dengan eslint-disable
+     berjustifikasi (lazy initializer menimbulkan hydration mismatch).
+  3. **Header detail standar** — komponen server-safe
+     `DetailHeader.tsx` (crumbs + judul 26px + badge status + deskripsi +
+     meta timestamps + aksi kanan; CSS `.admin-detail-title-row`/
+     `.admin-detail-meta`). Diterapkan di: detail properti
+     (`properties/[id]` — crumb 3 tingkat dengan kode properti), detail
+     listing (`ListingDetailClient` — meta Dibuat/Diubah/Dipublikasikan,
+     aksi Edit Detail/Ubah Harga), form lelang (`AuctionForm` — route
+     non-UUID sengaja TANPA crumbs karena auto-crumb AdminShell sudah
+     menyediakannya; belajar: duplikasi trail terdeteksi di probe), dan
+     `RecordHeader` (dipakai UserWorksheet dll) menerima prop `crumbs`
+     opsional yang menggantikan back-arrow. Verifikasi: tsc 0 error,
+     lint 0 error (warning `<img>` pre-existing), `npm test` 116 hijau,
+     probe browser: crumb list + bertingkat + 3 halaman detail, collapse
+     persist, filter "cus" → hanya CRM/Customer, 0 error console.
 
 ## 5. Panduan Menjalankan & Pengujian
 

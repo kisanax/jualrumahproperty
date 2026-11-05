@@ -11,8 +11,6 @@ import {
   BedDouble,
   Bath,
   Building,
-  FileText,
-  Share2,
   ChevronLeft,
   ChevronRight,
   PlayCircle,

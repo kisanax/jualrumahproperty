@@ -2,18 +2,26 @@
 
 import { useState } from "react";
 import {
-  MapPin,
   Star,
   Plus,
   Edit2,
   Trash2,
   Sparkles,
-  X,
   Save,
-  ImageIcon,
 } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { AreaPicker } from "@/components/admin-ui";
+import { DataTable, type DtColumn } from "@/components/admin-ui/DataTable";
+import { Button as UiButton } from "@/components/ui/button";
+import { Input as UiInput } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label as UiLabel } from "@/components/ui/label";
 
 interface KawasanItem {
   id: string;
@@ -197,267 +205,168 @@ export default function KawasanList({ initialKawasan }: KawasanListProps) {
 
   const featuredCount = kawasanList.filter((k) => k.isFeatured).length;
 
+  const kawasanColumns: DtColumn<KawasanItem>[] = [
+    {
+      key: "name",
+      header: "Nama Kawasan",
+      sortValue: (k) => k.name,
+      render: (k) => (
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+          <button
+            type="button"
+            onClick={() => handleToggleFeatured(k)}
+            title={k.isFeatured ? "Hapus dari banner homepage" : "Tampilkan di banner homepage"}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              padding: 2,
+              display: "flex",
+              color: k.isFeatured ? "var(--workspace-primary)" : "var(--workspace-text-muted)",
+            }}
+          >
+            <Star size={16} fill={k.isFeatured ? "currentColor" : "none"} />
+          </button>
+          <span className="admin-dt-link" style={{ fontWeight: 600 }}>{k.name}</span>
+        </span>
+      ),
+    },
+    {
+      key: "area",
+      header: "Kecamatan",
+      sortValue: (k) => k.area.name,
+      render: (k) => <>Kec. {k.area.name}</>,
+    },
+    {
+      key: "slug",
+      header: "Slug",
+      sortValue: (k) => k.slug,
+      render: (k) => <span className="admin-dt-muted">/{k.slug}</span>,
+    },
+    {
+      key: "properties",
+      header: "Properti",
+      align: "right",
+      sortValue: (k) => k._count.properties,
+      render: (k) => k._count.properties,
+    },
+    {
+      key: "status",
+      header: "Status",
+      sortValue: (k) => (k.isFeatured ? 1 : 0),
+      render: (k) =>
+        k.isFeatured ? (
+          <span className="admin-badge admin-badge-active">Featured</span>
+        ) : (
+          <span className="admin-badge admin-badge-draft">Standar</span>
+        ),
+    },
+    {
+      key: "tagline",
+      header: "Tagline",
+      render: (k) =>
+        k.tagline ? (
+          <span style={{ fontStyle: "italic" }}>&ldquo;{k.tagline}&rdquo;</span>
+        ) : (
+          <span className="admin-dt-muted">—</span>
+        ),
+    },
+    {
+      key: "actions",
+      header: "",
+      align: "right",
+      render: (k) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "flex-end" }}>
+          <UiButton variant="ghost"
+            type="button"
+            onClick={() => openEditModal(k)}
+            className="h-10 px-4"
+            style={{ padding: "6px 10px", fontSize: 12 }}
+            title="Edit kawasan"
+          >
+            <Edit2 size={14} /> Edit
+          </UiButton>
+          <UiButton variant="ghost"
+            type="button"
+            onClick={() => handleDelete(k)}
+            className="h-10 px-4"
+            style={{
+              padding: "6px 10px",
+              fontSize: 12,
+              color: "var(--workspace-danger)",
+            }}
+            title="Hapus kawasan"
+          >
+            <Trash2 size={14} />
+          </UiButton>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div>
-      <Toaster
-        position="top-center"
-        toastOptions={{
-          style: {
-            background: "var(--color-admin-surface)",
-            border: "1px solid var(--color-admin-border)",
-            color: "var(--color-admin-text)",
-          },
-        }}
-      />
 
       {/* Header */}
       <div className="admin-page-header">
         <div>
-          <h1 style={{ fontSize: 24, fontWeight: 700 }}>Kawasan Populer / Branded</h1>
-          <p style={{ fontSize: 14, color: "var(--color-admin-text-secondary)", marginTop: 4 }}>
+          <h1>Kawasan Populer / Branded</h1>
+          <p>
             Kelola nama kawasan populer untuk SEO & banner &quot;Kawasan Pilihan&quot; di homepage
           </p>
         </div>
-        <button
+        <UiButton variant="default"
           type="button"
           onClick={openAddModal}
-          className="admin-btn admin-btn-primary"
+          className="h-10 px-4"
           style={{ display: "flex", alignItems: "center", gap: 8 }}
         >
           <Plus size={18} /> Tambah Kawasan
-        </button>
+        </UiButton>
       </div>
 
-      {/* Banner summary info */}
-      <div
-        className="admin-card"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 20,
-          padding: "14px 20px",
-          background: "linear-gradient(90deg, var(--color-admin-surface), var(--color-admin-surface-hover))",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: "50%",
-              backgroundColor: "var(--color-admin-accent-light)",
-              color: "var(--color-admin-accent)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Sparkles size={20} />
-          </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600 }}>
-              {featuredCount} Kawasan Aktif di Banner Homepage
-            </div>
-            <div style={{ fontSize: 12, color: "var(--color-admin-text-secondary)" }}>
-              Klik ikon bintang (★) pada kartu kawasan untuk toggle tampil di homepage
-            </div>
-          </div>
-        </div>
-        <div style={{ fontSize: 13, color: "var(--color-admin-text-muted)" }}>
-          Total: {kawasanList.length} Kawasan
-        </div>
+      {/* Banner summary notice ala CF */}
+      <div className="admin-notice">
+        <Sparkles size={16} />
+        <span>
+          <strong>{featuredCount} kawasan</strong> aktif di banner homepage — klik ikon bintang
+          pada baris untuk toggle tampil di homepage. Total {kawasanList.length} kawasan.
+        </span>
       </div>
 
-      {/* Grid Kawasan */}
-      <div className="admin-card-grid">
-        {kawasanList.map((k) => (
-          <div
-            key={k.id}
-            className="admin-card"
-            style={{
-              position: "relative",
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              border: k.isFeatured
-                ? "1px solid var(--color-admin-accent)"
-                : "1px solid var(--color-admin-border)",
-            }}
-          >
-            <div>
-              {/* Header card */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  justifyContent: "space-between",
-                  marginBottom: 8,
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: 18, fontWeight: 700, display: "flex", alignItems: "center", gap: 8 }}>
-                    {k.name}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      fontSize: 12,
-                      color: "var(--color-admin-text-secondary)",
-                      marginTop: 2,
-                    }}
-                  >
-                    <MapPin size={13} style={{ color: "var(--color-admin-accent)" }} />
-                    <span>Kec. {k.area.name}</span>
-                    <span>•</span>
-                    <span style={{ color: "var(--color-admin-text-muted)" }}>/{k.slug}</span>
-                  </div>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => handleToggleFeatured(k)}
-                  title={k.isFeatured ? "Hapus dari banner homepage" : "Tampilkan di banner homepage"}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 4,
-                    color: k.isFeatured ? "var(--color-admin-accent)" : "var(--color-admin-text-muted)",
-                    display: "flex",
-                    alignItems: "center",
-                    transition: "color 0.2s",
-                  }}
-                >
-                  <Star size={20} fill={k.isFeatured ? "currentColor" : "none"} />
-                </button>
-              </div>
-
-              {/* Tagline */}
-              {k.tagline ? (
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: "var(--color-admin-text)",
-                    backgroundColor: "var(--color-admin-bg)",
-                    padding: "8px 12px",
-                    borderRadius: 6,
-                    marginTop: 8,
-                    marginBottom: 10,
-                    fontStyle: "italic",
-                  }}
-                >
-                  &ldquo;{k.tagline}&rdquo;
-                </div>
-              ) : (
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "var(--color-admin-text-muted)",
-                    marginTop: 8,
-                    marginBottom: 10,
-                  }}
-                >
-                  (Belum ada tagline promo)
-                </div>
-              )}
-
-              {/* Banner image preview */}
-              {k.bannerImage && (
-                <div
-                  style={{
-                    fontSize: 12,
-                    color: "var(--color-admin-text-secondary)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    marginBottom: 10,
-                  }}
-                >
-                  <ImageIcon size={14} />
-                  <span
-                    style={{
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      maxWidth: 220,
-                    }}
-                  >
-                    {k.bannerImage}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Footer card */}
-            <div
-              style={{
-                marginTop: 14,
-                paddingTop: 12,
-                borderTop: "1px solid var(--color-admin-border)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ fontSize: 13, color: "var(--color-admin-text-secondary)" }}>
-                <strong style={{ color: "var(--color-admin-text)" }}>{k._count.properties}</strong> properti
-              </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <button
-                  type="button"
-                  onClick={() => openEditModal(k)}
-                  className="admin-btn admin-btn-ghost"
-                  style={{ padding: "6px 10px", fontSize: 12 }}
-                  title="Edit kawasan"
-                >
-                  <Edit2 size={14} /> Edit
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDelete(k)}
-                  className="admin-btn admin-btn-ghost"
-                  style={{
-                    padding: "6px 10px",
-                    fontSize: 12,
-                    color: "var(--color-status-suspended)",
-                  }}
-                  title="Hapus kawasan"
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Tabel Kawasan */}
+      <DataTable<KawasanItem>
+        rows={kawasanList}
+        rowKey={(k) => k.id}
+        searchPlaceholder="Cari nama kawasan, slug, atau kecamatan…"
+        searchPredicate={(k, q) =>
+          [k.name, k.slug, k.area.name, k.tagline || ""].join(" ").toLowerCase().includes(q)
+        }
+        initialSort={{ key: "name", dir: "asc" }}
+        pageSize={10}
+        emptyTitle="Kawasan tidak ditemukan"
+        emptyText="Klik tombol Tambah Kawasan untuk mendaftarkan kawasan populer pertama."
+        columns={kawasanColumns}
+      />
 
       {/* Modal Add/Edit */}
-      {modalOpen && (
-        <div className="admin-modal-overlay" onClick={() => setModalOpen(false)}>
-          <div className="admin-modal-container" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h2>{editingKawasan ? "Edit Kawasan" : "Tambah Kawasan Populer"}</h2>
-              <button
-                type="button"
-                className="admin-modal-close-btn"
-                onClick={() => setModalOpen(false)}
-              >
-                <X size={20} />
-              </button>
-            </div>
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingKawasan ? "Edit Kawasan" : "Tambah Kawasan Populer"}</DialogTitle>
+          </DialogHeader>
 
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", flex: 1, minHeight: 0 }}>
-              <div className="admin-modal-body">
+          <form onSubmit={handleSubmit}>
+            <div>
                 {/* Nama Kawasan */}
                 <div className="admin-input-group">
-                  <label className="admin-label">Nama Kawasan *</label>
-                  <input
+                  <UiLabel htmlFor="kawasan-name" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
+                    Nama Kawasan *
+                  </UiLabel>
+                  <UiInput
+                    id="kawasan-name"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="e.g. Kemang, Senopati, Pondok Indah"
                     value={name}
                     onChange={(e) => handleNameChange(e.target.value)}
@@ -466,10 +375,13 @@ export default function KawasanList({ initialKawasan }: KawasanListProps) {
                 </div>
 
                 <div className="admin-input-group">
-                  <label className="admin-label">Slug URL *</label>
-                  <input
+                  <UiLabel htmlFor="kawasan-slug" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
+                    Slug URL *
+                  </UiLabel>
+                  <UiInput
+                    id="kawasan-slug"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="kemang"
                     value={slug}
                     onChange={(e) => setSlug(e.target.value)}
@@ -489,10 +401,13 @@ export default function KawasanList({ initialKawasan }: KawasanListProps) {
 
                 {/* Tagline Promo Homepage */}
                 <div className="admin-input-group">
-                  <label className="admin-label">Tagline Promosi (Banner Homepage)</label>
-                  <input
+                  <UiLabel htmlFor="kawasan-tagline" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
+                    Tagline Promosi (Banner Homepage)
+                  </UiLabel>
+                  <UiInput
+                    id="kawasan-tagline"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="e.g. Pusat hunian ekspat & gaya hidup dinamis di Jakarta Selatan"
                     value={tagline}
                     onChange={(e) => setTagline(e.target.value)}
@@ -504,10 +419,13 @@ export default function KawasanList({ initialKawasan }: KawasanListProps) {
 
                 {/* Banner Image URL/Path */}
                 <div className="admin-input-group">
-                  <label className="admin-label">Path Foto Banner</label>
-                  <input
+                  <UiLabel htmlFor="kawasan-banner" className="mb-[5px] text-[13px] font-medium text-[var(--color-admin-text-secondary)]">
+                    Path Foto Banner
+                  </UiLabel>
+                  <UiInput
+                    id="kawasan-banner"
                     type="text"
-                    className="admin-input"
+                    className="min-h-10 px-3 text-base md:text-sm"
                     placeholder="/images/kawasan/kemang.webp"
                     value={bannerImage}
                     onChange={(e) => setBannerImage(e.target.value)}
@@ -535,43 +453,44 @@ export default function KawasanList({ initialKawasan }: KawasanListProps) {
                   </label>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <label className="admin-label" style={{ marginBottom: 0, fontSize: 13 }}>
+                    <UiLabel htmlFor="kawasan-sort" style={{ fontSize: 13 }}>
                       Urutan:
-                    </label>
-                    <input
+                    </UiLabel>
+                    <UiInput
+                      id="kawasan-sort"
                       type="number"
-                      className="admin-input"
+                      className="min-h-10 px-3 text-base md:text-sm"
                       value={sortOrder}
                       onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
                       style={{ width: 70, padding: "6px 10px" }}
                     />
                   </div>
                 </div>
-              </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="admin-modal-footer">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="admin-btn admin-btn-ghost"
-                >
-                  Batal
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="admin-btn admin-btn-primary"
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <Save size={16} />
-                  {isSubmitting ? "Menyimpan..." : "Simpan Kawasan"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <UiButton
+                variant="ghost"
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="h-10 px-4"
+              >
+                Batal
+              </UiButton>
+              <UiButton
+                variant="default"
+                type="submit"
+                disabled={isSubmitting}
+                className="h-10 px-4"
+                style={{ display: "flex", alignItems: "center", gap: 6 }}
+              >
+                <Save size={16} />
+                {isSubmitting ? "Menyimpan..." : "Simpan Kawasan"}
+              </UiButton>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

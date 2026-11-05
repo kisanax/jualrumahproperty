@@ -1,4 +1,4 @@
-@import "tailwindcss";
+/* Admin shell and legacy route styles. New pages use the shared shadcn/ui primitives. */
 
 /* ============================================================================
    ADMIN PANEL — Design Tokens & Global Styles
@@ -78,9 +78,9 @@ body[data-theme="light"],
   --color-admin-accent-light: rgba(217, 119, 6, 0.12);
   --color-admin-accent-text: #ffffff;
 
-  --color-admin-topbar-bg: rgba(255, 255, 255, 0.88);
+  --color-admin-topbar-bg: rgba(248, 245, 238, 0.88);
   --color-admin-overlay-bg: rgba(15, 23, 42, 0.4);
-  --color-admin-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  --color-admin-card-shadow: 0 1px 2px rgba(26, 18, 10, 0.04), 0 6px 20px -10px rgba(26, 18, 10, 0.12);
   --color-admin-dropdown-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   color-scheme: light;
 }
