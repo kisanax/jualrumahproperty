@@ -1,7 +1,14 @@
 name: Build & Deploy ke Hostinger
 
 # Build dijalankan di server GitHub (cepat), hasil jadi (standalone) dikirim
-# via SSH ke VPS Hostinger — build tidak pernah jalan di Hostinger lagi.
+# via SSH ke Hostinger. Build TIDAK pernah jalan di Hostinger (builder
+# hPanel OOM/fail 16 menit — build 16.3.6 gagal 5 Nov 2026).
+#
+# Mekanisme aktif (Passenger + hbuilds):
+#   1. standalone.tgz diekstrak ke hbuilds/versions/gha-<run>/nodejs
+#   2. symlink hbuilds/current -> versi baru (flip atomik)
+#   3. touch hbuilds/current/nodejs/tmp/restart.txt -> Passenger graceful restart
+#      (lihat public_html/.htaccess: PassengerAppRoot .../hbuilds/current/nodejs)
 #
 # Secrets wajib di GitHub → Settings → Secrets and variables → Actions:
 #   SSH_HOST         — IP VPS (145.79.14.220)
@@ -83,6 +90,30 @@ jobs:
 
       - name: Ekstrak di VPS
         uses: appleboy/ssh-action@v1.2.2
+        env:
+          RELEASE_ID: gha-${{ github.run_number }}
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: RELEASE_ID
+          script: |
+            set -e
+            # App dilayani Passenger via hbuilds/current -> hbuilds/versions/<id>/nodejs
+            # (lihat .htaccess: PassengerAppRoot .../hbuilds/current/nodejs)
+            HB="/home/u103983663/domains/jualrumahproperty.com/hbuilds"
+            REL="$HB/versions/$RELEASE_ID"
+            mkdir -p "$REL/nodejs"
+            cd ${{ secrets.DEPLOY_PATH }}
+            tar -xzf standalone.tgz -C "$REL/nodejs"
+            rm -f standalone.tgz
+            # Symlink flip atomik ke versi baru
+            ln -sfn "versions/$RELEASE_ID" "$HB/current"
+            echo "✓ Release $RELEASE_ID terpasang & aktif"
+
+      - name: Restart Passenger & bersihkan versi lama
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT || 22 }}
@@ -90,20 +121,16 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             set -e
-            cd ${{ secrets.DEPLOY_PATH }}
-            mkdir -p current
-            tar -xzf standalone.tgz -C current
-            rm -f standalone.tgz
-            echo "✅ Release terpasang di $(pwd)/current"
-
-      - name: Restart aplikasi (opsional)
-        env:
-          RESTART_COMMAND: ${{ secrets.RESTART_COMMAND }}
-        if: env.RESTART_COMMAND != ''
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: ${{ env.RESTART_COMMAND }}
+            HB="/home/u103983663/domains/jualrumahproperty.com/hbuilds"
+            # Passenger memantau tmp/restart.txt — touch = graceful restart
+            mkdir -p "$HB/current/nodejs/tmp"
+            touch "$HB/current/nodejs/tmp/restart.txt"
+            echo "✓ Passenger restart diminta"
+            # Simpan 3 versi terbaru saja (abaikan yang sedang jadi target current)
+            cd "$HB/versions"
+            ls -1t | tail -n +4 | while read -r v; do
+              if [ "$(basename "$(readlink "$HB/current")")" != "$v" ]; then
+                rm -rf "$v"
+                echo "✓ Versi lama dihapus: $v"
+              fi
+            done
