@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Konsep B — Editorial Premium · Detail Properti</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --red:#c52004; --red-deep:#7a1302; --red-soft:#fdece7;
+    --ink:#222222; --muted:#717171; --line:#ebebeb; --soft:#f7f7f7;
+    --wa:#128c5e;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{display:block;width:100%;object-fit:cover}
+  .demo-tag{position:fixed;top:0;left:0;z-index:99;background:#111;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:6px 14px;border-radius:0 0 8px 0}
+  .demo-nav{position:fixed;top:8px;right:8px;z-index:99;display:flex;gap:6px}
+  .demo-nav a{background:#fff;border:1px solid #ddd;border-radius:99px;padding:6px 14px;font-size:12px;font-weight:600;color:#333}
+  .demo-nav a.on{background:#111;color:#fff;border-color:#111}
+
+  header.site{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 48px;background:#fff}
+  .logo{font-weight:800;font-size:17px;letter-spacing:.02em}
+  .logo em{font-style:normal;color:var(--red)}
+  nav.top{display:flex;gap:26px;font-size:13.5px;color:var(--muted)}
+
+  .masthead{padding:64px 24px 40px;text-align:center}
+  .kicker{font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--red)}
+  h1{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-.03em;line-height:1.12;max-width:820px;margin:18px auto 0}
+  .masthead .sub{font-size:15px;color:var(--muted);margin-top:16px}
+  .masthead .sub b{color:var(--ink)}
+
+  .story{display:flex;flex-direction:column;gap:12px}
+  .shot{width:min(1280px,94%);margin:0 auto;position:relative}
+  .shot img{border-radius:6px;aspect-ratio:16/9}
+  .shot.tall img{aspect-ratio:4/5;max-width:760px;margin:0 auto}
+  .shot .cap{position:absolute;bottom:16px;left:18px;background:rgba(255,255,255,.92);padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;color:#444}
+  .count{position:fixed;right:20px;bottom:88px;z-index:40;background:#111;color:#fff;font-size:12.5px;font-weight:600;padding:9px 16px;border-radius:99px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+
+  .band{width:min(1100px,90%);margin:72px auto 0;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+  .cell{padding:30px 8px;text-align:center;border-right:1px solid var(--line)}
+  .cell:last-child{border-right:0}
+  .cell b{display:block;font-size:clamp(26px,3.4vw,40px);font-weight:800;letter-spacing:-.03em}
+  .cell span{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+
+  .narr{width:min(680px,88%);margin:64px auto}
+  .narr h2{font-size:13px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:22px}
+  .narr p{font-size:18px;line-height:1.8;color:#333;margin-bottom:22px}
+  .narr .drop::first-letter{font-size:54px;font-weight:800;float:left;line-height:.85;margin:4px 10px 0 0;color:var(--ink)}
+
+  .amen{width:min(680px,88%);margin:0 auto 56px;display:flex;flex-wrap:wrap;gap:8px 22px}
+  .amen span{font-size:14.5px;font-weight:500;color:#3a3a3a}
+  .amen span::before{content:"— ";color:var(--red);font-weight:700}
+
+  .speclist{width:min(760px,90%);margin:0 auto 90px}
+  .speclist .row{display:flex;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--line);font-size:15px}
+  .speclist .row span{color:var(--muted)}
+  .speclist .row b{font-weight:600}
+
+  footer.sitef{border-top:1px solid var(--line);padding:28px 48px;display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+
+  .ctabar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:50;display:flex;align-items:center;gap:14px;background:rgba(20,20,20,.96);color:#fff;border-radius:99px;padding:9px 9px 9px 24px;box-shadow:0 10px 34px rgba(0,0,0,.35)}
+  .ctabar .p{font-size:16px;font-weight:800;letter-spacing:-.01em}
+  .ctabar .wa{background:var(--wa);color:#fff;border:0;border-radius:99px;padding:11px 22px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .ctabar .tel{background:transparent;border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:99px;padding:11px 18px;font-weight:600;font-size:13px;cursor:pointer}
+
+  @media(max-width:760px){
+    .band{grid-template-columns:repeat(2,1fr)}
+    .cell{border-bottom:1px solid var(--line)}
+    .ctabar{width:calc(100% - 32px);justify-content:space-between;padding:8px 8px 8px 16px}
+    .ctabar .tel{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="demo-tag">MOCKUP · KONSEP B — EDITORIAL PREMIUM</div>
+<div class="demo-nav"><a href="konsep-a.html">A</a><a href="konsep-b.html" class="on">B</a><a href="konsep-c.html">C</a><a href="konsep-d.html">D</a></div>
+
+<header class="site">
+  <a class="logo" href="#">JUAL RUMAH <em>PROPERTY</em></a>
+  <nav class="top"><a href="#">Properti Dijual</a><a href="#">Tentang</a><a href="#">Chat WhatsApp</a></nav>
+</header>
+
+<section class="masthead">
+  <div class="kicker">Propertinya Para Independen</div>
+  <h1>Rumah 2 Lantai Modern di Kemang Selatan</h1>
+  <div class="sub"><b>Rp 2,85 Miliar</b> · Kemang Selatan, Jakarta Selatan · SHM · Diperbarui 12 Okt 2026</div>
+</section>
+
+<div class="story">
+  <div class="shot"><img src="https://picsum.photos/seed/jrpB1/1400/790" alt="Fasad"/><div class="cap">Fasad menghadap utara — plot sudut dua akses</div></div>
+  <div class="shot tall"><img src="https://picsum.photos/seed/jrpB2/900/1100" alt="Ruang keluarga"/><div class="cap">Ruang keluarga terbuka menghadap kolam</div></div>
+  <div class="shot"><img src="https://picsum.photos/seed/jrpB3/1400/790" alt="Dapur"/><div class="cap">Dapur island, dry &amp; wet</div></div>
+</div>
+<div class="count">1 / 14 foto · Klik untuk galeri penuh</div>
+
+<div class="band">
+  <div class="cell"><b>5</b><span>Kamar Tidur</span></div>
+  <div class="cell"><b>4</b><span>Kamar Mandi</span></div>
+  <div class="cell"><b>350 m²</b><span>Luas Tanah</span></div>
+  <div class="cell"><b>420 m²</b><span>Luas Bangunan</span></div>
+</div>
+
+<div class="narr">
+  <h2>Cerita Properti</h2>
+  <p class="drop">Rumah modern dua lantai di jalan elit Kemang Selatan dengan orientasi taman di tengah. Ruang keluarga terbuka menghadap kolam, dapur dry &amp; wet dengan island, dan seluruh kamar ber-AC inverter.</p>
+  <p>Lingkungan nyaman dan aman, 5 menit ke Kompleks Kemang dan akses Tol TB Simatupang. Tidak banjir, plot sudut dengan dua akses jalan.</p>
+</div>
+
+<div class="amen">
+  <span>Kolam Renang</span><span>Taman Belakang</span><span>CCTV 24 Jam</span><span>Carport 2</span><span>Dapur Island</span><span>AC Inverter</span>
+</div>
+
+<div class="speclist">
+  <div class="row"><span>Tipe</span><b>Rumah</b></div>
+  <div class="row"><span>Sertifikat</span><b>SHM</b></div>
+  <div class="row"><span>Arah Hadap</span><b>Utara</b></div>
+  <div class="row"><span>Daya Listrik</span><b>7.700 Watt</b></div>
+  <div class="row"><span>Sumber Air</span><b>PAM + Sumur</b></div>
+  <div class="row"><span>Tahun Dibangun</span><b>2019</b></div>
+  <div class="row"><span>Lantai</span><b>2</b></div>
+  <div class="row"><span>Parkir</span><b>3 Mobil</b></div>
+</div>
+
+<footer class="sitef"><span>© 2026 Jual Rumah Property</span><span>Marketplace properti dijual di Indonesia</span></footer>
+
+<div class="ctabar"><span class="p">Rp 2,85 Miliar</span><button class="wa">💬 Jadwalkan Survey</button><button class="tel">📞 Telepon</button></div>
+</body>
+</html>

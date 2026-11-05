@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Konsep C — Data-Forward · Detail Properti</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --red:#c52004; --red-hover:#a31803; --red-soft:#fdece7; --red-deep:#7a1302;
+    --ink:#222222; --muted:#717171; --line:#ebebeb; --soft:#f7f7f7;
+    --wa:#128c5e; --wa-soft:#e8f5ee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);background:var(--soft);-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{display:block;width:100%;height:100%;object-fit:cover}
+  .demo-tag{position:fixed;top:0;left:0;z-index:99;background:#111;color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:6px 14px;border-radius:0 0 8px 0}
+  .demo-nav{position:fixed;top:8px;right:8px;z-index:99;display:flex;gap:6px}
+  .demo-nav a{background:#fff;border:1px solid #ddd;border-radius:99px;padding:6px 14px;font-size:12px;font-weight:600;color:#333}
+  .demo-nav a.on{background:#111;color:#fff;border-color:#111}
+
+  header.site{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 40px;background:#fff;border-bottom:1px solid var(--line)}
+  .logo{font-weight:800;font-size:17px;letter-spacing:-.02em}
+  .logo em{font-style:normal;color:var(--red)}
+  nav.top{display:flex;gap:24px;font-size:13.5px;color:var(--muted)}
+
+  .wrap{width:min(1240px,calc(100% - 48px));margin:0 auto}
+  .crumbs{display:flex;gap:8px;font-size:12.5px;color:var(--muted);padding:14px 0}
+  .crumbs b{color:var(--ink)}
+
+  /* gallery compact */
+  .gallery{display:grid;grid-template-columns:1.4fr 1fr;gap:5px;height:380px;border-radius:12px;overflow:hidden}
+  .g-side{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:5px}
+
+  /* summary card floats over content */
+  .main{display:grid;grid-template-columns:1fr 380px;gap:40px;padding:28px 0 80px;align-items:start}
+  .left h1{font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.3}
+  .left .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:13.5px;color:var(--muted);margin:10px 0 20px}
+  .left .meta b{color:var(--ink)}
+
+  .qf{display:grid;grid-template-columns:repeat(6,1fr);background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:26px}
+  .qf div{padding:16px 8px;text-align:center;border-right:1px solid var(--line)}
+  .qf div:last-child{border-right:0}
+  .qf span{display:block;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .qf b{font-size:17px;font-weight:800}
+  .qf b small{font-size:12px;font-weight:600;color:var(--muted)}
+
+  .panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:20px;margin-bottom:18px}
+  .panel h3{font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+  .panel h3 .n{font-size:11px;color:#b0b0b0;font-weight:600;letter-spacing:0}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{display:flex;align-items:center;gap:7px;background:var(--soft);border-radius:9px;padding:8px 13px;font-size:13px;font-weight:500}
+  .chip::before{content:"✓";color:var(--wa);font-weight:800;font-size:12px}
+
+  .kv{display:grid;grid-template-columns:1fr 1fr;gap:0 28px}
+  .kv .row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+  .kv .row span{color:var(--muted)}
+  .kv .row b{font-weight:600}
+
+  .timeline{display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+  .timeline .t{display:flex;gap:10px;align-items:center}
+  .timeline .dot{width:8px;height:8px;border-radius:50%;background:var(--wa);flex:0 0 8px}
+  .timeline .dot.red{background:var(--red)}
+  .timeline span{color:var(--muted)}
+  .timeline b{color:var(--ink)}
+
+  /* sidebar */
+  .side{position:sticky;top:20px}
+  .scard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;box-shadow:0 6px 24px rgba(0,0,0,.05)}
+  .price{font-size:32px;font-weight:800;letter-spacing:-.02em}
+  .ppm{font-size:12.5px;color:var(--muted);margin:4px 0 16px}
+  .calc{border-top:1px solid var(--line);padding-top:16px;margin-top:16px}
+  .calc h4{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .calc h4 .pill{font-size:10px;background:var(--red-soft);color:var(--red-deep);border-radius:99px;padding:3px 8px;letter-spacing:.04em}
+  .crow{margin-bottom:12px}
+  .crow label{display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+  .crow label b{color:var(--ink)}
+  input[type=range]{width:100%;accent-color:var(--red)}
+  .seg{display:flex;gap:6px}
+  .seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+  .seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .result{display:flex;justify-content:space-between;align-items:center;background:var(--soft);border-radius:10px;padding:12px 14px;margin-top:14px}
+  .result span{font-size:12.5px;color:var(--muted)}
+  .result b{font-size:19px;font-weight:800;color:var(--red-deep)}
+  .btn-wa{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:46px;border-radius:10px;background:var(--wa);color:#fff;font-weight:700;font-size:14.5px;border:0;cursor:pointer;margin-top:16px}
+  .btn-tel{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:42px;border-radius:10px;background:#fff;border:1.5px solid var(--line);font-weight:600;font-size:13.5px;margin-top:9px;cursor:pointer}
+  .sidefoot{font-size:11.5px;color:#9a9a9a;margin-top:12px;text-align:center;line-height:1.5}
+
+  footer.sitef{border-top:1px solid var(--line);padding:24px 40px;display:flex;justify-content:space-between;color:var(--muted);font-size:12.5px;background:#fff}
+
+  @media(max-width:940px){
+    .gallery{grid-template-columns:1fr;height:auto;aspect-ratio:16/10}
+    .g-side{display:none}
+    .main{grid-template-columns:1fr}
+    .qf{grid-template-columns:repeat(3,1fr)}
+    .qf div{border-bottom:1px solid var(--line)}
+    .side{position:static}
+  }
+</style>
+</head>
+<body>
+<div class="demo-tag">MOCKUP · KONSEP C — DATA-FORWARD</div>
+<div class="demo-nav"><a href="konsep-a.html">A</a><a href="konsep-b.html">B</a><a href="konsep-c.html" class="on">C</a><a href="konsep-d.html">D</a></div>
+
+<header class="site">
+  <a class="logo" href="#">JUAL RUMAH <em>PROPERTY</em></a>
+  <nav class="top"><a href="#">Properti Dijual</a><a href="#">Tentang</a><a href="#">Chat WhatsApp</a></nav>
+</header>
+
+<div class="wrap">
+  <div class="crumbs"><a href="#">Beranda</a> <span>›</span> <a href="#">Properti Dijual</a> <span>›</span> <b>Kemang Selatan</b> <span style="margin-left:auto;color:#c0c0c0">ID JPR-100001 · Diperbarui 12 Okt 2026</span></div>
+
+  <div class="gallery">
+    <div><img src="https://picsum.photos/seed/jrpC1/1200/700" alt="Fasad"/></div>
+    <div class="g-side">
+      <div><img src="https://picsum.photos/seed/jrpC2/500/350" alt=""/></div>
+      <div><img src="https://picsum.photos/seed/jrpC3/500/350" alt=""/></div>
+      <div><img src="https://picsum.photos/seed/jrpC4/500/350" alt=""/></div>
+      <div style="position:relative"><img src="https://picsum.photos/seed/jrpC5/500/350" alt=""/><div style="position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px">+9 Foto · Video · Denah</div></div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="left">
+      <h1>Rumah 2 Lantai Modern di Kemang Selatan</h1>
+      <div class="meta"><b>Kemang Selatan, Mampang Prapatan</b><span>·</span><span>Rumah</span><span>·</span><span><b>SHM</b></span><span>·</span><span>Tidak banjir</span></div>
+
+      <div class="qf">
+        <div><span>KT</span><b>5</b></div>
+        <div><span>KM</span><b>4</b></div>
+        <div><span>LT</span><b>350 <small>m²</small></b></div>
+        <div><span>LB</span><b>420 <small>m²</small></b></div>
+        <div><span>Lantai</span><b>2</b></div>
+        <div><span>Parkir</span><b>3</b></div>
+      </div>
+
+      <div class="panel">
+        <h3>Deskripsi</h3>
+        <p style="font-size:14.5px;line-height:1.7;color:#3a3a3a">Rumah modern dua lantai di jalan elit Kemang Selatan dengan orientasi taman di tengah. Ruang keluarga terbuka menghadap kolam, dapur dry &amp; wet dengan island, dan seluruh kamar ber-AC inverter. Lingkungan nyaman dan aman, 5 menit ke Kompleks Kemang dan akses Tol TB Simatupang.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Fasilitas <span class="n">6 dari 8</span></h3>
+        <div class="chips">
+          <span class="chip">Kolam Renang</span><span class="chip">Taman Belakang</span><span class="chip">CCTV 24 Jam</span><span class="chip">Carport 2</span><span class="chip">Dapur Island</span><span class="chip">AC Inverter</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Spesifikasi Lengkap</h3>
+        <div class="kv">
+          <div class="row"><span>Sertifikat</span><b>SHM</b></div>
+          <div class="row"><span>Arah Hadap</span><b>Utara</b></div>
+          <div class="row"><span>Daya Listrik</span><b>7.700 Watt</b></div>
+          <div class="row"><span>Sumber Air</span><b>PAM + Sumur</b></div>
+          <div class="row"><span>Tahun Dibangun</span><b>2019</b></div>
+          <div class="row"><span>Kode Listing</span><b>JPR-100001</b></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>Riwayat Listing</h3>
+        <div class="timeline">
+          <div class="t"><span class="dot red"></span><span><b>1 Sep 2026</b> — Mulai dipasarkan (masa konsinyasi 12 bulan)</span></div>
+          <div class="t"><span class="dot"></span><span><b>12 Okt 2026</b> — Harga &amp; foto diperbarui</span></div>
+          <div class="t"><span class="dot"></span><span><b>12 Okt 2026</b> — Diverifikasi admin JRP</span></div>
+        </div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="scard">
+        <div class="price">Rp 2,85 Miliar</div>
+        <div class="ppm">≈ Rp 8.142.857/m² tanah · Harga negotiable</div>
+
+        <div class="calc">
+          <h4>🧮 Simulasi KPR <span class="pill">BARU</span></h4>
+          <div class="crow">
+            <label>Harga properti <b>Rp 2.850.000.000</b></label>
+            <input type="range" min="20" max="100" value="30" />
+            <label style="margin-top:2px">Uang muka (DP) <b>30% · Rp 855 jt</b></label>
+          </div>
+          <div class="crow">
+            <label>Tenor</label>
+            <div class="seg"><button>10 th</button><button class="on">15 th</button><button>20 th</button></div>
+          </div>
+          <div class="crow" style="margin-bottom:0">
+            <label>Bunga fix 1 th <b>4,75% → floating ±11%</b></label>
+          </div>
+          <div class="result"><span>Estimasi cicilan / bulan</span><b>Rp 16,3 jt</b></div>
+        </div>
+
+        <button class="btn-wa">💬 Chat WhatsApp — Tanya KPR</button>
+        <button class="btn-tel">📞 +62 811-1234-5678</button>
+        <div class="sidefoot">Simulasi bersifat estimasi. Konfirmasi eligibility ke bank partner kami via WhatsApp.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<footer class="sitef"><span>© 2026 Jual Rumah Property</span><span>Marketplace properti dijual di Indonesia</span></footer>
+</body>
+</html>

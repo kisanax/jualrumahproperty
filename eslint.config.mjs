@@ -12,6 +12,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Lain — bukan kode produksi:
+    "mockups/**", // output regenerasi gen-watermark-* (arsip lama di docs/archive/)
+    "docs/archive/**", // arsip bekas kerja — beku, bukan kode aktif
+    "public/sw.js", // hasil build service worker
+    "scripts/**", // skrip ops/tooling (Node, boleh pakai require)
   ]),
 ]);
 

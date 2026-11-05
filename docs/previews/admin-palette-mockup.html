@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup Palet Admin — shadcn Neutral</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: #e9e9e9; color: #171717; padding: 32px 24px 64px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .sub { color: #737373; font-size: 13px; margin-top: 4px; margin-bottom: 28px; }
+  h2 { font-size: 15px; font-weight: 700; letter-spacing: -.01em; margin: 40px 0 12px; }
+  h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: #171717; color: #fff; font-size: 12px; margin-right: 8px; vertical-align: -4px; }
+
+  /* ============ PANEL BERDAMPING ============ */
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 980px) { .panels { grid-template-columns: 1fr; } }
+  .panel { border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,.08); }
+  .panel-label { padding: 10px 16px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+
+  /* ---- replika mini admin (light) ---- */
+  .light {
+    --bg: #f5f5f5; --surface: #ffffff; --soft: #fafafa; --input: #ffffff;
+    --text: #171717; --muted: #737373; --border: #e5e5e5; --border-strong: #d4d4d4;
+    --primary: #171717; --primary-hover: #2e2e2e; --btn-text: #ffffff;
+    --danger: #dc2626; --success: #15803d; --warning: #b45309;
+    --ring: rgba(115,115,115,.3);
+    background: var(--bg); color: var(--text);
+    font-size: 13px;
+  }
+  .light .panel-label { background: #fff; color: #171717; border-bottom: 1px solid var(--border); }
+
+  /* ---- replika mini admin (dark) ---- */
+  .dark {
+    --bg: #0a0a0a; --surface: #171717; --soft: #1f1f1f; --input: #262626;
+    --text: #fafafa; --muted: #a3a3a3; --border: #2a2a2a; --border-strong: #3f3f3f;
+    --primary: #e5e5e5; --primary-hover: #d4d4d4; --btn-text: #171717;
+    --danger: #ff6b5e; --success: #3ddfa0; --warning: #fdb022;
+    --ring: rgba(115,115,115,.3);
+    background: var(--bg); color: var(--text);
+    font-size: 13px;
+  }
+  .dark .panel-label { background: #171717; color: #fafafa; border-bottom: 1px solid var(--border); }
+
+  /* ---- komponen mini (sama untuk kedua panel, lewat token) ---- */
+  .mini-topbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: color-mix(in srgb, var(--surface) 88%, transparent); border-bottom: 1px solid var(--border); }
+  .mini-brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 13px; }
+  .mini-brand .dot { width: 22px; height: 22px; border-radius: 7px; background: var(--primary); color: var(--btn-text); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+  .mini-body { display: grid; grid-template-columns: 150px 1fr; min-height: 480px; }
+  .mini-side { border-right: 1px solid var(--border); padding: 12px 10px; background: var(--surface); }
+  .mini-side .sec { font-size: 9px; letter-spacing: .1em; color: var(--muted); font-weight: 700; padding: 6px 10px; text-transform: uppercase; }
+  .navitem { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; color: var(--muted); font-size: 12.5px; margin-bottom: 2px; }
+  .navitem.active { background: color-mix(in srgb, var(--primary) 8%, transparent); color: var(--primary); font-weight: 650; box-shadow: inset 2px 0 0 var(--primary); }
+  .navitem .ic { width: 14px; height: 14px; border-radius: 4px; background: currentColor; opacity: .55; flex: none; }
+  .mini-main { padding: 16px; }
+  .mini-h { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .mini-h .t { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+
+  .card { background: var(--surface); border-radius: 12px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--text) 10%, transparent); padding: 14px; }
+  .card + .card { margin-top: 10px; }
+  .card .c-title { font-size: 14px; font-weight: 650; }
+  .card .c-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .card .c-row { display: flex; align-items: center; justify-content: space-between; }
+
+  .btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border-radius: 8px; font-size: 12.5px; font-weight: 550; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+  .btn.primary { background: var(--primary); color: var(--btn-text); }
+  .btn.outline { background: var(--surface); color: var(--text); border-color: var(--border); }
+  .btn.ghost { background: transparent; color: var(--text); }
+  .btn.danger { background: transparent; color: var(--danger); }
+  .btnrow { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  .field { margin-top: 10px; }
+  .field label { display: block; font-size: 11.5px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+  .field input { width: 100%; height: 38px; padding: 0 12px; border-radius: 8px; border: 1px solid transparent; background: var(--input); color: var(--text); font-size: 13px; font-family: inherit; outline: none; }
+  .field input.focused { border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  /* nilai persis dari admin-ui.css (dipakai di kedua mode) */
+  .b-draft  { background: rgba(100,116,139,.12); color: #475569; }
+  .b-pend   { background: rgba(217,119,6,.12);  color: #b45309; }
+  .b-ready  { background: rgba(37,99,235,.12);  color: #1d4ed8; }
+  .b-act    { background: rgba(16,185,129,.12); color: #047857; }
+  .b-neg    { background: rgba(124,58,237,.12); color: #6d28d9; }
+  .b-sold   { background: rgba(8,145,178,.12);  color: #0e7490; }
+  .b-susp   { background: rgba(220,38,38,.12);  color: #b91c1c; }
+
+  .dialog { margin-top: 10px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 14px; }
+  .dialog .d-title { font-size: 13.5px; font-weight: 650; }
+  .dialog .d-x { color: var(--muted); font-size: 12px; }
+
+  /* ---- swatch strip ---- */
+  .swatches { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 16px 16px; }
+  .sw { width: 86px; }
+  .sw .chip { height: 34px; border-radius: 8px; box-shadow: 0 0 0 1px rgba(0,0,0,.12) inset; }
+  .sw .nm { font-size: 9.5px; font-weight: 700; margin-top: 4px; }
+  .sw .hx { font-size: 9px; color: var(--muted); font-family: ui-monospace, Consolas, monospace; }
+
+  /* ============ ANOTASI TABRAKAN ============ */
+  .clashes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 980px) { .clashes { grid-template-columns: 1fr; } }
+  .clash { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 14px 16px; }
+  .clash .t { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .clash .t .sev { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px; }
+  .sev.hi { background: #fee2e2; color: #b91c1c; }
+  .sev.md { background: #fef3c7; color: #b45309; }
+  .clash .d { font-size: 12.5px; color: #525252; margin-top: 6px; line-height: 1.55; }
+  .clash .demo { margin-top: 10px; padding: 10px; border-radius: 8px; }
+
+  /* ============ OPSI ARAH ============ */
+  .opts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 980px) { .opts { grid-template-columns: 1fr; } }
+  .opt { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 16px; }
+  .opt .tag { font-size: 11px; font-weight: 800; letter-spacing: .05em; color: #737373; text-transform: uppercase; }
+  .opt .t { font-size: 14px; font-weight: 700; margin-top: 2px; }
+  .opt .d { font-size: 12px; color: #525252; margin-top: 6px; line-height: 1.5; min-height: 72px; }
+  .opt .strip { display: flex; gap: 4px; margin-top: 10px; }
+  .opt .strip i { flex: 1; height: 26px; border-radius: 6px; box-shadow: 0 0 0 1px rgba(0,0,0,.1) inset; }
+  .opt .rec { margin-top: 10px; font-size: 11px; font-weight: 700; color: #15803d; }
+  .foot { margin-top: 36px; font-size: 11.5px; color: #737373; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mockup Palet Admin — shadcn Neutral</h1>
+  <p class="sub">Replika komponen admin dengan token persis dari <code>admin-ui.css</code> · light &amp; dark berdampingan · 29 Okt 2026</p>
+
+  <!-- ================= 1. PANEL BERDAMPING ================= -->
+  <h2><span class="num">1</span>Light vs Dark — komponen nyata</h2>
+  <div class="panels">
+
+    <!-- LIGHT -->
+    <div class="panel light">
+      <div class="panel-label">Light Mode</div>
+      <div class="mini-topbar">
+        <div class="mini-brand"><span class="dot">JR</span> Broker Workspace</div>
+        <span class="btn outline" style="height:28px;font-size:11.5px;">◐ Mode Gelap</span>
+      </div>
+      <div class="mini-body">
+        <div class="mini-side">
+          <div class="sec">Menu Utama</div>
+          <div class="navitem"><span class="ic"></span>Dashboard</div>
+          <div class="navitem active"><span class="ic"></span>Properti</div>
+          <div class="navitem"><span class="ic"></span>Listing</div>
+          <div class="navitem"><span class="ic"></span>Kawasan</div>
+          <div class="sec">Master Data</div>
+          <div class="navitem"><span class="ic"></span>Owner</div>
+          <div class="navitem"><span class="ic"></span>Perantara</div>
+        </div>
+        <div class="mini-main">
+          <div class="mini-h">
+            <span class="t">Kawasan</span>
+            <span class="btn primary">+ Tambah Kawasan</span>
+          </div>
+
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="width:30px;height:30px;border-radius:50%;background:color-mix(in srgb, var(--primary) 8%, transparent);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:13px;">✦</span>
+              <div><div style="font-size:13px;font-weight:600;">3 Kawasan Aktif di Banner</div>
+              <div style="font-size:11px;color:var(--muted);">Klik bintang untuk toggle homepage</div></div>
+            </div>
+            <span style="font-size:11.5px;color:var(--muted);">Total: 6</span>
+          </div>
+
+          <div class="card" style="margin-top:10px;">
+            <div class="c-row">
+              <div><div class="c-title">Pondok Indah</div><div class="c-desc">📍 Kec. Kebayoran Baru · /pondok-indah</div></div>
+              <span style="color:var(--primary);font-size:15px;">★</span>
+            </div>
+            <div style="margin-top:8px;font-size:12px;font-style:italic;background:var(--soft);border-radius:6px;padding:7px 10px;">"Kawasan premium Jaksel"</div>
+            <div class="c-row" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+              <span style="font-size:12px;color:var(--muted);"><b style="color:var(--text);">12</b> properti</span>
+              <span class="btnrow" style="margin-top:0;">
+                <span class="btn ghost" style="height:26px;font-size:11px;">Edit</span>
+                <span class="btn danger" style="height:26px;font-size:11px;">Hapus</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Nama Kawasan</label>
+            <input type="text" value="Pondok Indah" class="focused">
+          </div>
+
+          <div class="badges">
+            <span class="badge b-draft">draft</span><span class="badge b-pend">pending</span>
+            <span class="badge b-act">active</span><span class="badge b-sold">sold</span>
+            <span class="badge b-susp">suspended</span><span class="badge b-neg">negotiation</span>
+          </div>
+
+          <div class="btnrow">
+            <span class="btn primary">Simpan</span>
+            <span class="btn outline">Batal</span>
+            <span class="btn ghost">Edit</span>
+            <span class="btn danger">Hapus</span>
+          </div>
+
+          <div class="dialog">
+            <div class="c-row"><span class="d-title">Tambah Kawasan</span><span class="d-x">✕</span></div>
+            <div class="c-desc" style="margin-top:2px;">Isi detail kawasan baru.</div>
+            <div class="btnrow" style="justify-content:flex-end;">
+              <span class="btn outline">Batal</span><span class="btn primary">Simpan</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#f5f5f5"></div><div class="nm">bg</div><div class="hx">#f5f5f5</div></div>
+        <div class="sw"><div class="chip" style="background:#ffffff"></div><div class="nm">surface</div><div class="hx">#ffffff</div></div>
+        <div class="sw"><div class="chip" style="background:#fafafa"></div><div class="nm">soft</div><div class="hx">#fafafa</div></div>
+        <div class="sw"><div class="chip" style="background:#171717"></div><div class="nm">primary</div><div class="hx">#171717</div></div>
+        <div class="sw"><div class="chip" style="background:#e5e5e5"></div><div class="nm">border</div><div class="hx">#e5e5e5</div></div>
+        <div class="sw"><div class="chip" style="background:#737373"></div><div class="nm">muted</div><div class="hx">#737373</div></div>
+        <div class="sw"><div class="chip" style="background:#dc2626"></div><div class="nm">danger</div><div class="hx">#dc2626</div></div>
+        <div class="sw"><div class="chip" style="background:#15803d"></div><div class="nm">success</div><div class="hx">#15803d</div></div>
+        <div class="sw"><div class="chip" style="background:#b45309"></div><div class="nm">warning</div><div class="hx">#b45309</div></div>
+      </div>
+    </div>
+
+    <!-- DARK -->
+    <div class="panel dark">
+      <div class="panel-label">Dark Mode</div>
+      <div class="mini-topbar">
+        <div class="mini-brand"><span class="dot">JR</span> Broker Workspace</div>
+        <span class="btn outline" style="height:28px;font-size:11.5px;">◐ Mode Terang</span>
+      </div>
+      <div class="mini-body">
+        <div class="mini-side">
+          <div class="sec">Menu Utama</div>
+          <div class="navitem"><span class="ic"></span>Dashboard</div>
+          <div class="navitem active"><span class="ic"></span>Properti</div>
+          <div class="navitem"><span class="ic"></span>Listing</div>
+          <div class="navitem"><span class="ic"></span>Kawasan</div>
+          <div class="sec">Master Data</div>
+          <div class="navitem"><span class="ic"></span>Owner</div>
+          <div class="navitem"><span class="ic"></span>Perantara</div>
+        </div>
+        <div class="mini-main">
+          <div class="mini-h">
+            <span class="t">Kawasan</span>
+            <span class="btn primary">+ Tambah Kawasan</span>
+          </div>
+
+          <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span style="width:30px;height:30px;border-radius:50%;background:color-mix(in srgb, var(--primary) 8%, transparent);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:13px;">✦</span>
+              <div><div style="font-size:13px;font-weight:600;">3 Kawasan Aktif di Banner</div>
+              <div style="font-size:11px;color:var(--muted);">Klik bintang untuk toggle homepage</div></div>
+            </div>
+            <span style="font-size:11.5px;color:var(--muted);">Total: 6</span>
+          </div>
+
+          <div class="card" style="margin-top:10px;">
+            <div class="c-row">
+              <div><div class="c-title">Pondok Indah</div><div class="c-desc">📍 Kec. Kebayoran Baru · /pondok-indah</div></div>
+              <span style="color:var(--primary);font-size:15px;">★</span>
+            </div>
+            <div style="margin-top:8px;font-size:12px;font-style:italic;background:var(--soft);border-radius:6px;padding:7px 10px;">"Kawasan premium Jaksel"</div>
+            <div class="c-row" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+              <span style="font-size:12px;color:var(--muted);"><b style="color:var(--text);">12</b> properti</span>
+              <span class="btnrow" style="margin-top:0;">
+                <span class="btn ghost" style="height:26px;font-size:11px;">Edit</span>
+                <span class="btn danger" style="height:26px;font-size:11px;">Hapus</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Nama Kawasan</label>
+            <input type="text" value="Pondok Indah" class="focused">
+          </div>
+
+          <div class="badges">
+            <span class="badge b-draft">draft</span><span class="badge b-pend">pending</span>
+            <span class="badge b-act">active</span><span class="badge b-sold">sold</span>
+            <span class="badge b-susp">suspended</span><span class="badge b-neg">negotiation</span>
+          </div>
+
+          <div class="btnrow">
+            <span class="btn primary">Simpan</span>
+            <span class="btn outline">Batal</span>
+            <span class="btn ghost">Edit</span>
+            <span class="btn danger">Hapus</span>
+          </div>
+
+          <div class="dialog">
+            <div class="c-row"><span class="d-title">Tambah Kawasan</span><span class="d-x">✕</span></div>
+            <div class="c-desc" style="margin-top:2px;">Isi detail kawasan baru.</div>
+            <div class="btnrow" style="justify-content:flex-end;">
+              <span class="btn outline">Batal</span><span class="btn primary">Simpan</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="swatches">
+        <div class="sw"><div class="chip" style="background:#0a0a0a"></div><div class="nm">bg</div><div class="hx">#0a0a0a</div></div>
+        <div class="sw"><div class="chip" style="background:#171717"></div><div class="nm">surface</div><div class="hx">#171717</div></div>
+        <div class="sw"><div class="chip" style="background:#1f1f1f"></div><div class="nm">soft</div><div class="hx">#1f1f1f</div></div>
+        <div class="sw"><div class="chip" style="background:#e5e5e5"></div><div class="nm">primary</div><div class="hx">#e5e5e5</div></div>
+        <div class="sw"><div class="chip" style="background:#2a2a2a"></div><div class="nm">border</div><div class="hx">#2a2a2a</div></div>
+        <div class="sw"><div class="chip" style="background:#a3a3a3"></div><div class="nm">muted</div><div class="hx">#a3a3a3</div></div>
+        <div class="sw"><div class="chip" style="background:#ff6b5e"></div><div class="nm">danger</div><div class="hx">#ff6b5e</div></div>
+        <div class="sw"><div class="chip" style="background:#3ddfa0"></div><div class="nm">success</div><div class="hx">#3ddfa0</div></div>
+        <div class="sw"><div class="chip" style="background:#fdb022"></div><div class="nm">warning</div><div class="hx">#fdb022</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 2. TITIK TABRAKAN ================= -->
+  <h2><span class="num">2</span>Titik tabrakan yang terdeteksi</h2>
+  <div class="clashes">
+    <div class="clash">
+      <div class="t"><span class="sev hi">PARAH</span> Badge status di dark mode susah dibaca</div>
+      <div class="d">Warna badge hanya diset untuk light (satu set di <code>admin-ui.css</code>). Di dark, teks seperti <code>#047857</code> (active) dan <code>#b91c1c</code> (suspended) terlalu gelap di atas kartu <code>#171717</code> — kontras di bawah standar.</div>
+      <div class="demo" style="background:#171717;border-radius:8px;">
+        <div class="badges" style="margin-top:0;">
+          <span class="badge b-draft">draft</span><span class="badge b-pend">pending</span>
+          <span class="badge b-act">active</span><span class="badge b-sold">sold</span>
+          <span class="badge b-susp">suspended</span>
+        </div>
+      </div>
+    </div>
+    <div class="clash">
+      <div class="t"><span class="sev hi">PARAH</span> 8 hue warna di UI monokrom</div>
+      <div class="d">Badge memakai 8 keluarga warna berbeda (slate, amber, biru, hijau, ungu, cyan, merah, oranye) di atas palet zinc yang monokrom — jadi satu-satunya sumber "warna" dan terlihat berisik/tabrakan dengan netral.</div>
+      <div class="demo" style="background:#fff;border-radius:8px;">
+        <div class="badges" style="margin-top:0;">
+          <span class="badge b-draft">draft</span><span class="badge b-pend">pending</span>
+          <span class="badge b-ready">ready</span><span class="badge b-act">active</span>
+          <span class="badge b-neg">negotiation</span><span class="badge b-sold">sold</span>
+          <span class="badge b-susp">suspended</span>
+        </div>
+      </div>
+    </div>
+    <div class="clash">
+      <div class="t"><span class="sev md">SEDANG</span> Warna semantik dark terlalu neon</div>
+      <div class="d">Di dark mode, danger <code>#ff6b5e</code>, success <code>#3ddfa0</code>, warning <code>#fdb022</code> sangat saturated — berdampingan dengan zinc netral terasa "menyala" dan tidak satu keluarga tone.</div>
+      <div class="demo" style="background:#171717;border-radius:8px;display:flex;gap:8px;align-items:center;">
+        <span class="btn" style="background:rgba(255,107,94,.14);color:#ff6b5e;">Hapus</span>
+        <span class="btn" style="background:rgba(61,223,160,.14);color:#3ddfa0;">Aktif</span>
+        <span class="btn" style="background:rgba(253,176,34,.14);color:#fdb022;">Review</span>
+      </div>
+    </div>
+    <div class="clash">
+      <div class="t"><span class="sev md">SEDANG</span> Sisa elemen legacy slate</div>
+      <div class="d">Beberapa elemen lama masih memakai skala slate (<code>#f1f5f9</code>/<code>#475569</code>, contoh: tombol "Mode Gelap" di topbar) — beda undertone dengan zinc (<code>#f5f5f5</code>/<code>#737373</code>) yang baru, terlihat "bukan satu sistem".</div>
+      <div class="demo" style="background:#fff;border-radius:8px;display:flex;gap:8px;align-items:center;">
+        <span class="btn" style="background:#f1f5f9;color:#475569;">Slate (legacy)</span>
+        <span class="btn" style="background:#f5f5f5;color:#737373;border:1px solid #e5e5e5;">Zinc (baru)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 3. OPSI ARAH ================= -->
+  <h2><span class="num">3</span>Opsi arah perbaikan</h2>
+  <div class="opts">
+    <div class="opt">
+      <div class="tag">Opsi A</div>
+      <div class="t">Netral murni</div>
+      <div class="d">Semua badge jadi netral (abu + dot warna kecil 6px sebagai penanda status). Warna semantik dark dikalemkan ke tone zinc. UI 100% monokrom — paling "shadcn docs".</div>
+      <div class="strip">
+        <i style="background:#f5f5f5"></i><i style="background:#ffffff"></i><i style="background:#171717"></i><i style="background:#e5e5e5"></i><i style="background:#737373"></i><i style="background:#3f3f3f"></i>
+      </div>
+      <div class="rec">Paling konsisten · risiko: status kurang menonjol</div>
+    </div>
+    <div class="opt">
+      <div class="tag">Opsi B</div>
+      <div class="t">Netral + status terkendali <span style="color:#15803d;">★ rekomendasi</span></div>
+      <div class="d">Badge tetap berwarna tapi di-resep: satu saturasi, teks lebih terang di dark mode (variant khusus dark), jumlah hue dipangkas 8 → 4 (netral, amber, hijau, merah). Semantik tetap terbaca sekilas.</div>
+      <div class="strip">
+        <i style="background:#f5f5f5"></i><i style="background:#ffffff"></i><i style="background:#171717"></i><i style="background:#b45309"></i><i style="background:#15803d"></i><i style="background:#dc2626"></i>
+      </div>
+      <div class="rec">Keseimbangan konsistensi &amp; keterbacaan status</div>
+    </div>
+    <div class="opt">
+      <div class="tag">Opsi C</div>
+      <div class="t">Netral + 1 aksen tunggal</div>
+      <div class="d">Seperti shadcn base "blue/slate": nav aktif, focus ring, dan link memakai SATU warna aksen (mis. biru <code>#2563eb</code>), sisanya tetap zinc. Badge ikut Opsi B.</div>
+      <div class="strip">
+        <i style="background:#f5f5f5"></i><i style="background:#ffffff"></i><i style="background:#171717"></i><i style="background:#2563eb"></i><i style="background:#e5e5e5"></i><i style="background:#737373"></i>
+      </div>
+      <div class="rec">Lebih "bernyawa" · keluar dari netral murni</div>
+    </div>
+  </div>
+
+  <p class="foot">Mockup statis — nilai token diambil persis dari <code>src/components/admin-ui/admin-ui.css</code>. Tidak memengaruhi aplikasi; file preview di <code>docs/previews/</code> (di luar <code>public/</code>).</p>
+</div>
+</body>
+</html>

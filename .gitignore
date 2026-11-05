@@ -54,3 +54,14 @@ backup.sql
 
 # build verification (local only)
 .next-verify
+
+# dev server runtime files
+/dev-server.log
+/dev-server.pid
+
+# regenerated one-off outputs (arsip lama di docs/archive/)
+/mockups/
+/screenshots/
+
+# local backup snapshots (jangan di-commit)
+.backups/

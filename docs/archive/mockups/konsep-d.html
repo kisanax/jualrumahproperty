@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Konsep D — Editorial Marketplace (Paduan A+B+C) · Detail Properti</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --red:#c52004; --red-hover:#a31803; --red-soft:#fdece7; --red-deep:#7a1302;
+    --ink:#222222; --muted:#717171; --line:#ebebeb; --soft:#f7f7f7;
+    --wa:#128c5e; --wa-soft:#e8f5ee;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  img{display:block;width:100%;object-fit:cover}
+  button{font-family:inherit}
+  .demo-tag{position:fixed;top:0;left:0;z-index:99;background:var(--red);color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;padding:6px 14px;border-radius:0 0 8px 0}
+  .demo-nav{position:fixed;top:8px;right:8px;z-index:99;display:flex;gap:6px}
+  .demo-nav a{background:#fff;border:1px solid #ddd;border-radius:99px;padding:6px 14px;font-size:12px;font-weight:600;color:#333}
+  .demo-nav a.on{background:#c52004;color:#fff;border-color:#c52004}
+
+  /* ---------- header: ringkas & menempel (A) ---------- */
+  header.site{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 40px;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .logo{font-weight:800;font-size:17px;letter-spacing:-.02em}
+  .logo em{font-style:normal;color:var(--red)}
+  nav.top{display:flex;align-items:center;gap:26px;font-size:13.5px;color:var(--muted)}
+  nav.top a.cta{color:#fff;background:var(--red);padding:8px 16px;border-radius:9px;font-weight:600;font-size:13px}
+
+  .wrap{width:min(1240px,calc(100% - 48px));margin:0 auto}
+  .crumbs{display:flex;gap:8px;font-size:12.5px;color:var(--muted);padding:14px 0}
+  .crumbs b{color:var(--ink);font-weight:600}
+
+  /* ---------- masthead editorial ringkas (B, dikompres) ---------- */
+  .masthead{padding:26px 0 22px}
+  .kicker{font-size:11px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;color:var(--red)}
+  h1{font-size:clamp(27px,3.4vw,40px);font-weight:800;letter-spacing:-.03em;line-height:1.16;max-width:880px;margin:12px 0 0}
+  .mline{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:14px;font-size:14px;color:var(--muted)}
+  .mline .p{font-size:19px;font-weight:800;color:var(--ink);letter-spacing:-.02em}
+  .mline .dot{color:#d5d5d5}
+  .tagline{font-size:13px;color:var(--muted);margin-top:10px}
+
+  /* ---------- galeri: track geser (swipe) + strip thumbnail ---------- */
+  .gal{position:relative}
+  .gal-viewport{position:relative;border-radius:14px;overflow:hidden;height:clamp(260px,40vw,470px);background:#111}
+  .track{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;outline:none}
+  .track::-webkit-scrollbar{display:none}
+  .track:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+  .slide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always}
+  .slide img{height:100%}
+  .slide .scap{position:absolute;bottom:14px;left:16px;max-width:58%;background:rgba(255,255,255,.94);padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;color:#444}
+  .slide .play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#111;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 22px rgba(0,0,0,.3);padding-left:5px}
+  .slide .plan{width:100%;height:100%;background:#f4f2ee;display:flex;align-items:center;justify-content:center}
+  .slide .plan svg{width:min(620px,78%);height:auto}
+  .gtabs{position:absolute;top:14px;left:16px;z-index:3;display:flex;gap:6px}
+  .gtabs button{border:0;background:rgba(255,255,255,.93);color:#333;border-radius:99px;padding:8px 16px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .gtabs button.on{background:#111;color:#fff}
+  .gnav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.94);color:#111;font-size:19px;line-height:1;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.24);display:flex;align-items:center;justify-content:center}
+  .gnav.prev{left:14px}
+  .gnav.next{right:14px}
+  .gnav[disabled]{opacity:.3;cursor:default}
+  .gcount{position:absolute;bottom:14px;right:14px;z-index:3;background:rgba(20,20,20,.72);color:#fff;border-radius:99px;padding:7px 14px;font-size:12.5px;font-weight:700}
+  .dots{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;z-index:3;display:none;gap:6px}
+  .dots i{display:block;width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.55);transition:width .2s,background .2s}
+  .dots i.on{width:18px;border-radius:99px;background:#fff}
+  .gstrip{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:6px}
+  .gstrip button{position:relative;border:0;padding:0;border-radius:10px;overflow:hidden;aspect-ratio:4/3;cursor:pointer;background:#eee}
+  .gstrip button.on{outline:2px solid var(--ink);outline-offset:-2px}
+  .gstrip .tcap{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.62));color:#fff;font-size:11px;font-weight:600;padding:16px 9px 7px;text-align:left}
+  .gstrip .glyph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:17px;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+
+  /* Keadaan media minim: 1 foto tidak butuh dots/panah/hitung, 0 foto tidak
+     butuh track sama sekali. Keduanya harus tetap tampil rapi. */
+  .gal.is-single .gnav,
+  .gal.is-single .dots,
+  .gal.is-single .gcount,
+  .gal.is-single .gstrip{display:none}
+  .gal.is-empty .gal-viewport,
+  .gal.is-empty .gstrip{display:none}
+  .gal-empty{display:none;border:1px dashed #dcdcdc;border-radius:14px;background:var(--soft);padding:60px 24px;text-align:center}
+  .gal.is-empty .gal-empty{display:block}
+  .gal-empty b{display:block;font-size:16px;font-weight:700;margin-bottom:6px}
+  .gal-empty span{font-size:13.5px;color:var(--muted)}
+  .gal-empty button{margin-top:16px;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 18px;font-weight:600;font-size:13.5px;cursor:pointer}
+
+  /* ---------- band angka tipografis (B) ---------- */
+  .band{display:grid;grid-template-columns:repeat(6,1fr);margin:32px 0 0;border-top:1.5px solid var(--ink);border-bottom:1.5px solid var(--ink)}
+  .cell{padding:20px 6px;text-align:center;border-right:1px solid var(--line)}
+  .cell:last-child{border-right:0}
+  .cell b{display:block;font-size:clamp(19px,2.3vw,27px);font-weight:800;letter-spacing:-.03em}
+  .cell b small{font-size:12.5px;font-weight:600;color:var(--muted);letter-spacing:0}
+  .cell span{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+
+  /* ---------- layout utama ---------- */
+  .main{display:grid;grid-template-columns:1fr 378px;gap:52px;padding:40px 0 84px;align-items:start}
+
+  /* narasi (B) */
+  .narr{max-width:660px}
+  .narr h2{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:18px}
+  .narr p{font-size:17px;line-height:1.78;color:#333;margin-bottom:18px}
+  .narr .drop::first-letter{font-size:50px;font-weight:800;float:left;line-height:.82;margin:5px 10px 0 0}
+  .narr .more-desc{font-size:13.5px;font-weight:700;color:var(--red);border:0;background:transparent;cursor:pointer;padding:0}
+
+  /* galeri cerita (B) tapi tetap di dalam kerangka */
+  .story{margin:36px 0 8px;display:flex;flex-direction:column;gap:10px}
+  .shot{position:relative;border-radius:12px;overflow:hidden}
+  .shot img{aspect-ratio:16/9}
+  .shot.tall img{aspect-ratio:4/5;max-width:520px;margin:0 auto}
+  .shot .cap{position:absolute;bottom:12px;left:12px;background:rgba(255,255,255,.94);padding:7px 14px;border-radius:8px;font-size:12.5px;font-weight:600;color:#444}
+  .story-cta{display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--muted);margin-top:4px}
+  .story-cta button{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer}
+
+  /* blok konten: hairline, bukan kartu (B) — bukan background abu ala dashboard */
+  .block{margin-top:42px;padding-top:30px;border-top:1px solid var(--line)}
+  .block-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:18px}
+  .block h3{font-size:17px;font-weight:700;letter-spacing:-.01em}
+  .block-head .n{font-size:12.5px;color:#a0a0a0;font-weight:600}
+
+  .chips{display:flex;flex-wrap:wrap;gap:9px}
+  .chip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:11px;padding:9px 14px;font-size:13.5px;font-weight:500}
+  .chip svg{width:17px;height:17px;stroke:var(--red);fill:none;stroke-width:1.7;flex:0 0 17px}
+
+  .specs{display:grid;grid-template-columns:1fr 1fr;gap:0 34px}
+  .spec{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding:11px 0;font-size:14px}
+  .spec span{color:var(--muted)}
+  .spec b{font-weight:600;text-align:right}
+
+  /* riwayat (C) versi tenang */
+  .tl{display:flex;flex-direction:column;gap:11px;font-size:13.5px}
+  .tl .row{display:flex;gap:11px;align-items:flex-start;line-height:1.5}
+  .tl .dot{width:7px;height:7px;border-radius:50%;background:var(--line);flex:0 0 7px;margin-top:6px}
+  .tl .dot.on{background:var(--wa)}
+  .tl .dot.red{background:var(--red)}
+  .tl b{font-weight:600}
+  .tl span{color:var(--muted)}
+  .trustline{display:flex;align-items:flex-start;gap:9px;background:var(--wa-soft);color:#0d5c3f;border-radius:11px;padding:12px 14px;font-size:12.5px;line-height:1.5;margin-top:20px}
+  .trustline b{font-weight:700}
+
+  /* ---------- sidebar sticky (A + C) ---------- */
+  .side{position:sticky;top:80px;align-self:start}
+  .scard{border:1px solid var(--line);border-radius:16px;padding:24px}
+  .price{font-size:31px;font-weight:800;letter-spacing:-.03em;line-height:1.1}
+  .ppm{font-size:12.5px;color:var(--muted);margin:6px 0 4px}
+  .price-note{font-size:12px;color:var(--muted)}
+  .addr{margin:16px 0 18px;padding-bottom:16px;border-bottom:1px solid var(--line);font-size:13.5px;color:var(--muted);line-height:1.55}
+  .addr b{color:var(--ink);font-weight:600}
+  .btn-wa{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:50px;border-radius:12px;background:var(--wa);color:#fff;font-weight:700;font-size:15px;border:0;cursor:pointer}
+  .btn-wa:hover{background:#0d704c}
+  .btn-sub{display:block;width:100%;height:44px;border-radius:12px;background:#fff;border:1.5px solid var(--line);color:var(--ink);font-weight:600;font-size:13.5px;margin-top:9px;cursor:pointer}
+  .share{display:flex;align-items:center;gap:14px;margin-top:16px;padding-top:15px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted)}
+  .share svg{width:17px;height:17px;fill:var(--muted)}
+  .share .copy{margin-left:auto;border:0;background:transparent;color:var(--red);font-weight:700;font-size:12.5px;cursor:pointer}
+
+  /* kalkulator KPR (C) — di sidebar, bisa dibuka-tutup */
+  details.calc{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  details.calc summary{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:14px;font-weight:700;list-style:none}
+  details.calc summary::-webkit-details-marker{display:none}
+  details.calc summary .pill{font-size:9.5px;background:var(--red-soft);color:var(--red-deep);border-radius:99px;padding:3px 8px;letter-spacing:.06em}
+  details.calc summary .chev{margin-left:auto;color:var(--muted);transition:transform .18s}
+  details.calc[open] summary .chev{transform:rotate(180deg)}
+  .cbody{padding-top:16px}
+  .crow{margin-bottom:13px}
+  .crow label{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);margin-bottom:7px}
+  .crow label b{color:var(--ink);font-weight:700}
+  input[type=range]{width:100%;accent-color:var(--red);cursor:pointer}
+  .seg{display:flex;gap:6px}
+  .seg button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 0;font-size:12.5px;font-weight:700;color:var(--muted);cursor:pointer}
+  .seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .result{display:flex;justify-content:space-between;align-items:center;background:var(--soft);border-radius:11px;padding:12px 14px;margin-top:14px}
+  .result span{font-size:12px;color:var(--muted)}
+  .result b{font-size:19px;font-weight:800;color:var(--red-deep);letter-spacing:-.02em}
+  .result.float{background:#fff;border:1px dashed var(--line);margin-top:8px}
+  .result.float b{font-size:15px;color:var(--ink)}
+  .disclaimer{font-size:11px;color:#9a9a9a;line-height:1.5;margin-top:12px}
+
+  /* ---------- properti serupa (A) ---------- */
+  .similar{padding:0 0 100px}
+  .similar h2{font-size:21px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+  .similar .sub{font-size:13.5px;color:var(--muted);margin-bottom:22px}
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+  .kcard{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .kcard .ph{height:172px;overflow:hidden}
+  .kcard .ph img{height:100%}
+  .kcard .bd{padding:15px 17px 18px}
+  .kcard .loc{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .kcard .t{font-size:15px;font-weight:600;margin:6px 0 8px;line-height:1.4}
+  .kcard .p{font-size:16px;font-weight:800;color:var(--red);letter-spacing:-.02em}
+  .kcard .m{font-size:12.5px;color:var(--muted);margin-top:5px}
+
+  footer.sitef{border-top:1px solid var(--line);padding:28px 40px;display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:12.5px}
+
+  /* ---------- CTA: bar melayang muncul setelah galeri (B) ---------- */
+  .ctabar{position:fixed;left:50%;bottom:20px;transform:translate(-50%,26px);z-index:60;display:flex;align-items:center;gap:14px;background:rgba(20,20,20,.96);color:#fff;border-radius:99px;padding:9px 9px 9px 24px;box-shadow:0 10px 34px rgba(0,0,0,.32);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+  .ctabar.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .ctabar .p{font-size:15.5px;font-weight:800}
+  .ctabar .p small{display:block;font-size:11px;font-weight:600;color:#a9a9a9}
+  .ctabar .wa{background:var(--wa);color:#fff;border:0;border-radius:99px;padding:12px 22px;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px}
+  .ctabar .tel{background:transparent;border:1px solid rgba(255,255,255,.32);color:#fff;border-radius:99px;padding:12px 18px;font-weight:600;font-size:13px;cursor:pointer}
+
+  /* bar bawah mobile (A) */
+  .mbar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:none;align-items:center;gap:12px;background:#fff;border-top:1px solid var(--line);padding:10px 16px;box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+  .mbar .mp{flex:1;min-width:0}
+  .mbar .mp b{font-size:17px;font-weight:800;letter-spacing:-.02em}
+  .mbar .mp span{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mbar .btn-wa{width:auto;padding:0 20px;height:44px;font-size:14px}
+
+  @media(max-width:1020px){
+    .main{grid-template-columns:1fr;gap:32px}
+    .side{position:static;order:-1}
+    .gstrip{grid-template-columns:repeat(4,1fr)}
+    .gstrip button:nth-child(n+5){display:none}
+    .band{grid-template-columns:repeat(3,1fr)}
+    .cell:nth-child(3){border-right:0}
+    .cell:nth-child(-n+3){border-bottom:1px solid var(--line)}
+    .cards{grid-template-columns:1fr}
+    header.site{padding:0 18px}
+  }
+  @media(max-width:1020px){
+    .ctabar{display:none}
+    .mbar{display:flex}
+  }
+  @media(max-width:560px){
+    .wrap{width:calc(100% - 32px)}
+    .specs{grid-template-columns:1fr}
+    .gal-viewport{border-radius:0;height:auto;margin:0 -16px}
+    .track{height:auto}
+    .slide{height:auto}
+    .slide img{height:auto;aspect-ratio:4/3}
+    .slide .scap{bottom:46px;left:14px;max-width:76%}
+    .slide .plan svg{width:96%}
+    .gnav{display:none}
+    .dots{display:flex}
+    .gstrip{grid-template-columns:1fr 1fr}
+    .gstrip button:nth-child(n+5){display:none}
+    .mline .p{display:none}
+    body{padding-bottom:64px}
+  }
+</style>
+</head>
+<body>
+<div class="demo-tag">MOCKUP · KONSEP D — PADUAN A + B + C</div>
+<div class="demo-nav"><a href="konsep-a.html">A</a><a href="konsep-b.html">B</a><a href="konsep-c.html">C</a><a href="konsep-d.html" class="on">D</a></div>
+
+<header class="site">
+  <a class="logo" href="#">JUAL RUMAH <em>PROPERTY</em></a>
+  <nav class="top">
+    <a href="#">Properti Dijual</a><a href="#">Tentang</a><a class="cta" href="#">Chat WhatsApp</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <div class="crumbs"><a href="#">Beranda</a> <span>›</span> <a href="#">Properti Dijual</a> <span>›</span> <a href="#">Jakarta Selatan</a> <span>›</span> <b>Kemang Selatan</b></div>
+
+  <div class="masthead">
+    <div class="kicker">Propertinya Para Independen</div>
+    <h1>Rumah 2 Lantai Modern di Kemang Selatan</h1>
+    <div class="mline">
+      <span class="p">Rp 2,85 Miliar</span>
+      <span class="dot">•</span>
+      <span>Kemang Selatan, Mampang Prapatan, Jakarta Selatan</span>
+      <span class="dot">•</span>
+      <span><b style="color:var(--ink)">SHM</b></span>
+      <span class="dot">•</span>
+      <span>Diperbarui 12 Okt 2026</span>
+    </div>
+    <div class="tagline">Kode listing <b style="color:var(--ink);font-weight:600">JPR-100001</b> · dipasarkan sejak 1 Sep 2026 · diverifikasi admin JRP</div>
+  </div>
+
+  <div class="gal">
+    <div class="gal-viewport">
+      <div class="gtabs" id="gtabs">
+        <button data-kind="foto" class="on">Foto · 7</button>
+        <button data-kind="video">Video · 1</button>
+        <button data-kind="denah">Denah · 1</button>
+      </div>
+      <button class="gnav prev" data-nav="-1" type="button" aria-label="Foto sebelumnya">‹</button>
+      <button class="gnav next" data-nav="1" type="button" aria-label="Foto berikutnya">›</button>
+
+      <div class="track" id="track" tabindex="0" role="group" aria-label="Galeri properti — geser atau tekan tombol panah untuk berpindah foto">
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG1/1600/1200" alt="Fasad rumah" /><span class="scap">Fasad menghadap utara — plot sudut dua akses</span></div>
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG2/1600/1200" alt="Ruang keluarga" /><span class="scap">Ruang keluarga terbuka menghadap kolam</span></div>
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG3/1600/1200" alt="Dapur" /><span class="scap">Dapur island — dry &amp; wet</span></div>
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG4/1600/1200" alt="Kamar utama" /><span class="scap">Kamar utama dengan walk-in closet</span></div>
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG5/1600/1200" alt="Kamar anak" /><span class="scap">Kamar anak di lantai 2</span></div>
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG6/1600/1200" alt="Kolam renang" /><span class="scap">Kolam renang &amp; taman belakang</span></div>
+        <div class="slide" data-kind="foto"><img src="https://picsum.photos/seed/jrpG7/1600/1200" alt="Carport" /><span class="scap">Carport 2 mobil &amp; gerbang otomatis</span></div>
+        <div class="slide" data-kind="video"><img src="https://picsum.photos/seed/jrpG8/1600/1200" alt="Pratinjau video walkthrough" /><button class="play" type="button" aria-label="Putar video walkthrough">▶</button><span class="scap">Video walkthrough · 1:24</span></div>
+        <div class="slide" data-kind="denah"><div class="plan"><svg viewBox="0 0 740 300" role="img" aria-label="Denah lantai 1 dan lantai 2">
+          <rect x="12" y="14" width="330" height="230" rx="3" fill="#fff" stroke="#5b5247" stroke-width="2"/>
+          <rect x="398" y="14" width="330" height="230" rx="3" fill="#fff" stroke="#5b5247" stroke-width="2"/>
+          <path d="M132 14v96M132 110h210M12 154h330M222 154v90M398 118h330M474 14v104M474 204h254" stroke="#b6ac9c" stroke-width="2" fill="none"/>
+          <rect x="30" y="34" width="86" height="58" fill="#eae4da"/>
+          <rect x="150" y="130" width="56" height="40" fill="#eae4da"/>
+          <rect x="416" y="34" width="46" height="70" fill="#eae4da"/>
+          <rect x="492" y="130" width="96" height="56" fill="#eae4da"/>
+          <text x="168" y="278" fill="#5b5247" font-size="22" font-weight="700" font-family="Plus Jakarta Sans,sans-serif">Lantai 1</text>
+          <text x="554" y="278" fill="#5b5247" font-size="22" font-weight="700" font-family="Plus Jakarta Sans,sans-serif">Lantai 2</text>
+          <text x="44" y="72" fill="#8a8073" font-size="15" font-family="Plus Jakarta Sans,sans-serif">Garasi</text>
+          <text x="186" y="112" fill="#8a8073" font-size="15" font-family="Plus Jakarta Sans,sans-serif">R. Keluarga</text>
+          <text x="54" y="198" fill="#8a8073" font-size="15" font-family="Plus Jakarta Sans,sans-serif">Dapur</text>
+          <text x="426" y="76" fill="#8a8073" font-size="15" font-family="Plus Jakarta Sans,sans-serif">KT</text>
+          <text x="500" y="164" fill="#8a8073" font-size="15" font-family="Plus Jakarta Sans,sans-serif">KT Utama</text>
+          <path d="M12 272h330" stroke="#5b5247" stroke-width="1" stroke-dasharray="4 4"/>
+          <text x="162" y="266" fill="#8a8073" font-size="14" font-family="Plus Jakarta Sans,sans-serif">12 m</text>
+        </svg></div><span class="scap">Denah 2 lantai · LT 350 m²</span></div>
+      </div>
+
+      <div class="dots" id="dots" aria-hidden="true"></div>
+      <div class="gcount" id="gcount" aria-live="polite">1 / 9</div>
+    </div>
+
+    <div class="gal-empty" role="status">
+      <b>Foto belum tersedia</b>
+      <span>Broker belum mengunggah foto untuk listing ini — minta dokumentasi lewat WhatsApp.</span><br />
+      <button type="button">Minta foto via WhatsApp</button>
+    </div>
+
+    <div class="gstrip" id="strip">
+      <button type="button" data-i="0"><img src="https://picsum.photos/seed/jrpG1/500/375" alt="" /><span class="tcap">Fasad</span></button>
+      <button type="button" data-i="1"><img src="https://picsum.photos/seed/jrpG2/500/375" alt="" /><span class="tcap">Ruang keluarga</span></button>
+      <button type="button" data-i="2"><img src="https://picsum.photos/seed/jrpG3/500/375" alt="" /><span class="tcap">Dapur island</span></button>
+      <button type="button" data-i="3"><img src="https://picsum.photos/seed/jrpG4/500/375" alt="" /><span class="tcap">Kamar utama</span></button>
+      <button type="button" data-i="7"><img src="https://picsum.photos/seed/jrpG8/500/375" alt="" /><span class="glyph">▶</span><span class="tcap">Video · 1:24</span></button>
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="cell"><b>5</b><span>Kamar Tidur</span></div>
+    <div class="cell"><b>4</b><span>Kamar Mandi</span></div>
+    <div class="cell"><b>350 <small>m²</small></b><span>Luas Tanah</span></div>
+    <div class="cell"><b>420 <small>m²</small></b><span>Luas Bangunan</span></div>
+    <div class="cell"><b>2</b><span>Lantai</span></div>
+    <div class="cell"><b>3 <small>mobil</small></b><span>Parkir</span></div>
+  </div>
+
+  <div class="main">
+    <div class="left">
+      <div class="narr">
+        <h2>Cerita Properti</h2>
+        <p class="drop">Rumah modern dua lantai di jalan elit Kemang Selatan dengan orientasi taman di tengah. Ruang keluarga terbuka menghadap kolam, dapur dry &amp; wet dengan island, dan seluruh kamar ber-AC inverter.</p>
+        <p>Lingkungan nyaman dan aman, 5 menit ke Kompleks Kemang dan akses Tol TB Simatupang. Tidak banjir, plot sudut dengan dua akses jalan.</p>
+        <button class="more-desc">Baca catatan broker selengkapnya ↓</button>
+      </div>
+
+      <div class="story">
+        <div class="shot"><img src="https://picsum.photos/seed/jrpD7/1200/675" alt="" /><div class="cap">Ruang keluarga terbuka menghadap kolam</div></div>
+        <div class="shot tall"><img src="https://picsum.photos/seed/jrpD8/800/1000" alt="" /><div class="cap">Dapur island — dry &amp; wet</div></div>
+        <div class="story-cta">
+          <button>Buka galeri 9 foto</button>
+          <span>7 foto · 1 video walkthrough · 1 denah · geser untuk melihat</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3>Fasilitas</h3><span class="n">6 dari 8 disebut broker</span></div>
+        <div class="chips">
+          <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 2s-6 7.5-6 12a6 6 0 0 0 12 0C18 9.5 12 2 12 2Z"/></svg>Kolam Renang</span>
+          <span class="chip"><svg viewBox="0 0 24 24"><path d="M12 22 3 12a7 7 0 1 1 9-9 7 7 0 1 1 9 9Z"/></svg>Taman Belakang</span>
+          <span class="chip"><svg viewBox="0 0 24 24"><circle cx="12" cy="10" r="6"/><path d="M12 16v5M8 21h8"/></svg>CCTV 24 Jam</span>
+          <span class="chip"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 16V8h4a2 2 0 1 1 0 4H9"/></svg>Carport 2</span>
+          <span class="chip"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>Dapur Island</span>
+          <span class="chip"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="10" rx="2"/><path d="M7 19h10"/></svg>AC Inverter</span>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3>Spesifikasi</h3><span class="n">Tampil semua — tanpa akordeon</span></div>
+        <div class="specs">
+          <div class="spec"><span>Tipe Properti</span><b>Rumah</b></div>
+          <div class="spec"><span>Sertifikat</span><b>SHM</b></div>
+          <div class="spec"><span>Arah Hadap</span><b>Utara</b></div>
+          <div class="spec"><span>Daya Listrik</span><b>7.700 Watt</b></div>
+          <div class="spec"><span>Sumber Air</span><b>PAM + Sumur</b></div>
+          <div class="spec"><span>Tahun Dibangun</span><b>2019</b></div>
+          <div class="spec"><span>Kondisi</span><b>Siap Huni</b></div>
+          <div class="spec"><span>Hadap Jalan</span><b>2 akses (plot sudut)</b></div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-head"><h3>Riwayat &amp; Verifikasi</h3></div>
+        <div class="tl">
+          <div class="row"><span class="dot red"></span><span><b>1 Sep 2026</b> — mulai dipasarkan, masa konsinyasi 12 bulan</span></div>
+          <div class="row"><span class="dot on"></span><span><b>12 Okt 2026</b> — harga &amp; foto diperbarui oleh broker</span></div>
+          <div class="row"><span class="dot on"></span><span><b>12 Okt 2026</b> — dokumen diverifikasi admin JRP</span></div>
+        </div>
+        <div class="trustline">✓ <span><b>Listing terverifikasi admin.</b> Survei gratis, didampingi broker independen. Tidak ada biaya perantara tersembunyi ke pembeli.</span></div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <div class="scard">
+        <div class="price">Rp 2,85 Miliar</div>
+        <div class="ppm">≈ Rp 8.142.857/m² tanah</div>
+        <div class="price-note">Harga negotiable · estimasi cicilan mulai Rp 15,5 jt/bln</div>
+        <div class="addr">
+          <b>Kemang Selatan</b><br />Mampang Prapatan, Jakarta Selatan<br />
+          LT 350 m² · LB 420 m² · 5 KT · 4 KM
+        </div>
+
+        <button class="btn-wa">💬 Chat WhatsApp — Jadwalkan Survey</button>
+        <button class="btn-sub">📞 +62 811-1234-5678</button>
+
+        <details class="calc" open>
+          <summary>🧮 Simulasi KPR<span class="pill">BARU</span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></summary>
+          <div class="cbody">
+            <div class="crow">
+              <label>Uang muka (DP) <b id="dpOut">30% · Rp 855 jt</b></label>
+              <input id="dpRange" type="range" min="10" max="60" step="5" value="30" />
+            </div>
+            <div class="crow">
+              <label>Tenor</label>
+              <div class="seg" id="seg">
+                <button data-y="10">10 th</button>
+                <button data-y="15" class="on">15 th</button>
+                <button data-y="20">20 th</button>
+              </div>
+            </div>
+            <div class="crow" style="margin-bottom:0">
+              <label>Bunga fix 1 th <b>4,75%</b> lalu floating <b>±11%</b></label>
+            </div>
+            <div class="result"><span>Cicilan fix / bulan</span><b id="rFix">—</b></div>
+            <div class="result float"><span>Setelah fix habis (floating 11%)</span><b id="rFloat">—</b></div>
+            <div class="disclaimer">Simulasi estimasi, bukan penawaran kredit. Kelayakan final ditentukan bank partner — tanyakan via WhatsApp.</div>
+          </div>
+        </details>
+
+        <div class="share">
+          <span>Bagikan:</span>
+          <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          <svg viewBox="0 0 24 24"><path d="M20.5 11.7a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.4-5a8.4 8.4 0 1 1 16.1-3.8Z"/></svg>
+          <button class="copy">Salin tautan</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="similar">
+    <h2>Properti serupa di Kemang</h2>
+    <div class="sub">Dipilih dari listing aktif dengan luas &amp; lokasi terdekat.</div>
+    <div class="cards">
+      <a class="kcard" href="#"><div class="ph"><img src="https://picsum.photos/seed/jrpS1/600/400" alt="" /></div><div class="bd"><div class="loc">Kemang Timur</div><div class="t">Rumah 1 Lantai Renovasi Minimalis</div><div class="p">Rp 2,1 Miliar</div><div class="m">LT 240 m² · 4 KT · 3 KM</div></div></a>
+      <a class="kcard" href="#"><div class="ph"><img src="https://picsum.photos/seed/jrpS2/600/400" alt="" /></div><div class="bd"><div class="loc">Kemang Selatan</div><div class="t">Rumah Cluster 3 KT Siap Huni</div><div class="p">Rp 3,2 Miliar</div><div class="m">LT 180 m² · 3 KT · 2 KM</div></div></a>
+      <a class="kcard" href="#"><div class="ph"><img src="https://picsum.photos/seed/jrpS3/600/400" alt="" /></div><div class="bd"><div class="loc">Pejaten Barat</div><div class="t">Rumah Tanah 300 m² SHM</div><div class="p">Rp 2,6 Miliar</div><div class="m">LT 300 m² · 4 KT · 3 KM</div></div></a>
+    </div>
+  </div>
+</div>
+
+<footer class="sitef"><span>© 2026 Jual Rumah Property</span><span>Marketplace properti dijual di Indonesia</span></footer>
+
+<div class="ctabar" id="ctabar">
+  <span class="p">Rp 2,85 Miliar<small>≈ Rp 15,5 jt/bln · estimasi KPR</small></span>
+  <button class="wa">💬 Jadwalkan Survey</button>
+  <button class="tel">📞 Telepon</button>
+</div>
+
+<div class="mbar">
+  <div class="mp"><b>Rp 2,85 M</b><span>Kemang Selatan · 5 KT · 350 m²</span></div>
+  <button class="btn-wa">💬 Chat</button>
+</div>
+
+<script>
+(function () {
+  var PRICE = 2850000000;
+
+  function pmt(principal, annualRate, years) {
+    var r = annualRate / 12;
+    var n = years * 12;
+    if (r === 0) return principal / n;
+    var f = Math.pow(1 + r, n);
+    return (principal * r * f) / (f - 1);
+  }
+
+  function rupiah(n) {
+    if (n >= 1e9) return "Rp " + (n / 1e9).toLocaleString("id-ID", { maximumFractionDigits: 2 }) + " M";
+    if (n >= 1e6) return "Rp " + (n / 1e6).toLocaleString("id-ID", { maximumFractionDigits: 1 }) + " jt";
+    return "Rp " + Math.round(n).toLocaleString("id-ID");
+  }
+
+  var dpRange = document.getElementById("dpRange");
+  var dpOut = document.getElementById("dpOut");
+  var rFix = document.getElementById("rFix");
+  var rFloat = document.getElementById("rFloat");
+  var seg = document.getElementById("seg");
+  var years = 15;
+
+  function render() {
+    var dp = Number(dpRange.value);
+    var loan = PRICE * (1 - dp / 100);
+    dpOut.textContent = dp + "% · " + rupiah(PRICE * (dp / 100));
+    rFix.textContent = rupiah(pmt(loan, 0.0475, years));
+    rFloat.textContent = rupiah(pmt(loan, 0.11, years));
+    var est = pmt(loan, 0.0475, years);
+    document.querySelector(".price-note").textContent =
+      "Harga negotiable · estimasi cicilan mulai " + rupiah(est) + "/bln";
+    var small = document.querySelector(".ctabar .p small");
+    if (small) small.textContent = "≈ " + rupiah(est) + "/bln · estimasi KPR";
+  }
+
+  dpRange.addEventListener("input", render);
+  seg.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    years = Number(b.getAttribute("data-y"));
+    seg.querySelectorAll("button").forEach(function (x) { x.className = ""; });
+    b.className = "on";
+    render();
+  });
+
+  var ctabar = document.getElementById("ctabar");
+  window.addEventListener("scroll", function () {
+    if (window.scrollY > 420) ctabar.classList.add("show");
+    else ctabar.classList.remove("show");
+  });
+
+  // Di layar kecil sidebar tampil lebih dulu, jadi simulasi KPR dibuat
+  // terlipat agar cerita properti tidak terdorong jauh ke bawah.
+  var calc = document.querySelector("details.calc");
+  if (window.innerWidth <= 1020 && calc) calc.removeAttribute("open");
+
+  /* ---------- galeri: track geser (swipe) dengan snap ---------- */
+  var track = document.getElementById("track");
+  var slides = [].slice.call(track.querySelectorAll(".slide"));
+  var gal = document.querySelector(".gal");
+  var dotsBox = document.getElementById("dots");
+  var counter = document.getElementById("gcount");
+  var navs = [].slice.call(document.querySelectorAll(".gnav"));
+  var thumbs = [].slice.call(document.querySelectorAll("#strip button"));
+  var tabs = [].slice.call(document.querySelectorAll("#gtabs button"));
+  var current = 0;
+
+  // dots dibangun dari jumlah slide, jadi menambah/hapus media tidak perlu ubah HTML
+  slides.forEach(function () {
+    var dot = document.createElement("i");
+    dotsBox.appendChild(dot);
+  });
+  var dotEls = [].slice.call(dotsBox.children);
+
+  // 0 foto -> empty state; 1 foto -> tanpa dots/panah/counter/strip.
+  var multi = slides.length > 1;
+  if (slides.length === 0) gal.className = "gal is-empty";
+  else if (!multi) gal.className = "gal is-single";
+
+  // Slide yang paling dekat dengan posisi geser saat ini. Dipakai saat jari
+  // berhenti di antara dua foto (swipe sebagian), jadi tidak melompat 2 langkah.
+  function nearest() {
+    var w = track.clientWidth || 1;
+    var i = Math.round(track.scrollLeft / w);
+    return Math.max(0, Math.min(slides.length - 1, i));
+  }
+
+  function paint() {
+    var i = current;
+    if (!slides.length) return; // tidak ada yang perlu dihitung saat galeri kosong
+    counter.textContent = i + 1 + " / " + slides.length;
+    dotEls.forEach(function (d, j) {
+      d.className = j === i ? "on" : "";
+    });
+    thumbs.forEach(function (b) {
+      b.className = Number(b.getAttribute("data-i")) === i ? "on" : "";
+    });
+    var kind = slides[i].getAttribute("data-kind");
+    tabs.forEach(function (t) {
+      t.className = t.getAttribute("data-kind") === kind ? "on" : "";
+    });
+    navs.forEach(function (n) {
+      var step = Number(n.getAttribute("data-nav"));
+      n.disabled = step < 0 ? i === 0 : i === slides.length - 1;
+    });
+  }
+
+  function go(i) {
+    if (!slides.length) return;
+    current = Math.max(0, Math.min(slides.length - 1, i));
+    track.scrollTo({ left: current * track.clientWidth, behavior: "smooth" });
+    // paint() dipanggil langsung (tidak menunggu event scroll) supaya counter,
+    // dots, dan strip ikut berubah begitu tombol ditekan.
+    paint();
+  }
+
+  // paint() sengaja dipanggil langsung, bukan lewat requestAnimationFrame:
+  // kalau frame tidak diproduksi (tab tidak terlihat, renderer tersendat),
+  // rAF tidak pernah jalan dan counter/dots tertinggal dari posisi geser.
+  track.addEventListener(
+    "scroll",
+    function () {
+      current = nearest();
+      paint();
+    },
+    { passive: true }
+  );
+  window.addEventListener("resize", function () {
+    go(current);
+  });
+  // Langkah dihitung dari `current` (slide yang sedang ditampilkan), bukan
+  // dari posisi geser mentah: saat animasi masih berjalan posisi geser belum
+  // sampai, jadi klik panah beruntun tidak akan berhenti di slide yang sama.
+  navs.forEach(function (n) {
+    n.addEventListener("click", function () {
+      go(current + Number(n.getAttribute("data-nav")));
+    });
+  });
+  thumbs.forEach(function (b) {
+    b.addEventListener("click", function () {
+      go(Number(b.getAttribute("data-i")));
+    });
+  });
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () {
+      var kind = t.getAttribute("data-kind");
+      for (var i = 0; i < slides.length; i++) {
+        if (slides[i].getAttribute("data-kind") === kind) {
+          go(i);
+          return;
+        }
+      }
+    });
+  });
+  track.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight") {
+      go(current + 1);
+      e.preventDefault();
+    } else if (e.key === "ArrowLeft") {
+      go(current - 1);
+      e.preventDefault();
+    }
+  });
+  var storyCta = document.querySelector(".story-cta button");
+  if (storyCta) {
+    storyCta.addEventListener("click", function () {
+      document.querySelector(".gal").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+  paint();
+
+  render();
+})();
+</script>
+</body>
+</html>

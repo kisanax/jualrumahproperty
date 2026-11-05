@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mockup — Gaya Desain Cloudflare untuk Panel Admin</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Inter", "Segoe UI", system-ui, sans-serif; background: #e9e9e9; color: #171717; padding: 32px 24px 64px; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1360px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+  .sub { color: #737373; font-size: 13px; margin: 4px 0 28px; }
+  h2 { font-size: 15px; font-weight: 700; margin: 42px 0 12px; }
+  h2 .num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: #171717; color: #fff; font-size: 12px; margin-right: 8px; vertical-align: -4px; }
+
+  /* ================= REPLIKA FULL-PAGE GAYA CLOUDFLARE ================= */
+  .cf-app { background: #fff; border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,.08); box-shadow: 0 8px 30px -12px rgba(0,0,0,.15); font-size: 14px; }
+  .cf-topbar { display: flex; align-items: center; justify-content: space-between; height: 56px; padding: 0 16px; border-bottom: 1px solid #e4e4e7; }
+  .cf-account { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 500; padding: 6px 10px; border-radius: 8px; }
+  .cf-account:hover { background: #f4f4f5; }
+  .cf-logo { width: 28px; height: 28px; border-radius: 50%; background: #f6821f; position: relative; flex: none; }
+  .cf-logo::after { content: ""; position: absolute; inset: 8px 4px 10px; background: #fff; border-radius: 50% 50% 0 0 / 100% 100% 0 0; }
+  .cf-top-right { display: flex; align-items: center; gap: 18px; font-size: 13.5px; font-weight: 500; color: #31313d; }
+  .cf-top-right .q { width: 18px; height: 18px; border-radius: 50%; background: #3b82f6; color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .cf-top-right .avatar { width: 22px; height: 22px; border-radius: 50%; background: #31313d; }
+  .cf-body { display: grid; grid-template-columns: 248px 1fr; }
+  .cf-side { border-right: 1px solid #e4e4e7; padding: 12px; min-height: 620px; }
+  .cf-quick { display: flex; align-items: center; justify-content: space-between; border: 1px solid #e4e4e7; border-radius: 8px; padding: 9px 12px; font-size: 13.5px; color: #9d9da5; margin-bottom: 14px; }
+  .cf-quick kbd { font-size: 11px; color: #9d9da5; font-family: inherit; }
+  .cf-back { display: flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 600; padding: 9px 10px; border-radius: 8px; background: #f4f4f5; margin-bottom: 14px; }
+  .cf-nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 13.5px; color: #31313d; margin-bottom: 2px; }
+  .cf-nav-item .ic { width: 16px; height: 16px; border-radius: 4px; background: currentColor; opacity: .5; flex: none; }
+  .cf-nav-item.active { background: #f1f1f2; font-weight: 600; }
+  .cf-nav-item .chev { margin-left: auto; color: #9d9da5; font-size: 11px; }
+  .cf-sub { padding-left: 26px; }
+  .cf-main { padding: 28px 32px; }
+  .cf-page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+  .cf-title { display: flex; align-items: center; gap: 12px; font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+  .cf-title .t-ic { color: #f6821f; font-size: 22px; }
+  .cf-desc { color: #57575e; font-size: 13.5px; line-height: 1.55; margin-top: 8px; max-width: 760px; }
+  .cf-head-actions { display: flex; gap: 10px; flex: none; }
+  .cf-btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 6px; font-size: 13.5px; font-weight: 600; border: 1px solid transparent; cursor: pointer; font-family: inherit; }
+  .cf-btn.primary { background: #0051c3; color: #fff; }
+  .cf-btn.primary:hover { background: #0044a3; }
+  .cf-btn.secondary { background: #fff; color: #31313d; border-color: #d9d9de; }
+  .cf-btn.secondary:hover { background: #f7f7f8; }
+  .cf-notice { display: flex; align-items: center; gap: 10px; background: #fff7df; border-radius: 8px; padding: 12px 16px; font-size: 13.5px; color: #5c4400; margin-top: 20px; }
+  .cf-notice .dot { width: 16px; height: 16px; border-radius: 50%; background: #f6821f; color: #fff; font-size: 10px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex: none; }
+  .cf-notice a { color: #0051c3; text-decoration: none; font-weight: 500; }
+  .cf-search-row { display: flex; gap: 10px; margin-top: 22px; }
+  .cf-search { flex: 1; display: flex; align-items: center; border: 1px solid #d9d9de; border-radius: 8px; height: 42px; padding: 0 14px; color: #9d9da5; font-size: 14px; }
+  .cf-filter-btn { display: flex; align-items: center; gap: 8px; border: 1px solid #d9d9de; border-radius: 8px; height: 42px; padding: 0 16px; font-size: 13.5px; font-weight: 600; color: #31313d; }
+  .cf-table-wrap { border: 1px solid #e4e4e7; border-radius: 8px; margin-top: 14px; overflow: hidden; }
+  table.cf { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.cf th { text-align: left; font-weight: 500; color: #57575e; font-size: 13px; padding: 11px 16px; border-bottom: 1px solid #e4e4e7; white-space: nowrap; }
+  table.cf th .sort { color: #9d9da5; font-size: 10px; }
+  table.cf td { padding: 13px 16px; border-bottom: 1px solid #efefF1; color: #31313d; }
+  table.cf tr:last-child td { border-bottom: none; }
+  table.cf tr:hover td { background: #fafafa; }
+  table.cf td.name { color: #0051c3; font-weight: 500; }
+  .cf-pill { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .cf-pill.green { background: #e7f5e9; color: #197a3d; }
+  .cf-pill.green::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #197a3d; }
+  .cf-pill.gray { background: #f1f1f2; color: #57575e; }
+  .cf-pill.amber { background: #fff0d3; color: #8a5b00; }
+  .cf-pill.red { background: #fde8e8; color: #b42318; }
+  .cf-link { color: #0051c3; font-weight: 500; text-decoration: none; }
+  .cf-table-foot { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; background: #fafafa; border-top: 1px solid #e4e4e7; font-size: 13px; color: #57575e; }
+  .cf-pager { display: flex; gap: 4px; }
+  .cf-pager span { min-width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #e4e4e7; border-radius: 6px; font-size: 12.5px; color: #9d9da5; background: #fff; }
+  .cf-pager span.on { color: #31313d; font-weight: 600; }
+  .cf-per { display: inline-flex; align-items: center; gap: 8px; margin-left: 16px; }
+  .cf-per .box { border: 1px solid #d9d9de; border-radius: 6px; padding: 4px 10px; background: #fff; color: #31313d; }
+
+  /* kartu ala CF (varian B) */
+  .cf-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 14px; }
+  .cf-card { border: 1px solid #e4e4e7; border-radius: 8px; padding: 16px; background: #fff; }
+  .cf-card .top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .cf-card .nm { color: #0051c3; font-weight: 600; font-size: 15px; }
+  .cf-card .meta { color: #57575e; font-size: 12.5px; margin-top: 3px; }
+  .cf-card .row { display: flex; justify-content: space-between; font-size: 12.5px; color: #57575e; margin-top: 10px; padding-top: 10px; border-top: 1px solid #efeff1; }
+
+  /* ================= PANEL SEKARANG ================= */
+  .now-app { background: #f5f5f5; border-radius: 14px; overflow: hidden; border: 1px solid rgba(0,0,0,.08); font-size: 13px; }
+  .now-top { height: 52px; background: #fff; border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; padding: 0 16px; font-weight: 650; font-size: 13px; }
+  .now-body { display: grid; grid-template-columns: 190px 1fr; }
+  .now-side { background: #fff; border-right: 1px solid #e5e5e5; padding: 12px 10px; }
+  .now-nav { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 8px; color: #737373; font-size: 12.5px; margin-bottom: 2px; }
+  .now-nav.active { background: rgba(23,23,23,.06); color: #171717; font-weight: 650; box-shadow: inset 2px 0 0 #171717; }
+  .now-nav .ic { width: 13px; height: 13px; border-radius: 3px; background: currentColor; opacity: .5; flex: none; }
+  .now-main { padding: 18px; }
+  .now-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .now-h .t { font-size: 16px; font-weight: 700; }
+  .now-btn { display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 8px; background: #171717; color: #fafafa; font-size: 12px; font-weight: 550; }
+  .now-card { background: #fff; border-radius: 12px; box-shadow: 0 0 0 1px rgba(23,23,23,.1); padding: 14px; }
+  .now-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .now-card .nm { font-weight: 650; font-size: 14px; }
+  .now-card .meta { color: #737373; font-size: 11.5px; margin-top: 2px; }
+  .now-card .ft { display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e5e5; font-size: 11.5px; color: #525252; }
+  .panel-tag { padding: 10px 16px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; background: #fff; border-bottom: 1px solid #e5e5e5; }
+
+  /* ================= TABEL TOKEN ================= */
+  .tokens { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; overflow: hidden; }
+  .tokens table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tokens th { text-align: left; padding: 10px 16px; background: #fafafa; border-bottom: 1px solid #e5e5e5; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #737373; }
+  .tokens td { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
+  .tokens tr:last-child td { border-bottom: none; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; font-family: ui-monospace, Consolas, monospace; font-size: 11.5px; }
+  .chip i { width: 14px; height: 14px; border-radius: 4px; box-shadow: 0 0 0 1px rgba(0,0,0,.12) inset; flex: none; }
+
+  .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .note { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 14px 16px; font-size: 12.5px; line-height: 1.55; color: #525252; }
+  .note b { color: #171717; }
+  .foot { margin-top: 32px; font-size: 11.5px; color: #737373; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mockup — Bahasa Desain Cloudflare untuk Panel Admin</h1>
+  <p class="sub">Halaman Kawasan ditiru gaya Cloudflare dashboard · dibandingkan dengan tampilan sekarang · 3 Nov 2026</p>
+
+  <!-- ============ 1. SEKARANG VS CLOUDFLARE ============ -->
+  <h2><span class="num">1</span>Tampilan sekarang vs gaya Cloudflare (halaman yang sama)</h2>
+
+  <div style="display:grid; grid-template-columns: 1fr; gap: 22px;">
+
+    <!-- SEKARANG -->
+    <div class="now-app">
+      <div class="panel-tag">Sekarang — shadcn neutral (zinc)</div>
+      <div class="now-top">Broker Workspace · Kawasan</div>
+      <div class="now-body">
+        <div class="now-side">
+          <div class="now-nav"><span class="ic"></span>Dashboard</div>
+          <div class="now-nav"><span class="ic"></span>Properti</div>
+          <div class="now-nav active"><span class="ic"></span>Kawasan</div>
+          <div class="now-nav"><span class="ic"></span>Listing</div>
+          <div class="now-nav"><span class="ic"></span>Owner</div>
+        </div>
+        <div class="now-main">
+          <div class="now-h"><span class="t">Kawasan</span><span class="now-btn">+ Tambah Kawasan</span></div>
+          <div class="now-cards">
+            <div class="now-card"><div class="nm">Pondok Indah</div><div class="meta">Kec. Kebayoran Baru · /pondok-indah</div><div class="ft"><span><b>12</b> properti</span><span>★ Edit · Hapus</span></div></div>
+            <div class="now-card"><div class="nm">Kelapa Gading</div><div class="meta">Kec. Kelapa Gading · /kelapa-gading</div><div class="ft"><span><b>7</b> properti</span><span>☆ Edit · Hapus</span></div></div>
+            <div class="now-card"><div class="nm">Bintaro</div><div class="meta">Kec. Pondok Aren · /bintaro</div><div class="ft"><span><b>4</b> properti</span><span>☆ Edit · Hapus</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLOUDFLARE STYLE -->
+    <div class="cf-app">
+      <div class="cf-topbar">
+        <div class="cf-account"><span class="cf-logo"></span> admin@jualrumahproperty.com <span style="color:#9d9da5; font-size:10px;">▾</span></div>
+        <div class="cf-top-right"><span class="q">?</span> Support <span class="avatar"></span></div>
+      </div>
+      <div class="cf-body">
+        <div class="cf-side">
+          <div class="cf-quick"><span>🔍 Quick search...</span><kbd>ctrl + K</kbd></div>
+          <div class="cf-back">← Kembali ke workspace</div>
+          <div class="cf-nav-item"><span class="ic"></span>Overview</div>
+          <div class="cf-nav-item"><span class="ic"></span>Properti <span class="chev">›</span></div>
+          <div class="cf-nav-item"><span class="ic"></span>Listing <span class="chev">›</span></div>
+          <div class="cf-nav-item active"><span class="ic"></span>Kawasan</div>
+          <div class="cf-nav-item"><span class="ic"></span>Owner <span class="chev">›</span></div>
+          <div class="cf-nav-item"><span class="ic"></span>Perantara <span class="chev">›</span></div>
+          <div class="cf-nav-item"><span class="ic"></span>Leads <span class="chev">›</span></div>
+          <div class="cf-nav-item"><span class="ic"></span>Lelang <span class="chev">›</span></div>
+          <div class="cf-nav-item"><span class="ic"></span>Pengaturan <span class="chev">›</span></div>
+        </div>
+        <div class="cf-main">
+          <div class="cf-page-head">
+            <div>
+              <div class="cf-title"><span class="t-ic">⬡</span> Kawasan</div>
+              <div class="cf-desc">Kelompok properti per kecamatan untuk banner homepage dan kode properti. Klik ikon bintang pada baris untuk menampilkan kawasan di banner homepage.</div>
+            </div>
+            <div class="cf-head-actions">
+              <span class="cf-btn secondary">📖 Dokumentasi</span>
+              <span class="cf-btn primary">+ Tambah Kawasan</span>
+            </div>
+          </div>
+
+          <div class="cf-notice"><span class="dot">!</span> 3 kawasan aktif di banner homepage. <a>Kelola banner ↗</a></div>
+
+          <div class="cf-search-row">
+            <div class="cf-search">Cari nama kawasan…</div>
+            <div class="cf-filter-btn">⛬ Filter</div>
+          </div>
+
+          <div class="cf-table-wrap">
+            <table class="cf">
+              <tr><th>Nama kawasan <span class="sort">▲</span></th><th>Kecamatan</th><th>Slug</th><th>Properti</th><th>Status</th><th>Tagline</th><th></th></tr>
+              <tr>
+                <td class="name">Pondok Indah</td><td>Kebayoran Baru</td><td>/pondok-indah</td><td>12</td>
+                <td><span class="cf-pill green">Featured</span></td><td>"Kawasan premium Jaksel"</td>
+                <td style="text-align:right; color:#9d9da5;">Edit · Hapus · ⋯</td>
+              </tr>
+              <tr>
+                <td class="name">Kelapa Gading</td><td>Kelapa Gading</td><td>/kelapa-gading</td><td>7</td>
+                <td><span class="cf-pill gray">Standar</span></td><td>—</td>
+                <td style="text-align:right; color:#9d9da5;">Edit · Hapus · ⋯</td>
+              </tr>
+              <tr>
+                <td class="name">Bintaro</td><td>Pondok Aren</td><td>/bintaro</td><td>4</td>
+                <td><span class="cf-pill gray">Standar</span></td><td>"Hijau &amp; terjangkau"</td>
+                <td style="text-align:right; color:#9d9da5;">Edit · Hapus · ⋯</td>
+              </tr>
+            </table>
+            <div class="cf-table-foot">
+              <span>Menampilkan 1–3 dari 3 <span class="cf-per">Per halaman: <span class="box">10 ▾</span></span></span>
+              <span class="cf-pager"><span>«</span><span>‹</span><span class="on">1</span><span>›</span><span>»</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 2. VARIAN: KARTU ALA CF ============ -->
+  <h2><span class="num">2</span>Varian B — gaya Cloudflare tapi list tetap kartu (tanpa tabel)</h2>
+  <div class="cf-app" style="padding: 24px 32px;">
+    <div class="cf-title" style="font-size:20px;"><span class="t-ic">⬡</span> Kawasan</div>
+    <div class="cf-desc" style="margin-top:4px;">Kelompok properti per kecamatan untuk banner homepage dan kode properti.</div>
+    <div class="cf-cards">
+      <div class="cf-card">
+        <div class="top"><span class="nm">Pondok Indah</span><span class="cf-pill green">Featured</span></div>
+        <div class="meta">Kec. Kebayoran Baru · /pondok-indah</div>
+        <div style="font-size:12.5px; color:#57575e; margin-top:8px; font-style:italic;">"Kawasan premium Jaksel"</div>
+        <div class="row"><span><b style="color:#31313d;">12</b> properti</span><span class="cf-link">Edit</span></div>
+      </div>
+      <div class="cf-card">
+        <div class="top"><span class="nm">Kelapa Gading</span><span class="cf-pill gray">Standar</span></div>
+        <div class="meta">Kec. Kelapa Gading · /kelapa-gading</div>
+        <div style="font-size:12.5px; color:#9d9da5; margin-top:8px;">Belum ada tagline promo</div>
+        <div class="row"><span><b style="color:#31313d;">7</b> properti</span><span class="cf-link">Edit</span></div>
+      </div>
+      <div class="cf-card">
+        <div class="top"><span class="nm">Bintaro</span><span class="cf-pill gray">Standar</span></div>
+        <div class="meta">Kec. Pondok Aren · /bintaro</div>
+        <div style="font-size:12.5px; color:#57575e; margin-top:8px; font-style:italic;">"Hijau &amp; terjangkau"</div>
+        <div class="row"><span><b style="color:#31313d;">4</b> properti</span><span class="cf-link">Edit</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 3. PEMETAAN TOKEN ============ -->
+  <h2><span class="num">3</span>Pemetaan token — sekarang → gaya Cloudflare</h2>
+  <div class="tokens">
+    <table>
+      <tr><th>Token</th><th>Sekarang (shadcn zinc)</th><th>Gaya Cloudflare</th><th>Dampak</th></tr>
+      <tr><td><b>Background</b></td><td><span class="chip"><i style="background:#f5f5f5"></i>#f5f5f5</span></td><td><span class="chip"><i style="background:#ffffff"></i>#ffffff</span> putih menyeluruh</td><td>Halaman terasa lebih "lapang"</td></tr>
+      <tr><td><b>Kartu / container</b></td><td><span class="chip"><i style="background:#ffffff"></i>ring 1px halus</span></td><td><span class="chip"><i style="background:#ffffff"></i>border hairline #e4e4e7</span> flat, jarang pakai kartu</td><td>Konten langsung di atas putih</td></tr>
+      <tr><td><b>Primary / tombol aksi</b></td><td><span class="chip"><i style="background:#171717"></i>#171717 near-black</span></td><td><span class="chip"><i style="background:#0051c3"></i>#0051c3 biru</span></td><td>Aksi utama langsung terlihat</td></tr>
+      <tr><td><b>Link / aksen</b></td><td><span class="chip"><i style="background:#171717"></i>netral</span></td><td><span class="chip"><i style="background:#0051c3"></i>biru #0051c3</span></td><td>Nama item &amp; link jadi biru</td></tr>
+      <tr><td><b>Status badge</b></td><td><span class="chip"><i style="background:#fafafa"></i>abu + dot 6px</span></td><td><span class="chip"><i style="background:#e7f5e9"></i>pill warna lembut</span> (hijau/abu/amber/merah)</td><td>Status kembali berwarna — terkontrol</td></tr>
+      <tr><td><b>Notifikasi inline</b></td><td><span class="chip"><i style="background:#f5f5f5"></i>abu</span></td><td><span class="chip"><i style="background:#fff7df"></i>kuning lembut #fff7df</span></td><td>Notice banner khas CF</td></tr>
+      <tr><td><b>Nav aktif</b></td><td><span class="chip"><i style="background:#f5f5f5"></i>soft + garis kiri</span></td><td><span class="chip"><i style="background:#f1f1f2"></i>pill abu #f1f1f2</span> tanpa garis</td><td>Lebih halus</td></tr>
+      <tr><td><b>Judul halaman</b></td><td>16px bold</td><td>26px extra-bold + ikon + paragraf deskripsi</td><td>Header halaman lebih "bernarasi"</td></tr>
+      <tr><td><b>List utama</b></td><td>grid kartu</td><td><b>tabel</b> + toolbar search + pagination</td><td>Perubahan struktur terbesar</td></tr>
+      <tr><td><b>Radius</b></td><td>8px / kartu 14px</td><td>6px konsisten (tombol, input, tabel, kartu)</td><td>Kesan lebih tajam/rapi</td></tr>
+    </table>
+  </div>
+
+  <!-- ============ 4. CATATAN PENTING ============ -->
+  <h2><span class="num">4</span>Catatan sebelum memutuskan</h2>
+  <div class="notes">
+    <div class="note"><b>Dark mode.</b> Gaya CF di screenshot light-only. Kalau diadopsi, dark mode tetap dipertahankan (bg #0a0a0a + biru yang disesuaikan, mis. #6ea8ff untuk teks aksi) — tidak ada yang hilang, hanya perlu tuning token sekali.</div>
+    <div class="note"><b>Portal publik tidak tersentuh.</b> Semua perubahan hanya di layer admin (admin-ui.css). Portal tetap brand merah #C52004 sesuai ADR-001.</div>
+    <div class="note"><b>Kerja komposisi Card tetap terpakai.</b> Struktur CardHeader/Title/Action/Content/Footerr yang baru disebar tetap berlaku — yang berubah hanya nilai token (warna, radius, border) dan bentuk list (tabel vs kartu).</div>
+    <div class="note"><b>Yang paling besar risikonya: list → tabel.</b> Halaman dengan kartu kompleks (Owner dengan daftar properti terdaftar, Customer dengan timeline inquiry) perlu desain tabel bertingkat atau tetap kartu ala CF (Varian B). Bisa dicampur: tabel untuk list sederhana (Kawasan, Lelang), kartu untuk yang kaya konten.</div>
+  </div>
+
+  <p class="foot">Mockup statis — tidak memengaruhi aplikasi. File: <code>docs/previews/admin-cloudflare-mockup.html</code> (di luar <code>public/</code>).</p>
+</div>
+</body>
+</html>

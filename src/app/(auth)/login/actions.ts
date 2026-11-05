@@ -3,7 +3,6 @@
 import { AuthError } from "next-auth";
 import { z } from "zod";
 import { signIn } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { safeReturnTo } from "@/lib/auth-redirect";
 
